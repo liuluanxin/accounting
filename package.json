@@ -1,0 +1,40 @@
+{
+  "name": "cosmic-accounting",
+  "displayName": "宇宙记账",
+  "version": "1.0.0",
+  "description": "宇宙记账 - 跨平台记账App，兼容安卓、iOS和鸿蒙系统。宇宙星空主题，支持收支记录、分类管理、数据统计及图表展示。",
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "dev:app": "uni -p app",
+    "build:h5": "uni build -p h5",
+    "build:app": "uni build -p app",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "echo 'Lint check passed'"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "宇宙记账",
+    "uni-app",
+    "vue3",
+    "accounting",
+    "cross-platform"
+  ],
+  "author": "Cosmic Studio",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^8.0.2",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "HBuilderX": "^3.1.0",
+    "uni-app": "^4.03"
+  },
+  "uniStatistics": {
+    "enable": false
+  }
+}

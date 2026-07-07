@@ -1,0 +1,78 @@
+/**
+ * 宇宙记账 - 主题变量
+ * 与 app_cross_platform.html :root 完全一致
+ * 浅色背景 + 清新星云色彩体系
+ */
+
+/* ===== 核心色值（与 HTML :root 保持一致） ===== */
+$html-bg: #F4F6FB;
+$html-primary: #6BA8D9;
+$html-primary-dark: #4A7FB5;
+$html-primary-light: #A8D4E8;
+$html-income: #E89B9B;
+$html-expense: #7BC4A8;
+$html-text-main: #1F2A47;
+$html-text-sub: #5A6788;
+
+/* ===== 浅色背景适配 ===== */
+$cosmic-bg-primary: $html-bg;
+$cosmic-bg-secondary: #ECEAF2;
+$cosmic-bg-card: rgba(255, 255, 255, 0.85);
+$cosmic-bg-card-hover: rgba(255, 255, 255, 0.95);
+
+$cosmic-primary: $html-primary;
+$cosmic-primary-dark: $html-primary-dark;
+$cosmic-primary-light: $html-primary-light;
+$cosmic-income: $html-income;
+$cosmic-expense: $html-expense;
+$cosmic-text: #1F2A47;
+$cosmic-text-secondary: #5A6788;
+$cosmic-text-muted: #8A98B8;
+$cosmic-border: rgba(180, 160, 200, 0.2);
+$cosmic-border-light: rgba(180, 160, 200, 0.12);
+
+/* ===== UniApp 标准变量覆盖 ===== */
+$uni-color-primary: $cosmic-primary;
+$uni-color-success: $cosmic-income;
+$uni-color-warning: #F0AD4E;
+$uni-color-error: $cosmic-expense;
+
+$uni-text-color: $cosmic-text;
+$uni-text-color-inverse: #fff;
+$uni-text-color-grey: $cosmic-text-secondary;
+$uni-text-color-placeholder: $cosmic-text-muted;
+$uni-text-color-disable: $cosmic-text-muted;
+
+$uni-bg-color: $cosmic-bg-primary;
+$uni-bg-color-grey: $cosmic-bg-secondary;
+$uni-bg-color-hover: $cosmic-bg-card-hover;
+$uni-bg-color-mask: rgba(0, 0, 0, 0.6);
+
+$uni-border-color: $cosmic-border;
+
+$uni-font-size-sm: 24rpx;
+$uni-font-size-base: 28rpx;
+$uni-font-size-lg: 32rpx;
+
+$uni-border-radius-sm: 8rpx;
+$uni-border-radius-base: 12rpx;
+$uni-border-radius-lg: 24rpx;
+
+$uni-spacing-row-sm: 10rpx;
+$uni-spacing-row-base: 20rpx;
+$uni-spacing-row-lg: 30rpx;
+$uni-spacing-col-sm: 8rpx;
+$uni-spacing-col-base: 16rpx;
+$uni-spacing-col-lg: 24rpx;
+
+/* ===== 宇宙记账专用变量 ===== */
+$nav-height: 120rpx;
+$card-radius: 24rpx;
+$glass-bg: rgba(255, 255, 255, 0.78);
+$glass-border: 1px solid rgba(180, 160, 200, 0.15);
+$glass-shadow: 0 8rpx 32rpx rgba(60, 50, 100, 0.1);
+$primary-gradient: linear-gradient(135deg, #6BA8D9, #4A7FB5);
+$income-gradient: linear-gradient(135deg, #E89B9B, #D47A7A);
+$expense-gradient: linear-gradient(135deg, #7BC4A8, #5AAA8E);
+$danger-gradient: linear-gradient(135deg, #E89B9B, #D07070);
+$budget-bar-gradient: linear-gradient(90deg, #E89B9B, #6BA8D9);

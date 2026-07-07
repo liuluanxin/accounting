@@ -1,0 +1,388 @@
+<template>
+	<view class="login-page">
+		<view class="decoration-blob blob-1"></view>
+		<view class="decoration-blob blob-2"></view>
+
+		<scroll-view scroll-y class="login-scroll">
+			<view class="login-content">
+				<view class="login-logo">
+					<view class="logo-icon">
+						<text class="wallet-icon">👛</text>
+					</view>
+					<text class="app-title">记账助手</text>
+					<text class="app-subtitle">轻松管理每一笔开支</text>
+				</view>
+
+				<view class="login-form-card">
+					<view class="form-group">
+						<view class="field-label">手机号 / 邮箱</view>
+						<view class="input-wrapper">
+							<text class="input-icon">👤</text>
+							<input class="input-field" type="text" v-model="phone" placeholder="请输入手机号或邮箱" />
+						</view>
+					</view>
+
+					<view class="form-group">
+						<view class="field-label">密码</view>
+						<view class="input-wrapper">
+							<text class="input-icon">🔒</text>
+							<input class="input-field" :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码" />
+							<text class="toggle-pwd" @click="showPassword = !showPassword">{{ showPassword ? '👁️' : '🙈' }}</text>
+						</view>
+					</view>
+
+					<view class="form-options">
+						<view class="remember-me">
+							<view class="checkbox" :class="{ checked: rememberMe }" @click="rememberMe = !rememberMe">
+								<text v-if="rememberMe" class="check-icon">✓</text>
+							</view>
+							<text class="remember-text">记住我</text>
+						</view>
+						<text class="forgot-link" @click="showForgotPwd">忘记密码?</text>
+					</view>
+
+					<view class="btn-primary" @click="handleLogin">{{ logining ? '登录中...' : '登 录' }}</view>
+				</view>
+
+				<view class="register-link">
+					还没有账号？<text class="link-text" @click="showRegister">立即注册</text>
+				</view>
+
+				<view class="social-section">
+					<view class="divider-row">
+						<view class="divider-line"></view>
+						<text class="divider-text">其他登录方式</text>
+						<view class="divider-line"></view>
+					</view>
+					<view class="social-login">
+						<view class="social-btn" @click="socialLogin('微信')">
+							<text class="social-icon-wechat">💚</text>
+						</view>
+						<view class="social-btn" @click="socialLogin('手机号')">
+							<text class="social-icon-phone">📱</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	import Logger from '@/common/logger.js'
+
+	export default {
+		data() {
+			return { 
+				phone: '138****8888', 
+				password: '········', 
+				logining: false,
+				showPassword: false,
+				rememberMe: false
+			}
+		},
+		methods: {
+			async handleLogin() {
+				if (!this.phone.trim()) { uni.showToast({ title: '请输入手机号/邮箱', icon: 'none' }); return }
+				if (!this.password.trim()) { uni.showToast({ title: '请输入密码', icon: 'none' }); return }
+
+				this.logining = true
+				Logger.info('Login', '用户登录', { phone: this.phone })
+
+				try {
+					const now = Date.now()
+					uni.setStorageSync('isLoggedIn', 'true')
+					uni.setStorageSync('loginTime', now)
+					uni.setStorageSync('login_phone', this.phone)
+					if (this.rememberMe) {
+						uni.setStorageSync('remember_phone', this.phone)
+					}
+					uni.showToast({ title: '登录成功 ✨', icon: 'none' })
+					setTimeout(() => uni.redirectTo({ url: '/pages/accounting/home' }), 300)
+				} catch (err) {
+					Logger.errorWithException('Login', '登录失败', err)
+					uni.showToast({ title: '登录失败，请重试', icon: 'none' })
+				} finally {
+					this.logining = false
+				}
+			},
+			socialLogin(provider) {
+				const now = Date.now()
+				uni.setStorageSync('isLoggedIn', 'true')
+				uni.setStorageSync('loginTime', now)
+				uni.setStorageSync('login_phone', provider + '用户')
+				uni.showToast({ title: provider + '登录成功 ✨', icon: 'none' })
+				setTimeout(() => uni.redirectTo({ url: '/pages/accounting/home' }), 300)
+			},
+			showForgotPwd() { uni.navigateTo({ url: '/pages/accounting/forgot-pwd' }) },
+			showRegister() { uni.navigateTo({ url: '/pages/accounting/register' }) }
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.login-page {
+		min-height: 100vh;
+		background: #FFF9F5;
+		width: 100%;
+		box-sizing: border-box;
+		overflow-x: hidden;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+	.login-scroll {
+		flex: 1;
+		width: 100%;
+		padding: 0 40rpx;
+		box-sizing: border-box;
+	}
+	.decoration-blob {
+		position: absolute;
+		border-radius: 50%;
+		pointer-events: none;
+	}
+	.blob-1 {
+		top: -160rpx;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 640rpx;
+		height: 640rpx;
+		background: radial-gradient(circle at 40% 40%, #FDE6D4 0%, #FBBE9E 40%, transparent 70%);
+		opacity: 0.6;
+	}
+	.blob-2 {
+		top: -40rpx;
+		right: -120rpx;
+		width: 400rpx;
+		height: 400rpx;
+		background: radial-gradient(circle at 60% 30%, #FBBE9E 0%, transparent 60%);
+		opacity: 0.4;
+	}
+
+	.login-content {
+		position: relative;
+		z-index: 1;
+		width: 100%;
+		max-width: 600px;
+		margin: 0 auto;
+		box-sizing: border-box;
+		padding-top: 120rpx;
+		padding-bottom: 80rpx;
+	}
+
+	.login-logo {
+		text-align: center;
+		margin-bottom: 60rpx;
+	}
+	.logo-icon {
+		width: 128rpx;
+		height: 128rpx;
+		margin: 0 auto 32rpx;
+		border-radius: 32rpx;
+		background: linear-gradient(135deg, #E8734A 0%, #F2956E 100%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+	}
+	.wallet-icon {
+		font-size: 64rpx;
+		color: #fff;
+	}
+	.app-title {
+		display: block;
+		font-size: 48rpx;
+		font-weight: 700;
+		color: #E8734A;
+		margin-bottom: 8rpx;
+	}
+	.app-subtitle {
+		display: block;
+		font-size: 26rpx;
+		color: #A98B78;
+	}
+
+	.login-form-card {
+		background: #fff;
+		border-radius: 32rpx;
+		padding: 40rpx;
+		box-shadow: 0 8rpx 24rpx rgba(61, 35, 22, 0.08);
+		margin-bottom: 40rpx;
+	}
+
+	.form-group {
+		margin-bottom: 32rpx;
+	}
+	.field-label {
+		display: block;
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #7A5C4A;
+		margin-bottom: 12rpx;
+	}
+	.input-wrapper {
+		display: flex;
+		align-items: center;
+		border-radius: 50rpx;
+		background: #FFF5EE;
+		border: 2rpx solid #E8D5C8;
+		padding: 0 24rpx;
+		transition: border-color 0.2s;
+	}
+	.input-wrapper:focus-within {
+		border-color: #E8734A;
+	}
+	.input-icon {
+		font-size: 32rpx;
+		margin-right: 16rpx;
+		color: #A98B78;
+	}
+	.input-field {
+		flex: 1;
+		height: 88rpx;
+		font-size: 30rpx;
+		color: #3D2316;
+		background: transparent;
+		border: none;
+		outline: none;
+	}
+	.input-field::placeholder {
+		color: #C8A896;
+	}
+	.toggle-pwd {
+		font-size: 32rpx;
+		padding: 12rpx;
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.form-options {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 40rpx;
+	}
+	.remember-me {
+		display: flex;
+		align-items: center;
+		gap: 12rpx;
+	}
+	.checkbox {
+		width: 36rpx;
+		height: 36rpx;
+		border-radius: 8rpx;
+		border: 2rpx solid #E8D5C8;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s;
+	}
+	.checkbox.checked {
+		background: #E8734A;
+		border-color: #E8734A;
+	}
+	.check-icon {
+		font-size: 24rpx;
+		color: #fff;
+		font-weight: 600;
+	}
+	.remember-text {
+		font-size: 26rpx;
+		color: #7A5C4A;
+	}
+	.forgot-link {
+		font-size: 26rpx;
+		color: #E8734A;
+		font-weight: 500;
+	}
+
+	.btn-primary {
+		width: 100%;
+		height: 96rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #E8734A;
+		color: #fff;
+		font-size: 32rpx;
+		font-weight: 600;
+		border-radius: 50rpx;
+		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		transition: background 0.2s;
+	}
+	.btn-primary:active {
+		background: #C95A33;
+	}
+
+	.register-link {
+		text-align: center;
+		font-size: 28rpx;
+		color: #A98B78;
+		margin-bottom: 64rpx;
+	}
+	.link-text {
+		color: #E8734A;
+		font-weight: 600;
+	}
+
+	.social-section {
+		width: 100%;
+	}
+	.divider-row {
+		display: flex;
+		align-items: center;
+		gap: 24rpx;
+		margin-bottom: 40rpx;
+	}
+	.divider-line {
+		flex: 1;
+		height: 2rpx;
+		background: #F0E4DA;
+	}
+	.divider-text {
+		font-size: 24rpx;
+		color: #A98B78;
+	}
+	.social-login {
+		display: flex;
+		justify-content: center;
+		gap: 48rpx;
+	}
+	.social-btn {
+		width: 96rpx;
+		height: 96rpx;
+		border-radius: 50%;
+		background: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s;
+		-webkit-tap-highlight-color: transparent;
+		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
+	}
+	.social-btn:active {
+		transform: scale(0.95);
+		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.1);
+	}
+	.social-icon-wechat {
+		font-size: 48rpx;
+	}
+	.social-icon-phone {
+		font-size: 48rpx;
+		color: #E8734A;
+	}
+
+	@media (min-width: 768px) {
+		.login-page { padding: 0 80rpx; }
+		.login-content { padding-top: 80rpx; }
+		.app-title { font-size: 48rpx; }
+	}
+	@media (max-width: 360px) {
+		.login-page { padding: 0 24rpx; }
+		.login-form-card { padding: 28rpx; }
+		.social-login { gap: 32rpx; }
+		.social-btn { width: 80rpx; height: 80rpx; }
+	}
+</style>

@@ -1,0 +1,149 @@
+{
+	"pages": [
+		{
+			"path": "pages/accounting/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/register",
+			"style": {
+				"navigationBarTitleText": "注册",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/forgot-pwd",
+			"style": {
+				"navigationBarTitleText": "重置密码",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/home",
+			"style": {
+				"navigationBarTitleText": "宇宙记账",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/calendar",
+			"style": {
+				"navigationBarTitleText": "日历",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/assets",
+			"style": {
+				"navigationBarTitleText": "资产",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/stats",
+			"style": {
+				"navigationBarTitleText": "统计",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/record",
+			"style": {
+				"navigationBarTitleText": "记一笔",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/budget",
+			"style": {
+				"navigationBarTitleText": "预算管理",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/profile",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/ledgers",
+			"style": {
+				"navigationBarTitleText": "账本管理",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/add-ledger",
+			"style": {
+				"navigationBarTitleText": "新建账本",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/add-account",
+			"style": {
+				"navigationBarTitleText": "添加账户",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/account-detail",
+			"style": {
+				"navigationBarTitleText": "账户详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/all-transactions",
+			"style": {
+				"navigationBarTitleText": "全部账单",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/theme-settings",
+			"style": {
+				"navigationBarTitleText": "主题设置",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/privacy-lock",
+			"style": {
+				"navigationBarTitleText": "隐私密码",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/smart-assistant",
+			"style": {
+				"navigationBarTitleText": "智能助手",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"pageOrientation": "portrait",
+		"navigationBarTitleText": "宇宙记账",
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#F4F6FB",
+		"backgroundColor": "#F4F6FB",
+		"backgroundColorTop": "#F4F6FB",
+		"backgroundColorBottom": "#F4F6FB"
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}
