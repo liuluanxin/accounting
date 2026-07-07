@@ -101,8 +101,7 @@
 		{
 			"path": "pages/accounting/all-transactions",
 			"style": {
-				"navigationBarTitleText": "全部账单",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "账单"
 			}
 		},
 		{

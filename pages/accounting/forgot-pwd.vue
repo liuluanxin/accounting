@@ -2,9 +2,7 @@
 	<view class="forgot-page">
 		<view class="page-header">
 			<view class="header-back" @click="goBack">
-				<svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="m15 18-6-6 6-6"/>
-				</svg>
+				<view class="back-icon"></view>
 			</view>
 			<text class="header-title">找回密码</text>
 			<view class="header-spacer"></view>
@@ -14,11 +12,8 @@
 			<view class="forgot-content">
 				<view class="illustration-area">
 					<view class="lock-icon-wrapper">
-						<view class="lock-icon-inner">
-							<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-								<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-							</svg>
+					<view class="lock-icon-inner">
+						<view class="lock-icon"></view>
 						</view>
 						<view class="deco-circle deco-1"></view>
 						<view class="deco-circle deco-2"></view>
@@ -144,10 +139,8 @@
 					<template v-if="step === 3">
 						<view class="success-state">
 							<view class="success-icon-wrapper">
-							<svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M20 6 9 17l-5-5"/>
-							</svg>
-						</view>
+						<view class="success-icon"></view>
+					</view>
 							<text class="success-title">密码重置成功</text>
 							<text class="success-desc">请使用新密码登录你的账户</text>
 							<view class="btn-primary" @click="goBack">返回登录</view>
@@ -290,7 +283,9 @@
 	.back-icon {
 		width: 44rpx;
 		height: 44rpx;
-		color: #3D2316;
+		background-color: #3D2316;
+		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
 	}
 	.header-title {
 		font-size: 36rpx;
@@ -334,7 +329,9 @@
 	.lock-icon {
 		width: 80rpx;
 		height: 80rpx;
-		color: #E8734A;
+		background-color: #E8734A;
+		mask: url(/static/icons/lock.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;
 	}
 	.deco-circle {
 		position: absolute;
@@ -602,7 +599,9 @@
 	.success-icon {
 		width: 64rpx;
 		height: 64rpx;
-		color: #fff;
+		background-color: #fff;
+		mask: url(/static/icons/check.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/check.svg) center/contain no-repeat;
 	}
 	.success-title {
 		font-size: 36rpx;

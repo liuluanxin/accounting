@@ -12,6 +12,7 @@ const THEMES = {
 		colors: {
 			'--primary': '#6BA8D9',
 			'--primary-dark': '#5A8FB8',
+			'--primary-shadow': 'rgba(107, 168, 217, 0.3)',
 			'--expense': '#7BC4A8',
 			'--income': '#E89B9B',
 			'--bg': '#F4F6FB',
@@ -20,6 +21,7 @@ const THEMES = {
 			'--text-secondary': '#5A6788',
 			'--text-tertiary': '#9098B0',
 			'--border': '#F4F0FA',
+			'--input-bg': '#EEF1F8',
 			'--hero-from': '#B5E8D5',
 			'--hero-via': '#A8D4E8',
 			'--hero-to': '#C5B8E8'
@@ -32,6 +34,7 @@ const THEMES = {
 		colors: {
 			'--primary': '#FF9A47',
 			'--primary-dark': '#E07F2A',
+			'--primary-shadow': 'rgba(255, 154, 71, 0.3)',
 			'--expense': '#FF6B6B',
 			'--income': '#4ECDC4',
 			'--bg': '#FFF8F0',
@@ -40,6 +43,7 @@ const THEMES = {
 			'--text-secondary': '#7A5A3A',
 			'--text-tertiary': '#A89070',
 			'--border': '#FFE8C8',
+			'--input-bg': '#FFF2E8',
 			'--hero-from': '#FFE3B0',
 			'--hero-via': '#FFB97A',
 			'--hero-to': '#FF9A8B'
@@ -52,6 +56,7 @@ const THEMES = {
 		colors: {
 			'--primary': '#4DB6AC',
 			'--primary-dark': '#388E7B',
+			'--primary-shadow': 'rgba(77, 182, 172, 0.3)',
 			'--expense': '#7BC4A8',
 			'--income': '#FF8A65',
 			'--bg': '#F1F8E9',
@@ -60,6 +65,7 @@ const THEMES = {
 			'--text-secondary': '#4A6B5A',
 			'--text-tertiary': '#7A8A7A',
 			'--border': '#D7E4D0',
+			'--input-bg': '#E8F0E3',
 			'--hero-from': '#C8E6C9',
 			'--hero-via': '#81C784',
 			'--hero-to': '#4DB6AC'
@@ -92,23 +98,37 @@ export function getAllThemes() {
 export function applyTheme(name) {
 	const theme = getTheme(name)
 	const colors = theme.colors
-	// 写入到 page 根元素
-	const query = uni.createSelectorQuery ? null : null
 	try {
-		// app-plus / h5 都支持通过 document 修改
+		// 1) H5: 直接写入 document.documentElement，所有子孙元素通过 CSS 继承生效
 		// #ifdef H5
 		if (typeof document !== 'undefined') {
 			const root = document.documentElement
 			Object.entries(colors).forEach(([k, v]) => root.style.setProperty(k, v))
 		}
 		// #endif
-		// 同步到所有 page（uniapp 通用方式）
+		// 2) 通过页面 $vm 写入（兼容 app-plus 等无 document 的环境）
 		const pages = getCurrentPages()
 		pages.forEach(p => {
-			if (p && p.$vm && p.$vm.$el && p.$vm.$el.style) {
-				Object.entries(colors).forEach(([k, v]) => p.$vm.$el.style.setProperty(k, v))
+			let el = null
+			if (p.$vm && p.$vm.$el) {
+				el = p.$vm.$el
+			} else if (p.$el) {
+				el = p.$el
+			}
+			if (el && el.style) {
+				Object.entries(colors).forEach(([k, v]) => el.style.setProperty(k, v))
 			}
 		})
+		// 3) 尝试通过 page-meta 或 page 根元素设置（通用兼容）
+		// #ifndef H5
+		if (typeof uni !== 'undefined' && uni.createSelectorQuery) {
+			uni.createSelectorQuery().select('page').node(node => {
+				if (node && node.style) {
+					Object.entries(colors).forEach(([k, v]) => node.style.setProperty(k, v))
+				}
+			}).exec()
+		}
+		// #endif
 	} catch (e) {
 		console.warn('applyTheme error', e)
 	}

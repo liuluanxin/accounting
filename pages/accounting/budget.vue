@@ -2,15 +2,11 @@
 	<view class="budget-page">
 		<view class="budget-nav">
 			<view class="nav-btn" @click="goBack">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<view class="back-svg"></view>
 			</view>
 			<text class="nav-title">预算管理</text>
 			<view class="nav-btn primary-btn" @click="showEditBudget">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-				</svg>
+				<view class="plus-svg"></view>
 			</view>
 		</view>
 
@@ -218,6 +214,8 @@
 	.nav-btn { width: 80rpx; height: 80rpx; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04); display: flex; align-items: center; justify-content: center; color: #7A5C4A; }
 	.nav-btn.primary-btn { background: #E8734A; color: #FFFFFF; box-shadow: 0 4rpx 16rpx rgba(232, 115, 74, 0.3); }
 	.nav-title { font-size: 36rpx; font-weight: 600; color: #3D2316; position: absolute; left: 50%; transform: translateX(-50%); }
+	.back-svg { width: 20px; height: 20px; background-color: #7A5C4A; mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; }
+	.primary-btn .plus-svg { width: 20px; height: 20px; background-color: #FFFFFF; mask: url(/static/icons/plus.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat; }
 
 	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 160rpx 40rpx; flex: 1; width: 100%; box-sizing: border-box; }
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }

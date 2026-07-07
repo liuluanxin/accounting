@@ -2,9 +2,7 @@
 	<view class="register-page">
 		<view class="page-header">
 			<view class="header-back" @click="goBack">
-				<svg class="back-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<view class="back-icon"></view>
 			</view>
 			<text class="header-title">创建账号</text>
 			<view class="header-spacer"></view>
@@ -17,10 +15,7 @@
 					<view class="field-group">
 						<view class="field-label">手机号码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.phone && touched.phone }">
-							<svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<rect width="14" height="20" x="5" y="2" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M12 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<view class="input-icon" style="mask: url(/static/icons/phone.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/phone.svg) center/contain no-repeat;"></view>
 							<view class="country-code">
 								<text class="code-text">+86</text>
 							</view>
@@ -34,7 +29,25 @@
 								@blur="touched.phone = true; validateField('phone')"
 							/>
 						</view>
-						<text v-if="errors.phone && touched.phone" class="error-msg">{{ errors.phone }}</text>
+					<text v-if="errors.phone && touched.phone" class="error-msg">{{ errors.phone }}</text>
+					</view>
+
+					<!-- 用户名 -->
+					<view class="field-group">
+						<view class="field-label">用户名</view>
+						<view class="input-wrapper" :class="{ 'input-error': errors.username && touched.username }">
+							<view class="input-icon" style="mask: url(/static/icons/user.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/user.svg) center/contain no-repeat;"></view>
+							<input
+								class="input-field"
+								type="text"
+								v-model="form.username"
+								placeholder="请输入用户名"
+								maxlength="20"
+								@input="validateField('username')"
+								@blur="touched.username = true; validateField('username')"
+							/>
+						</view>
+						<text v-if="errors.username && touched.username" class="error-msg">{{ errors.username }}</text>
 					</view>
 
 					<!-- 验证码 -->
@@ -66,10 +79,7 @@
 					<view class="field-group">
 						<view class="field-label">设置密码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.password && touched.password }">
-							<svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<rect width="18" height="11" x="3" y="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<view class="input-icon" style="mask: url(/static/icons/lock.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;"></view>
 							<input
 								class="input-field"
 								:type="showPassword ? 'text' : 'password'"
@@ -80,16 +90,8 @@
 								@blur="touched.password = true; validateField('password')"
 							/>
 							<view class="toggle-pwd" @click="showPassword = !showPassword">
-								<svg v-if="showPassword" class="eye-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-									<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-									<path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-									<path d="M2 2l20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
-								<svg v-else class="eye-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-									<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
+								<view v-if="showPassword" class="eye-icon" style="mask: url(/static/icons/eye-off.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/eye-off.svg) center/contain no-repeat;"></view>
+								<view v-else class="eye-icon" style="mask: url(/static/icons/eye-open.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/eye-open.svg) center/contain no-repeat;"></view>
 							</view>
 						</view>
 						<text v-if="errors.password && touched.password" class="error-msg">{{ errors.password }}</text>
@@ -105,10 +107,7 @@
 					<view class="field-group">
 						<view class="field-label">确认密码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.confirmPassword && touched.confirmPassword }">
-							<svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<rect width="18" height="11" x="3" y="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<view class="input-icon" style="mask: url(/static/icons/lock.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;"></view>
 							<input
 								class="input-field"
 								:type="showConfirmPwd ? 'text' : 'password'"
@@ -167,9 +166,9 @@
 	export default {
 		data() {
 			return {
-				form: { phone: '', code: '', password: '', confirmPassword: '' },
-				errors: { phone: '', code: '', password: '', confirmPassword: '' },
-				touched: { phone: false, code: false, password: false, confirmPassword: false },
+				form: { phone: '', username: '', code: '', password: '', confirmPassword: '' },
+				errors: { phone: '', username: '', code: '', password: '', confirmPassword: '' },
+				touched: { phone: false, username: false, code: false, password: false, confirmPassword: false },
 				showPassword: false,
 				showConfirmPwd: false,
 				submitting: false,
@@ -181,8 +180,8 @@
 		},
 		computed: {
 			formValid() {
-				return !this.errors.phone && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
-					&& this.form.phone && this.form.code && this.form.password && this.form.confirmPassword
+				return !this.errors.phone && !this.errors.username && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
+					&& this.form.phone && this.form.username && this.form.code && this.form.password && this.form.confirmPassword
 			},
 			passwordStrength() {
 				const p = this.form.password
@@ -214,6 +213,7 @@
 			validateField(field) {
 				const fieldRules = {
 					phone: [rules.required('请输入手机号'), rules.phone()],
+					username: [rules.required('请输入用户名'), rules.username()],
 					code: [rules.required('请输入验证码'), rules.minLength(6, '验证码为6位')],
 					password: [rules.required('请输入密码'), rules.minLength(6, '密码至少6位')],
 					confirmPassword: [
@@ -254,17 +254,26 @@
 				Logger.info('Register', '用户注册', { phone: this.form.phone })
 
 				try {
+				// 保存手机号、用户名和密码（密码明文存储，生产环境应加密）
 					uni.setStorageSync('registered_user', JSON.stringify({
-						phone: this.form.phone
+						phone: this.form.phone,
+						username: this.form.username,
+						password: this.form.password
 					}))
-					Logger.info('Register', '注册成功')
+					Logger.info('Register', '注册成功', { username: this.form.username })
 
 					this.registered = true
 					this.submitting = false
 
+					// 注册成功后自动登录，直接跳首页
+					const now = Date.now()
+					uni.setStorageSync('isLoggedIn', 'true')
+					uni.setStorageSync('loginTime', now)
+					uni.setStorageSync('login_phone', this.form.phone)
+
 					setTimeout(() => {
-						uni.redirectTo({ url: '/pages/accounting/login' })
-					}, 2000)
+						uni.redirectTo({ url: '/pages/accounting/home' })
+					}, 1500)
 				} catch (err) {
 					Logger.errorWithException('Register', '注册失败', err)
 					this.submitting = false
@@ -306,9 +315,11 @@
 		background: #F5EDE6;
 	}
 	.back-icon {
-		font-size: 40rpx;
-		color: #3D2316;
-		line-height: 1;
+		width: 40rpx;
+		height: 40rpx;
+		background-color: #3D2316;
+		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
 	}
 	.header-title {
 		font-size: 34rpx;
@@ -357,6 +368,12 @@
 	}
 	.input-wrapper:focus-within {
 		border-color: #E8734A;
+	}
+	.input-icon {
+		width: 40rpx;
+		height: 40rpx;
+		background-color: currentColor;
+		flex-shrink: 0;
 	}
 	.input-wrapper.input-error {
 		border-color: #E53935 !important;
@@ -417,6 +434,12 @@
 		padding: 12rpx;
 		cursor: pointer;
 		user-select: none;
+	}
+	.eye-icon {
+		width: 44rpx;
+		height: 44rpx;
+		background-color: currentColor;
+		flex-shrink: 0;
 	}
 
 	.error-msg {

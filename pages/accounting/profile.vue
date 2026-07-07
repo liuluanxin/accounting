@@ -4,10 +4,10 @@
 			<view class="user-card">
 				<view class="gradient-header"></view>
 				<view class="user-info">
-					<view class="avatar">张</view>
+					<view class="avatar">{{ avatarText }}</view>
 					<view class="user-detail">
-						<text class="user-name">张小明</text>
-						<text class="user-phone">138****8888</text>
+						<text class="user-name">{{ userName }}</text>
+						<text class="user-phone">{{ userPhone }}</text>
 					</view>
 					<view class="badge">累计记账 {{ totalDays }} 天</view>
 				</view>
@@ -32,44 +32,32 @@
 				<view class="menu-item" @click="goLedgerPage">
 					<text class="menu-icon">📒</text>
 					<text class="menu-text">我的账本</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="showMonthlyReport">
 					<text class="menu-icon">📊</text>
 					<text class="menu-text">月度报告</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="goBudgetPage">
 					<text class="menu-icon">💰</text>
 					<text class="menu-text">预算管理</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="showReminder">
 					<text class="menu-icon">🎯</text>
 					<text class="menu-text">记账提醒</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="showCategoryManage">
 					<text class="menu-icon">🏷️</text>
 					<text class="menu-text">分类管理</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="exportData">
 					<text class="menu-icon">📤</text>
 					<text class="menu-text">数据导出</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 			</view>
 
@@ -77,30 +65,22 @@
 				<view class="menu-item" @click="showSecuritySettings">
 					<text class="menu-icon">🔒</text>
 					<text class="menu-text">安全设置</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="goThemeSettings">
 					<text class="menu-icon">🎨</text>
 					<text class="menu-text">主题设置</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="showHelp">
 					<text class="menu-icon">❓</text>
 					<text class="menu-text">帮助与反馈</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 				<view class="menu-item" @click="showAbout">
 					<text class="menu-icon">ℹ️</text>
 					<text class="menu-text">关于我们</text>
-					<svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-						<path d="M9 6l6 6-6 6" stroke="#C8A896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<view class="menu-arrow"></view>
 				</view>
 			</view>
 
@@ -114,7 +94,7 @@
 			<view style="height: 200rpx;"></view>
 		</scroll-view>
 
-		<TabBar currentTab="profile" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
+		<TabBar currentTab="profile" :showFab="false" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
 	</view>
 </template>
 
@@ -128,6 +108,18 @@
 		components: { TabBar },
 		computed: {
 			...mapState('accounting', ['data', 'initialized']),
+			userPhone() {
+				return uni.getStorageSync('login_phone') || '未设置'
+			},
+			avatarText() {
+				const phone = this.userPhone
+				return phone && phone.length > 0 ? phone.charAt(0) : '?'
+			},
+			userName() {
+				const phone = this.userPhone
+				if (!phone || phone === '未设置') return '用户'
+				return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
+			},
 			monthTxs() {
 				const now = new Date()
 				const p = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0')
@@ -255,7 +247,14 @@
 	.menu-card .menu-item:active { background: #F5EDE6; }
 	.menu-card .menu-icon { font-size: 40rpx; margin-right: 24rpx; }
 	.menu-card .menu-text { flex: 1; font-size: 30rpx; color: #3D2316; }
-	.menu-card .menu-arrow { flex-shrink: 0; }
+	.menu-card .menu-arrow {
+		flex-shrink: 0;
+		width: 32rpx;
+		height: 32rpx;
+		background-color: #C8A896;
+		mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
+	}
 
 	.logout-card .logout-item { justify-content: center; }
 	.logout-card .logout-item .menu-icon { margin-right: 16rpx; }

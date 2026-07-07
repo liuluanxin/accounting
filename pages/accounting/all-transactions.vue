@@ -1,16 +1,6 @@
 <template>
 	<view class="bills-page">
-		<view class="page-header">
-			<text class="header-title">账单</text>
-			<view class="date-btn" @click="showDateFilter">
-				<text>{{ dateLabel }}</text>
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-			</view>
-		</view>
-
-		<scroll-view scroll-y class="bills-scroll">
+		<scroll-view scroll-y class="bills-scroll" @scroll="onScroll">
 			<view class="summary-card">
 				<view class="summary-row">
 					<view class="summary-item">
@@ -22,7 +12,7 @@
 						<text class="summary-amount income">¥{{ formatMoney(summary.income) }}</text>
 					</view>
 				</view>
-				<view class="weekly-bar">
+				<view class="weekly-bar" :class="{ 'has-data': maxWeeklyAmount > 0 }">
 					<view v-for="(day, i) in weeklyData" :key="i" class="bar-col">
 						<view class="bar-fill" :class="{ current: i === weeklyData.length - 1 }" :style="{ height: day.height + '%' }"></view>
 						<text class="bar-label" :class="{ current: i === weeklyData.length - 1 }">{{ day.label }}</text>
@@ -35,7 +25,7 @@
 				<text class="empty-text">暂无账单记录</text>
 			</view>
 
-			<view v-for="group in groupedTxs" :key="group.date" class="date-group">
+			<view v-for="group in visibleGroups" :key="group.date" class="date-group">
 				<view class="group-header">
 					<text class="group-date">{{ group.dateLabel }}</text>
 					<text class="group-total" :class="group.expense > 0 ? 'expense' : 'income'">
@@ -54,35 +44,36 @@
 				</view>
 			</view>
 
+			<view v-if="visibleGroups.length < groupedTxs.length" class="load-more">
+				<text class="load-more-text">上滑加载更多...</text>
+			</view>
+			<view v-else-if="filteredTxs.length > 0" class="load-more">
+				<text class="load-more-text">— 已显示全部 {{ filteredTxs.length }} 条账单 —</text>
+			</view>
+
 			<view style="height: 220rpx;"></view>
 		</scroll-view>
-
-		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
 	</view>
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import { formatMoney } from '@/common/accounting-utils.js'
-import TabBar from '@/components/TabBar.vue'
+import { formatMoney, CAT_ICONS } from '@/common/accounting-utils.js'
 
 export default {
-	components: { TabBar },
+	components: {},
 	data() {
 		return {
 			filter: {
 				type: 'all',
 				date: 'current'
-			}
+			},
+			renderLimit: 50,   // 初始渲染条数
+			pageSize: 30        // 每次加载更多条数
 		}
 	},
 	computed: {
 		...mapState('accounting', ['data', 'homeYear', 'homeMonth']),
-		dateLabel() {
-			if (this.filter.date === 'all') return '全部时间'
-			if (this.filter.date === 'current') return `${this.homeYear}年${this.homeMonth}月`
-			return this.filter.date
-		},
 		filteredTxs() {
 			const cur = (this.data.ledgers || []).find(l => l.current)
 			const curId = cur ? cur.id : null
@@ -103,6 +94,9 @@ export default {
 			let income = 0, expense = 0
 			this.filteredTxs.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount })
 			return { income, expense, balance: income - expense }
+		},
+		maxWeeklyAmount() {
+			return Math.max(...this.weeklyData.map(d => d.amount), 0)
 		},
 		weeklyData() {
 			const days = ['一', '二', '三', '四', '五', '六', '日']
@@ -131,13 +125,27 @@ export default {
 				items.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount })
 				return { date, dateLabel: this.formatDateLabel(date), items, income, expense }
 			})
+		},
+		// 分页：按 renderLimit 截取可见的交易组列表
+		visibleGroups() {
+			let count = 0
+			const result = []
+			for (const group of this.groupedTxs) {
+				const remaining = this.renderLimit - count
+				if (remaining <= 0) break
+				if (group.items.length <= remaining) {
+					result.push(group)
+					count += group.items.length
+				} else {
+					result.push({ ...group, items: group.items.slice(0, remaining) })
+					count += remaining
+				}
+			}
+			return result
 		}
 	},
 	methods: {
 		formatMoney,
-		goBack() { uni.navigateBack() },
-		goRecord() { uni.navigateTo({ url: '/pages/accounting/record' }) },
-		switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
 		formatDateLabel(d) {
 			const today = new Date()
 			const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
@@ -152,40 +160,10 @@ export default {
 		},
 		getCategoryName(cat) {
 			if (!cat) return '其他'
-			const map = {
-				food: '餐饮', transport: '交通', shopping: '购物', entertainment: '娱乐',
-				medical: '医疗', education: '教育', housing: '住房', salary: '工资',
-				bonus: '奖金', investment: '投资', other: '其他', communication: '通讯'
-			}
-			return map[cat] || cat
+			return cat
 		},
 		getCategoryEmoji(cat) {
-			if (!cat) return '📦'
-			const map = {
-				food: '🍜', transport: '🚗', shopping: '🛒', entertainment: '🎬',
-				medical: '💊', education: '📚', housing: '🏠', salary: '💰',
-				bonus: '🎁', investment: '📈', other: '🎁', communication: '📱'
-			}
-			return map[cat] || '📦'
-		},
-		showDateFilter() {
-			uni.showActionSheet({
-				itemList: ['全部时间', '本月', ...this.getDatePresets()],
-				success: (res) => {
-					if (res.tapIndex === 0) this.filter.date = 'all'
-					else if (res.tapIndex === 1) this.filter.date = 'current'
-					else this.filter.date = this.getDatePresets()[res.tapIndex - 2]
-				}
-			})
-		},
-		getDatePresets() {
-			const presets = []
-			const now = new Date()
-			for (let i = 0; i < 6; i++) {
-				const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-				presets.push(`${d.getFullYear()}年${d.getMonth() + 1}月`)
-			}
-			return presets
+			return CAT_ICONS[cat] || '📦'
 		},
 		showTxDetail(tx) {
 			uni.showActionSheet({
@@ -207,6 +185,18 @@ export default {
 					}
 				}
 			})
+		},
+		// 滚动加载更多：接近底部时增加渲染条数
+		onScroll(e) {
+			const scrollView = e.detail
+			if (!scrollView) return
+			const { scrollHeight, scrollTop, deltaY } = scrollView
+			// 当 deltaY > 0（向下滑）且距离底部 < 200px 时加载更多
+			if (deltaY > 0 && scrollHeight - scrollTop - scrollView.clientHeight < 200) {
+				if (this.renderLimit < this.filteredTxs.length) {
+					this.renderLimit += this.pageSize
+				}
+			}
 		}
 	}
 }
@@ -214,17 +204,17 @@ export default {
 
 <style lang="scss" scoped>
 	.bills-page { min-height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; }
-	.page-header { display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 32rpx) 40rpx 24rpx; background: #FFF9F5; flex-shrink: 0; width: 100%; box-sizing: border-box; }
 	.bills-scroll { flex: 1; width: 100%; padding: 0 40rpx 200rpx; box-sizing: border-box; }
 
-	.summary-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); padding: 40rpx; margin-bottom: 40rpx; }
-	.summary-row { display: flex; gap: 48rpx; margin-bottom: 40rpx; }
+	.summary-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); padding: 40rpx; margin-bottom: 40rpx; margin-top: 16rpx; }
+	.summary-row { display: flex; gap: 48rpx; margin-bottom: 48rpx; }
 	.summary-item { flex: 1; }
 	.summary-label { font-size: 28rpx; color: #A98B78; display: block; margin-bottom: 8rpx; }
 	.summary-amount { font-size: 48rpx; font-weight: 700; line-height: 1.25; }
 	.summary-amount.expense { color: #E8734A; }
 	.summary-amount.income { color: #4CAF50; }
-	.weekly-bar { display: flex; align-items: flex-end; gap: 12rpx; height: 100rpx; padding-top: 24rpx; border-top: 2rpx solid #F0E4DA; }
+	.weekly-bar { display: flex; align-items: flex-end; gap: 12rpx; height: 100rpx; padding-top: 32rpx; border-top: 2rpx solid #F0E4DA; }
+	.weekly-bar.has-data { height: 180rpx; }
 	.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; height: 100%; justify-content: flex-end; }
 	.bar-fill { width: 100%; border-radius: 6rpx; transition: height 0.5s ease; min-height: 8rpx; background: #FBBE9E; }
 	.bar-fill.current { background: #E8734A; }
@@ -253,4 +243,7 @@ export default {
 	.tx-amount { font-size: 30rpx; font-weight: 600; white-space: nowrap; }
 	.tx-amount.income { color: #4CAF50; }
 	.tx-amount.expense { color: #E53935; }
+
+	.load-more { display: flex; justify-content: center; align-items: center; padding: 40rpx 0; }
+	.load-more-text { font-size: 24rpx; color: #A98B78; }
 </style>

@@ -144,6 +144,9 @@ export default {
 		ADD_LEDGER(state, ledger) {
 			state.data.ledgers.push(ledger)
 		},
+		DELETE_LEDGER(state, id) {
+			state.data.ledgers = state.data.ledgers.filter(l => l.id !== id)
+		},
     UPDATE_BUDGET(state, { key, total }) {
       if (!state.data.budgets[key]) state.data.budgets[key] = {}
       state.data.budgets[key].total = total
@@ -198,13 +201,15 @@ export default {
 
     /** 创建交易 */
     async addTransaction({ commit, state }, { amount, type, category, accountId, date, note }) {
-      const res = await AccountingService.createTransaction({
+      const txData = {
         amount, type: type || state.recordType,
         category: category || state.recordCat,
         accountId: accountId || state.recordAccountId,
         date: date || state.recordDate || todayStr(),
         note
-      })
+      }
+      Logger.debug(MODULE, 'addTransaction', { date: txData.date, sourceDate: date, stateDate: state.recordDate })
+      const res = await AccountingService.createTransaction(txData)
       if (res.success) {
         commit('ADD_TRANSACTION', res.data)
         Logger.info(MODULE, '记账成功', { amount, type })
@@ -271,6 +276,22 @@ export default {
     async switchLedger({ commit }, id) {
       const res = await AccountingService.switchLedger(id)
       if (res.success) commit('SWITCH_LEDGER', id)
+      return res
+    },
+
+    /** 创建账本 */
+    async addLedger({ commit }, ledgerData) {
+      const res = await AccountingService.createLedger(ledgerData)
+      if (res.success) {
+        commit('ADD_LEDGER', res.data || { ...ledgerData, id: 'l_' + genId(), current: false })
+      }
+      return res
+    },
+
+    /** 删除账本 */
+    async deleteLedger({ commit }, id) {
+      const res = await AccountingService.deleteLedger(id)
+      if (res.success) commit('DELETE_LEDGER', id)
       return res
     },
 

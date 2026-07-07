@@ -168,6 +168,7 @@ async function localAdapter(options) {
           const firstError = Object.values(errors)[0] || '参数校验失败'
           return failure(firstError, 'VALIDATION_ERROR')
         }
+        Logger.debug(MODULE, '创建交易', { receivedDate: data.date })
         const now = new Date()
         const tx = {
           id: 'tx_' + genId(),
@@ -275,9 +276,16 @@ async function localAdapter(options) {
       }
 
       case 'POST:/api/ledgers': {
-        db.ledgers.push({ id: 'l' + genId(), name: data.name || '新账本', current: false })
+        const newLedger = { id: 'l' + genId(), name: data.name || '新账本', cover: data.cover || '📒', category: data.category || 'personal', color: data.color || '', current: false }
+        db.ledgers.push(newLedger)
         saveLocalDB(db)
-        return success(null, '新账本已创建')
+        return success(newLedger, '新账本已创建')
+      }
+
+      case 'POST:/api/ledgers/delete': {
+        db.ledgers = db.ledgers.filter(l => l.id !== data.id)
+        saveLocalDB(db)
+        return success(null, '账本已删除')
       }
 
       // === 仪表盘 ===

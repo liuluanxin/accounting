@@ -38,6 +38,7 @@ export const ENDPOINTS = {
     list: `${BASE}/ledgers`,                 // GET   账本列表
     create: `${BASE}/ledgers`,               // POST  创建账本
     switch: `${BASE}/ledgers/switch`,        // POST  切换账本 { id }
+    delete: `${BASE}/ledgers/delete`,        // POST  删除账本 { id }
   },
 
   // 仪表盘

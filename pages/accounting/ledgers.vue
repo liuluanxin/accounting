@@ -1,18 +1,11 @@
 <template>
 	<view class="ledgers-page">
-		<view class="page-header">
-			<view class="header-back" @click="goBack">
-				<svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="m15 18-6-6 6-6"/>
-				</svg>
+		<view class="nav-bar">
+			<view class="nav-back" @click="goBack">
+				<text class="back-icon">‹</text>
 			</view>
-			<text class="header-title">我的账本</text>
-			<view class="header-add" @click="goAddLedger">
-				<svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M5 12h14"/>
-					<path d="M12 5v14"/>
-				</svg>
-			</view>
+			<text class="nav-title">我的账本</text>
+			<view class="nav-placeholder"></view>
 		</view>
 
 		<scroll-view scroll-y class="ledgers-scroll">
@@ -22,21 +15,14 @@
 			</view>
 
 			<view v-else-if="error" class="state-container">
-				<svg class="state-icon state-icon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-					<path d="M12 9v4"/>
-					<path d="M12 17h.01"/>
-				</svg>
+				<view class="state-icon state-icon-warning"></view>
 				<text class="state-text">{{ error }}</text>
 				<view class="btn-secondary" @click="initData">重试</view>
 			</view>
 
 			<template v-else>
 				<view v-if="ledgers.length === 0" class="state-container">
-					<svg class="state-icon state-icon-empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M12 7v14"/>
-						<path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
-					</svg>
+					<view class="state-icon state-icon-empty"></view>
 					<text class="state-text">暂无账本</text>
 					<text class="state-hint">点击右上角 + 创建你的第一个账本</text>
 				</view>
@@ -61,51 +47,55 @@
 					</view>
 
 					<view class="ledger-list">
-						<view v-for="ledger in ledgers" :key="ledger.id" 
-							class="ledger-card" 
-							:class="{ 'ledger-current': ledger.current }"
-							:data-accent="getAccentColor(ledger.id)"
-							@click="handleSwitchLedger(ledger)">
-							<view class="ledger-accent" :style="{ background: getAccentBg(ledger.id) }"></view>
-							<view class="ledger-content">
-								<view class="ledger-left">
-									<view class="dot-indicator" :style="{ background: getAccentBg(ledger.id) }"></view>
-									<view class="ledger-info">
-										<view class="ledger-name-row">
-											<text class="ledger-name">{{ ledger.name }}</text>
-											<text v-if="ledger.current" class="ledger-badge">默认</text>
-										</view>
-										<view class="ledger-meta">
-											<text>本月支出 <text class="ledger-amount">{{ formatAmount(getLedgerExpense(ledger.id)) }}</text></text>
-											<text class="meta-divider">|</text>
-											<text>收入 <text class="ledger-amount income">{{ formatAmount(getLedgerIncome(ledger.id)) }}</text></text>
-										</view>
-										<view class="ledger-progress">
-											<view class="progress-header">
-												<text class="progress-label">{{ getLedgerTxCount(ledger.id) }} 笔记录</text>
-												<text class="progress-value">{{ getBudgetPercent(ledger.id) }}%</text>
-											</view>
-											<view class="progress-track">
-												<view class="progress-fill" 
-													:style="{ width: getBudgetPercent(ledger.id) + '%', background: getAccentBg(ledger.id) }"></view>
+						<view v-for="ledger in ledgers" :key="ledger.id" class="swipe-wrap">
+							<view class="swipe-delete" @click="handleDeleteLedger(ledger)">
+								<text class="swipe-delete-text">删除</text>
+							</view>
+							<view class="swipe-content" 
+								:style="{ transform: 'translateX(' + (swipedId === ledger.id ? '-160rpx' : '0') + ')' }"
+								@touchstart="onSwipeStart($event, ledger.id)"
+								@touchmove="onSwipeMove($event, ledger.id)"
+								@touchend="onSwipeEnd($event, ledger.id)"
+								@click="handleSwitchLedger(ledger)">
+								<view class="ledger-card" 
+									:class="{ 'ledger-current': ledger.current }"
+									:data-accent="getAccentColor(ledger.id)">
+									<view class="ledger-accent" :style="{ background: getAccentBg(ledger.id) }"></view>
+									<view class="ledger-content">
+										<view class="ledger-left">
+											<view class="dot-indicator" :style="{ background: getAccentBg(ledger.id) }"></view>
+											<view class="ledger-info">
+												<view class="ledger-name-row">
+													<text class="ledger-name">{{ ledger.name }}</text>
+													<text v-if="ledger.current" class="ledger-badge">默认</text>
+												</view>
+												<view class="ledger-meta">
+													<text>本月支出 <text class="ledger-amount">{{ formatAmount(getLedgerExpense(ledger.id)) }}</text></text>
+													<text class="meta-divider">|</text>
+													<text>收入 <text class="ledger-amount income">{{ formatAmount(getLedgerIncome(ledger.id)) }}</text></text>
+												</view>
+												<view class="ledger-progress">
+													<view class="progress-header">
+														<text class="progress-label">{{ getLedgerTxCount(ledger.id) }} 笔记录</text>
+														<text class="progress-value">{{ getBudgetPercent(ledger.id) }}%</text>
+													</view>
+													<view class="progress-track">
+														<view class="progress-fill" 
+															:style="{ width: getBudgetPercent(ledger.id) + '%', background: getAccentBg(ledger.id) }"></view>
+													</view>
+												</view>
 											</view>
 										</view>
 									</view>
+									<view class="ledger-arrow"></view>
 								</view>
 							</view>
-							<svg class="ledger-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="m9 18 6-6-6-6"/>
-							</svg>
 						</view>
 					</view>
 
 					<view class="add-ledger-card" @click="goAddLedger">
-						<svg class="add-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M5 12h14"/>
-							<path d="M12 5v14"/>
-						</svg>
+						<view class="add-icon-large"></view>
 						<text class="add-text">新建账本</text>
-					</view>
 					</view>
 
 					<view style="height: 200rpx;"></view>
@@ -113,14 +103,12 @@
 			</template>
 		</scroll-view>
 
-		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
 	</view>
 </template>
 
 <script>
 	import { mapState } from 'vuex'
 	import Logger from '@/common/logger.js'
-	import TabBar from '@/components/TabBar.vue'
 
 	const COVER_OPTIONS = [
 		{ icon: '📒', gradient: 'linear-gradient(135deg, #E8734A, #C95A33)', name: '珊瑚暖色' },
@@ -138,12 +126,11 @@
 	const ACCENT_COLORS = ['#E8734A', '#D4865E', '#4CAF50', '#C4836A']
 
 	export default {
-		components: {
-			TabBar
-		},
 		data() {
 			return {
-				coverOptions: COVER_OPTIONS
+				coverOptions: COVER_OPTIONS,
+				swipedId: null,
+				swipeStartX: 0
 			}
 		},
 		computed: {
@@ -234,6 +221,37 @@
 				if (cover && COVER_OPTIONS.find(c => c.icon === cover)) return cover
 				return '📒'
 			},
+			onSwipeStart(e, id) {
+				this.swipeStartX = e.touches[0].clientX
+				this.swipeStartId = id
+			},
+			onSwipeMove(e, id) {
+				// 阻止纵向滚动干扰
+			},
+			onSwipeEnd(e, id) {
+				const endX = e.changedTouches[0].clientX
+				const diff = this.swipeStartX - endX
+				if (diff > 60) {
+					// 左滑超过阈值，打开删除按钮
+					this.swipedId = id
+				} else if (diff < -30) {
+					// 右滑，关闭
+					this.swipedId = null
+				}
+			},
+			handleDeleteLedger(ledger) {
+				uni.showModal({
+					title: '删除账本',
+					content: `确定要删除「${ledger.name}」吗？账单记录不会被删除。`,
+					success: async (res) => {
+						if (res.confirm) {
+							await this.$store.dispatch('accounting/deleteLedger', ledger.id)
+							this.swipedId = null
+							uni.showToast({ title: '账本已删除', icon: 'none' })
+						}
+					}
+				})
+			},
 			goAddLedger() {
 				uni.navigateTo({ url: '/pages/accounting/add-ledger' })
 			},
@@ -254,67 +272,63 @@
 
 <style lang="scss" scoped>
 	.ledgers-page {
-		min-height: 100vh;
+		height: 100vh;
 		background: #FFF9F5;
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 		box-sizing: border-box;
+		overflow-x: hidden;
 	}
 
-	.page-header {
-		padding: calc(var(--status-bar-height) + 24rpx) 40rpx 16rpx;
-		background: #FFF9F5;
+	/* ===== 自定义导航栏 ===== */
+	.nav-bar {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
+		justify-content: space-between;
+		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
+		background: #FFF9F5;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		width: 100%;
+		box-sizing: border-box;
 		flex-shrink: 0;
 	}
-	.header-back {
+	.nav-back {
 		width: 72rpx;
 		height: 72rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		transition: background 0.2s;
+		background: #FFF5EE;
+		transition: all 0.2s;
 	}
-	.header-back:active {
-		background: #F5EDE6;
+	.nav-back:active {
+		background: #F0E4DA;
+		transform: scale(0.95);
 	}
 	.back-icon {
-		width: 44rpx;
-		height: 44rpx;
+		font-size: 48rpx;
 		color: #3D2316;
+		line-height: 1;
+		margin-top: -4rpx;
 	}
-	.header-title {
+	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
 		color: #3D2316;
 	}
-	.header-add {
+	.nav-placeholder {
 		width: 72rpx;
-		height: 72rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 50%;
-		background: #E8734A;
-		color: #fff;
-		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.25);
-		transition: background 0.2s;
-	}
-	.header-add:active {
-		background: #C95A33;
-	}
-	.add-icon {
-		width: 36rpx;
-		height: 36rpx;
 	}
 
 	.ledgers-scroll {
 		flex: 1;
+		width: 100%;
 		padding: 16rpx 40rpx 180rpx;
+		box-sizing: border-box;
 	}
 
 	.state-container {
@@ -328,7 +342,16 @@
 		width: 80rpx;
 		height: 80rpx;
 		margin-bottom: 24rpx;
-		color: #E8734A;
+	}
+	.state-icon-warning {
+		background-color: #E8734A;
+		mask: url(/static/icons/alert-triangle.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/alert-triangle.svg) center/contain no-repeat;
+	}
+	.state-icon-empty {
+		background-color: #E8734A;
+		mask: url(/static/icons/book.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/book.svg) center/contain no-repeat;
 	}
 	.state-text {
 		font-size: 28rpx;
@@ -537,7 +560,9 @@
 	.ledger-arrow {
 		width: 36rpx;
 		height: 36rpx;
-		color: #A98B78;
+		background-color: #A98B78;
+		mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
 		margin-top: 8rpx;
 		flex-shrink: 0;
 	}
@@ -561,7 +586,9 @@
 	.add-icon-large {
 		width: 56rpx;
 		height: 56rpx;
-		color: #A98B78;
+		background-color: #A98B78;
+		mask: url(/static/icons/plus.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat;
 	}
 	.add-text {
 		font-size: 28rpx;
@@ -569,12 +596,44 @@
 		font-weight: 500;
 	}
 
+	/* ===== 左滑删除 ===== */
+	.swipe-wrap {
+		position: relative;
+		overflow: hidden;
+		border-radius: 24rpx;
+	}
+	.swipe-delete {
+		position: absolute;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		width: 160rpx;
+		background: #FF5252;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0 24rpx 24rpx 0;
+	}
+	.swipe-delete-text {
+		color: #fff;
+		font-size: 28rpx;
+		font-weight: 500;
+	}
+	.swipe-content {
+		position: relative;
+		z-index: 2;
+		background: transparent;
+		transition: transform 0.25s ease;
+		will-change: transform;
+		border-radius: 24rpx;
+	}
+
 	@media (min-width: 768px) {
-		.page-header { padding: 32rpx 48rpx 16rpx; }
+		.nav-bar { padding: calc(var(--status-bar-height) + 16rpx) 48rpx 16rpx; }
 		.ledgers-scroll { max-width: 750px; margin: 0 auto; width: 100%; }
 	}
 	@media (max-width: 360px) {
-		.page-header { padding: 16rpx 24rpx 8rpx; }
+		.nav-bar { padding: calc(var(--status-bar-height) + 12rpx) 16rpx 12rpx; }
 		.ledgers-scroll { padding: 16rpx 24rpx 180rpx; }
 		.ledger-card { padding: 18rpx; padding-left: 40rpx; }
 		.summary-row { gap: 16rpx; }

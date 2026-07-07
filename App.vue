@@ -2,6 +2,7 @@
 	import Logger from '@/common/logger.js'
 	import { setupGlobalErrorHandler, vueErrorHandler } from '@/common/error-handler.js'
 	import { configureApi } from '@/services/api-client.js'
+	import { applyTheme, getCurrentTheme } from '@/common/theme-manager.js'
 
 	export default {
 		onLaunch: function() {
@@ -61,20 +62,22 @@
 
 <style lang="scss">
 	@import '@/uni.scss';
-	page { background: #FFF9F5; height: 100%; font-size: 28rpx; color: #3D2316; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Roboto', sans-serif; overflow: hidden; }
+	page { background: var(--bg, #FFF9F5); height: 100%; font-size: 28rpx; color: var(--text-primary, #3D2316); font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Roboto', sans-serif; overflow: hidden; }
 	::-webkit-scrollbar { width: 0; height: 0; display: none; }
-	.glass-card { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(240, 228, 218, 0.5); border-radius: 32rpx; box-shadow: 0 8rpx 32rpx rgba(61, 35, 22, 0.06); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
-	@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) { .glass-card { background: rgba(255, 255, 255, 0.9); } }
-	.btn-primary { background: linear-gradient(135deg, #E8734A, #D65D35); color: #fff; border: none; padding: 24rpx; border-radius: 20rpx; font-size: 32rpx; font-weight: 600; width: 100%; box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3); transition: opacity 0.15s; text-align: center; }
+	/* 全局滚动优化：启用原生动量滚动 + GPU 合成层，显著减少滚动卡顿 */
+	[class*="-scroll"], .scroll { -webkit-overflow-scrolling: touch; will-change: transform; transform: translateZ(0); }
+	.glass-card { background: var(--card-bg, rgba(255, 255, 255, 0.85)); border: 1px solid var(--border, rgba(240, 228, 218, 0.5)); border-radius: 32rpx; box-shadow: 0 8rpx 32rpx rgba(61, 35, 22, 0.06); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+	@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) { .glass-card { background: var(--card-bg, rgba(255, 255, 255, 0.9)); } }
+	.btn-primary { background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-dark, #D65D35)); color: #fff; border: none; padding: 24rpx; border-radius: 20rpx; font-size: 32rpx; font-weight: 600; width: 100%; box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(232, 115, 74, 0.3)); transition: opacity 0.15s; text-align: center; }
 	.btn-primary:active { opacity: 0.85; }
-	.btn-secondary { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(240, 228, 218, 0.8); color: #3D2316; padding: 16rpx 32rpx; border-radius: 16rpx; font-size: 26rpx; text-align: center; display: inline-block; }
-	.input-field { width: 100%; padding: 24rpx 28rpx; border: 1px solid #F0E4DA; border-radius: 20rpx; font-size: 28rpx; margin-bottom: 20rpx; outline: none; background: #FFF5EE; color: #3D2316; transition: border-color 0.2s; box-sizing: border-box; }
-	.input-field:focus { border-color: #E8734A; }
-	.input-field::placeholder { color: #A98B78; }
-	.amount-input { font-size: 80rpx !important; font-weight: 700; border: none; outline: none; text-align: center; background: transparent; color: #3D2316; max-width: 80%; width: auto; min-width: 200rpx; }
-	.segment-control { display: flex; background: #F0E4DA; border-radius: 10rpx; padding: 6rpx; margin-bottom: 24rpx; }
-	.segment-btn { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 12rpx; font-size: 28rpx; font-weight: 600; color: #7A5C4A; transition: all 0.2s; }
-	.segment-btn.active { background: #fff; color: #E8734A; box-shadow: 0 4rpx 16rpx rgba(232, 115, 74, 0.15); }
-	.fab-btn { position: fixed; bottom: calc(180rpx + env(safe-area-inset-bottom, 20rpx)); right: 40rpx; width: 110rpx; height: 110rpx; background: linear-gradient(135deg, #E8734A, #D65D35); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 48rpx; box-shadow: 0 12rpx 40rpx rgba(232, 115, 74, 0.35); z-index: 100; }
+	.btn-secondary { background: var(--card-bg, rgba(255, 255, 255, 0.9)); border: 1px solid var(--border, rgba(240, 228, 218, 0.8)); color: var(--text-primary, #3D2316); padding: 16rpx 32rpx; border-radius: 16rpx; font-size: 26rpx; text-align: center; display: inline-block; }
+	.input-field { width: 100%; padding: 24rpx 28rpx; border: 1px solid var(--border, #F0E4DA); border-radius: 20rpx; font-size: 28rpx; margin-bottom: 20rpx; outline: none; background: var(--input-bg, #FFF5EE); color: var(--text-primary, #3D2316); transition: border-color 0.2s; box-sizing: border-box; }
+	.input-field:focus { border-color: var(--primary, #E8734A); }
+	.input-field::placeholder { color: var(--text-tertiary, #A98B78); }
+	.amount-input { font-size: 80rpx !important; font-weight: 700; border: none; outline: none; text-align: center; background: transparent; color: var(--text-primary, #3D2316); max-width: 80%; width: auto; min-width: 200rpx; }
+	.segment-control { display: flex; background: var(--border, #F0E4DA); border-radius: 10rpx; padding: 6rpx; margin-bottom: 24rpx; }
+	.segment-btn { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 12rpx; font-size: 28rpx; font-weight: 600; color: var(--text-secondary, #7A5C4A); transition: all 0.2s; }
+	.segment-btn.active { background: var(--card-bg, #fff); color: var(--primary, #E8734A); box-shadow: 0 4rpx 16rpx var(--primary-shadow, rgba(232, 115, 74, 0.15)); }
+	.fab-btn { position: fixed; bottom: calc(180rpx + env(safe-area-inset-bottom, 20rpx)); right: 40rpx; width: 110rpx; height: 110rpx; background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-dark, #D65D35)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 48rpx; box-shadow: 0 12rpx 40rpx var(--primary-shadow, rgba(232, 115, 74, 0.35)); z-index: 100; }
 	.fab-btn:active { transform: scale(0.9); }
 </style>

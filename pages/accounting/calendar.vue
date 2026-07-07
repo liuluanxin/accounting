@@ -1,11 +1,8 @@
 <template>
 	<view class="calendar-page">
-		<view class="page-header">
-			<text class="header-title">记账助手</text>
-			<view class="month-selector" @click="showMonthPicker">
-				<text class="month-text">{{ calYear }}年{{ calMonth }}月</text>
-				<text class="month-arrow">▼</text>
-			</view>
+		<!-- 自定义导航栏 - 文字居中 -->
+		<view class="custom-nav-bar">
+			<text class="nav-title">记账助手</text>
 		</view>
 
 		<scroll-view scroll-y class="cal-scroll">
@@ -22,6 +19,16 @@
 
 			<template v-else>
 				<view class="calendar-card">
+					<!-- 月份标签行：嵌入日历卡片内，箭头在最外两侧 -->
+					<view class="card-month-row">
+						<view class="card-month-arrow" @click="prevMonth">
+							<view class="icon-arrow-left-month"></view>
+						</view>
+						<text class="card-month-text" @click="showMonthPicker">{{ calYear }}年{{ calMonth }}月</text>
+						<view class="card-month-arrow" @click="nextMonth">
+							<view class="icon-arrow-right-month"></view>
+						</view>
+					</view>
 					<view class="weekday-header">
 						<text class="weekend">日</text>
 						<text>一</text>
@@ -138,13 +145,7 @@
 				return weekdays[date.getDay()]
 			},
 			getCategoryEmoji(cat) {
-				if (!cat) return '📦'
-				const map = {
-					'餐饮': '🍜', '交通': '🚗', '购物': '🛒', '娱乐': '🎬',
-					'医疗': '💊', '教育': '📚', '居住': '🏠', '薪资': '💰',
-					'奖金': '🎁', '理财': '📈', '其他': '📦', '通讯': '📱', '兼职': '💼', '服饰': '👔', '红包': '🧧'
-				}
-				return map[cat] || '📦'
+				return CAT_ICONS[cat] || '📦'
 			},
 			getDayExpense() {
 				const d = this.dailyData[this.calDay]
@@ -189,13 +190,20 @@
 <style lang="scss" scoped>
 	.calendar-page { height: 100vh; background: #FFF9F5; box-sizing: border-box; width: 100%; overflow-x: hidden; display: flex; flex-direction: column; }
 
-	.page-header { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 20rpx) 40rpx 16rpx; background: #FFF9F5; }
-	.header-title { font-size: 36rpx; font-weight: 600; color: #3D2316; }
-	.month-selector { display: flex; align-items: center; gap: 8rpx; padding: 12rpx 24rpx; background: #FFFFFF; border: 2rpx solid #F0E4DA; border-radius: 24rpx; }
-	.month-text { font-size: 28rpx; font-weight: 500; color: #3D2316; }
-	.month-arrow { font-size: 20rpx; color: #7A5C4A; }
+	/* 自定义导航栏 - 文字居中 */
+	.custom-nav-bar { position: sticky; top: 0; z-index: 20; padding: calc(var(--status-bar-height) + 20rpx) 40rpx 16rpx; background: #FFF9F5; display: flex; align-items: center; justify-content: center; }
+	.nav-title { font-size: 36rpx; font-weight: 600; color: #3D2316; }
 
 	.cal-scroll { flex: 1; width: 100%; box-sizing: border-box; padding: 0 40rpx 140rpx; }
+
+	/* 月份标签行 - 嵌入日历卡片顶部，箭头在最外两侧 */
+	.card-month-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 2rpx solid #F0E4DA; margin: 0 -24rpx 16rpx; padding: 8rpx 0 16rpx; }
+	.card-month-arrow { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; color: #7A5C4A; cursor: pointer; flex-shrink: 0; }
+	.card-month-arrow:active { background: #F5EDE6; border-radius: 50%; }
+	.card-month-arrow .icon-arrow-left-month, .card-month-arrow .icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: #7A5C4A; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.card-month-arrow .icon-arrow-left-month { mask-image: url(/static/icons/arrow-left.svg); -webkit-mask-image: url(/static/icons/arrow-left.svg); }
+	.card-month-arrow .icon-arrow-right-month { mask-image: url(/static/icons/arrow-right.svg); -webkit-mask-image: url(/static/icons/arrow-right.svg); }
+	.card-month-text { font-size: 32rpx; font-weight: 600; color: #3D2316; cursor: pointer; white-space: nowrap; }
 
 	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
@@ -257,6 +265,6 @@
 
 	@media (min-width: 768px) {
 		.cal-scroll { max-width: 650px; margin: 0 auto; width: 100%; padding-left: 48rpx; padding-right: 48rpx; }
-		.page-header { padding: 32rpx 48rpx; }
+		.custom-nav-bar { padding: 32rpx 48rpx 16rpx; }
 	}
 </style>

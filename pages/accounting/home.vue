@@ -1,22 +1,34 @@
 <template>
 	<view class="home-page">
-		<view class="home-header">
-			<view class="ledger-switch-btn" @click="showLedgerSwitch">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					<path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-				<text>{{ currentLedgerName || '日常账本' }}</text>
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+		<!-- 自定义导航栏：顶部操作栏 + 周期选择器 -->
+		<view class="custom-nav-bar">
+			<view class="home-header">
+				<view class="ledger-switch-btn" @click="showLedgerSwitch">
+					<view class="icon-book-open"></view>
+					<text>{{ currentLedgerName || '日常账本' }}</text>
+					<view class="icon-arrow-down-small"></view>
+				</view>
+				<view class="bell-btn" @click="showNotifications">
+					<view class="icon-bell"></view>
+					<view class="dot"></view>
+				</view>
 			</view>
-			<view class="bell-btn" @click="showNotifications">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					<path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-				</svg>
-				<view class="dot"></view>
+			<view class="period-selector" v-if="!loading && !error">
+				<view class="month-nav">
+					<view class="month-arrow" @click="prevMonth">
+						<view class="icon-arrow-left-month"></view>
+					</view>
+					<text class="month-label">{{ periodLabel }}</text>
+					<view class="month-arrow" @click="nextMonth">
+						<view class="icon-arrow-right-month"></view>
+					</view>
+				</view>
+				<view class="period-cycle">
+					<view class="period-cycle-btn" @click="toggleViewMode">
+						<view class="icon-refresh"></view>
+						<text>{{ viewModeText }}</text>
+					</view>
+				</view>
 			</view>
 		</view>
 
@@ -33,35 +45,10 @@
 			</view>
 
 			<template v-else>
-				<view class="period-selector">
-					<view class="month-nav">
-						<view class="month-arrow" @click="prevMonth">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</view>
-						<text class="month-label">{{ homeYear }}年{{ homeMonth }}月</text>
-						<view class="month-arrow" @click="nextMonth">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</view>
-					</view>
-					<view class="period-cycle">
-						<view class="period-cycle-btn" @click="toggleViewMode">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M3 12a9 9 0 019-9 9 9 0 019 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-								<path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-							</svg>
-							<text>{{ viewModeText }}</text>
-						</view>
-					</view>
-				</view>
-
 				<view class="balance-card">
 					<view class="gradient-strip"></view>
 					<view class="card-body">
-						<text class="balance-label">本月结余</text>
+						<text class="balance-label">{{ summaryLabel }}</text>
 						<text class="balance-amount">¥{{ formatMoney(summary.balance) }}</text>
 						<view class="summary-row">
 							<view class="summary-item">
@@ -79,16 +66,11 @@
 				<view class="budget-card" @click="goBudgetPage">
 					<view class="budget-card-header">
 						<view class="budget-card-title-row">
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M21.21 15.89A10 10 0 118 2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M22 12A10 10 0 0012 2v10z" fill="currentColor"/>
-							</svg>
-							<text class="budget-card-title">本月预算</text>
-							<text class="budget-card-arrow">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg>
-							</text>
+							<view class="icon-pie-chart"></view>
+							<text class="budget-card-title">{{ budgetTitle }}</text>
+							<view class="budget-card-arrow">
+								<view class="icon-arrow-right-budget"></view>
+							</view>
 						</view>
 					</view>
 					<view class="budget-progress-row">
@@ -114,10 +96,7 @@
 						</view>
 					</view>
 					<view class="budget-tip">
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2a7 7 0 017 7c0 3-2 4.5-3 6-.5.67-1 1.5-1 3h-2c0-2 .5-2.83 1-3.5 1-1.17 2-2.17 2-4.5a5 5 0 00-10 0c0 .56.09 1.1.25 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							<circle cx="12" cy="22" r="1" fill="currentColor"/>
-						</svg>
+						<view class="icon-help-circle"></view>
 						<text>{{ budgetTipText }}</text>
 					</view>
 				</view>
@@ -139,15 +118,26 @@
 					</view>
 
 					<template v-else>
-						<view v-for="group in groupedTxs.slice(0, 5)" :key="group.date" class="tx-item">
-							<text class="tx-emoji">{{ getCategoryEmoji(group.txs[0]?.category) }}</text>
-							<view class="tx-info">
-								<text class="tx-title">{{ group.txs[0]?.note || getCategoryName(group.txs[0]?.category) }}</text>
-								<text class="tx-time">{{ group.label }} {{ group.txs[0]?.time || '' }}</text>
+						<view v-for="group in groupedTxs.slice(0, 5)" :key="group.date" class="tx-group">
+							<view class="tx-date-header" @click="toggleGroup(group.date)">
+								<text class="tx-date-label">{{ group.label }}</text>
+								<view class="tx-date-right">
+									<text class="tx-date-summary">收 ¥{{ formatMoney(group.income) }} 支 ¥{{ formatMoney(group.expense) }}</text>
+									<view class="tx-collapse-arrow" :class="{ collapsed: collapsedDates[group.date] }">
+										<view class="icon-arrow-down-date"></view>
+									</view>
+								</view>
 							</view>
-							<text class="tx-amount" :class="group.txs[0]?.type === 'income' ? 'income' : 'expense'">
-								{{ group.txs[0]?.type === 'income' ? '+' : '-' }}¥{{ formatMoney(group.txs[0]?.amount || 0) }}
-							</text>
+							<view v-for="tx in group.txs" :key="tx.id" class="tx-item" v-if="!collapsedDates[group.date]">
+								<text class="tx-emoji">{{ getCategoryEmoji(tx.category) }}</text>
+								<view class="tx-info">
+									<text class="tx-title">{{ tx.note || getCategoryName(tx.category) }}</text>
+									<text class="tx-time">{{ tx.time || '' }}</text>
+								</view>
+								<text class="tx-amount" :class="tx.type === 'income' ? 'income' : 'expense'">
+									{{ tx.type === 'income' ? '+' : '-' }}¥{{ formatMoney(tx.amount || 0) }}
+								</text>
+							</view>
 						</view>
 					</template>
 				</view>
@@ -156,10 +146,28 @@
 			</template>
 		</scroll-view>
 
+		<!-- 账本切换弹窗 -->
+		<view class="ledger-overlay" v-if="showLedgerModal" @click="closeLedgerModal">
+			<view class="ledger-dropdown" @click.stop>
+				<view class="ledger-dropdown-arrow"></view>
+				<view class="ledger-dropdown-list">
+					<view v-for="ledger in data.ledgers" :key="ledger.id"
+						class="ledger-dropdown-item"
+						:class="{ current: ledger.current }"
+						@click="selectLedger(ledger.id)">
+						<text class="ledger-dropdown-name">{{ ledger.name }}</text>
+						<text v-if="ledger.current" class="ledger-check">✓</text>
+					</view>
+				</view>
+				<view class="ledger-dropdown-divider"></view>
+				<view class="ledger-dropdown-item ledger-new-item" @click="createNewLedger">
+					<text class="ledger-new-text">+ 新建账本</text>
+				</view>
+			</view>
+		</view>
+
 		<view class="fab-btn" @click="goRecord">
-			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M12 5v14M5 12h14" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-			</svg>
+			<view class="fab-icon"></view>
 		</view>
 
 		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
@@ -168,7 +176,7 @@
 
 <script>
 	import { mapState } from 'vuex'
-	import { formatMoney, todayStr } from '@/common/accounting-utils.js'
+	import { formatMoney, todayStr, CAT_ICONS } from '@/common/accounting-utils.js'
 	import Logger from '@/common/logger.js'
 	import TabBar from '@/components/TabBar.vue'
 
@@ -198,7 +206,8 @@
 				homeMonth: now.getMonth() + 1,
 				homeViewMode: 'month',
 				homeWeek: getWeekNumber(now),
-				collapsedDates: {}
+				collapsedDates: {},
+				showLedgerModal: false
 			}
 		},
 		computed: {
@@ -211,13 +220,46 @@
 				const map = { week: '本周暂无账单记录', month: '本月暂无账单记录', year: '今年暂无账单记录' }
 				return map[this.homeViewMode] || '暂无账单记录'
 			},
+			periodLabel() {
+				if (this.homeViewMode === 'year') {
+					return this.homeYear + '年'
+				} else if (this.homeViewMode === 'week') {
+					return this.homeYear + '年 第' + this.homeWeek + '周'
+				}
+				return this.homeYear + '年' + this.homeMonth + '月'
+			},
+			summaryLabel() {
+				const map = { week: '本周结余', month: '本月结余', year: '今年结余' }
+				return map[this.homeViewMode] || '本月结余'
+			},
+			budgetTitle() {
+				if (this.homeViewMode === 'year') return '今年预算'
+				return '本月预算'
+			},
 			monthTxs() {
 				const p = this.homeYear + '-' + String(this.homeMonth).padStart(2, '0')
 				return this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0)
 			},
+			viewTxs() {
+				if (this.homeViewMode === 'week') {
+					const start = weekStartDate(this.homeYear, this.homeWeek)
+					const end = new Date(start)
+					end.setDate(end.getDate() + 6)
+					end.setHours(23, 59, 59, 999)
+					return this.data.transactions.filter(t => {
+						if (!t.date) return false
+						const d = new Date(t.date)
+						return d >= start && d <= end
+					})
+				} else if (this.homeViewMode === 'year') {
+					const prefix = String(this.homeYear)
+					return this.data.transactions.filter(t => t.date && t.date.startsWith(prefix))
+				}
+				return this.monthTxs
+			},
 			summary() {
 				let inc = 0, exp = 0
-				this.monthTxs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
+				this.viewTxs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
 				return { income: inc, expense: exp, balance: inc - exp }
 			},
 			budgetTotal() {
@@ -251,25 +293,8 @@
 				return '今日暂无支出，继续保持'
 			},
 			groupedTxs() {
-				let filtered = []
-				if (this.homeViewMode === 'week') {
-					const start = weekStartDate(this.homeYear, this.homeWeek)
-					const end = new Date(start)
-					end.setDate(end.getDate() + 6)
-					end.setHours(23, 59, 59, 999)
-					filtered = this.data.transactions.filter(t => {
-						if (!t.date) return false
-						const d = new Date(t.date)
-						return d >= start && d <= end
-					})
-				} else if (this.homeViewMode === 'year') {
-					const prefix = String(this.homeYear)
-					filtered = this.data.transactions.filter(t => t.date && t.date.startsWith(prefix))
-				} else {
-					filtered = this.monthTxs
-				}
 				const groups = {}
-				filtered.forEach(t => {
+				this.viewTxs.forEach(t => {
 					if (!t.date) return
 					if (!groups[t.date]) groups[t.date] = []
 					groups[t.date].push(t)
@@ -307,45 +332,37 @@
 			},
 			getCategoryName(cat) {
 				if (!cat) return '其他'
-				const map = {
-					food: '餐饮', transport: '交通', shopping: '购物', entertainment: '娱乐',
-					medical: '医疗', education: '教育', housing: '住房', salary: '工资',
-					bonus: '奖金', investment: '投资', other: '其他'
-				}
-				return map[cat] || cat
+				return cat
 			},
 			getCategoryEmoji(cat) {
-				if (!cat) return '📦'
-				const map = {
-					food: '🍜', transport: '🚇', shopping: '🛒', entertainment: '🎮',
-					medical: '💊', education: '📚', housing: '🏠', salary: '💰',
-					bonus: '🎁', investment: '📈', other: '📦'
-				}
-				return map[cat] || '📦'
+				return CAT_ICONS[cat] || '📦'
 			},
 			toggleViewMode() {
 				const order = ['week', 'month', 'year']
 				const idx = order.indexOf(this.homeViewMode)
 				this.homeViewMode = order[(idx + 1) % 3]
-				const now = new Date()
-				this.homeYear = now.getFullYear()
-				this.homeMonth = now.getMonth() + 1
-				this.homeWeek = getWeekNumber(now)
-				this.$store.dispatch('accounting/fetchDashboard', { year: this.homeYear, month: this.homeMonth })
 			},
 			prevMonth() {
-				if (this.homeMonth === 1) { this.homeMonth = 12; this.homeYear-- }
-				else this.homeMonth--
-				this.homeWeek = getWeekNumber(new Date(this.homeYear, this.homeMonth - 1, 1))
-				this.homeViewMode = 'month'
-				this.$store.dispatch('accounting/fetchDashboard', { year: this.homeYear, month: this.homeMonth })
+				if (this.homeViewMode === 'week') {
+					this.homeWeek--
+					if (this.homeWeek < 1) { this.homeWeek = 52; this.homeYear-- }
+				} else if (this.homeViewMode === 'year') {
+					this.homeYear--
+				} else {
+					if (this.homeMonth === 1) { this.homeMonth = 12; this.homeYear-- }
+					else this.homeMonth--
+				}
 			},
 			nextMonth() {
-				if (this.homeMonth === 12) { this.homeMonth = 1; this.homeYear++ }
-				else this.homeMonth++
-				this.homeWeek = getWeekNumber(new Date(this.homeYear, this.homeMonth - 1, 1))
-				this.homeViewMode = 'month'
-				this.$store.dispatch('accounting/fetchDashboard', { year: this.homeYear, month: this.homeMonth })
+				if (this.homeViewMode === 'week') {
+					this.homeWeek++
+					if (this.homeWeek > 52) { this.homeWeek = 1; this.homeYear++ }
+				} else if (this.homeViewMode === 'year') {
+					this.homeYear++
+				} else {
+					if (this.homeMonth === 12) { this.homeMonth = 1; this.homeYear++ }
+					else this.homeMonth++
+				}
 			},
 			goRecord() { uni.navigateTo({ url: '/pages/accounting/record' }) },
 			goBudgetPage() {
@@ -367,15 +384,19 @@
 			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
 			async showLedgerSwitch() {
 				if (this.data.ledgers.length === 0) { uni.showToast({ title: '暂无账本', icon: 'none' }); return }
-				const items = this.data.ledgers.map(l => l.name)
-				uni.showActionSheet({
-					itemList: items,
-					success: async (res) => {
-						const id = this.data.ledgers[res.tapIndex].id
-						await this.$store.dispatch('accounting/switchLedger', id)
-						uni.showToast({ title: '账本已切换', icon: 'none' })
-					}
-				})
+				this.showLedgerModal = true
+			},
+			closeLedgerModal() {
+				this.showLedgerModal = false
+			},
+			async selectLedger(id) {
+				this.showLedgerModal = false
+				await this.$store.dispatch('accounting/switchLedger', id)
+				uni.showToast({ title: '账本已切换', icon: 'none' })
+			},
+			createNewLedger() {
+				this.showLedgerModal = false
+				uni.navigateTo({ url: '/pages/accounting/ledgers' })
 			},
 			showNotifications() {
 				uni.showToast({ title: '暂无新通知', icon: 'none' })
@@ -450,12 +471,13 @@
 </script>
 
 <style lang="scss" scoped>
-	.home-page { height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; }
+	.home-page { height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; position: relative; }
+	.custom-nav-bar { position: sticky; top: 0; z-index: 10; background: #FFF9F5; padding-bottom: 16rpx; flex-shrink: 0; }
 	.home-header { padding: calc(var(--status-bar-height) + 24rpx) 40rpx 0; background: #FFF9F5; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }
 	.ledger-switch-btn { display: flex; align-items: center; gap: 12rpx; color: #3D2316; font-weight: 600; font-size: 32rpx; }
 	.bell-btn { width: 80rpx; height: 80rpx; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04); display: flex; align-items: center; justify-content: center; color: #7A5C4A; position: relative; flex-shrink: 0; }
 	.bell-btn .dot { position: absolute; top: 16rpx; right: 18rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #E8734A; border: 4rpx solid #FFFFFF; }
-	.home-scroll { flex: 1; width: 100%; padding: 0 40rpx; box-sizing: border-box; }
+	.home-scroll { flex: 1; width: 100%; padding: 8rpx 20rpx 0; box-sizing: border-box; }
 
 	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
@@ -464,7 +486,7 @@
 	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(232, 115, 74, 0.2); border-top-color: #E8734A; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
 	@keyframes spin { to { transform: rotate(360deg); } }
 
-	.period-selector { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 40rpx; }
+	.period-selector { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 0; }
 	.month-nav { display: flex; align-items: center; gap: 24rpx; }
 	.month-arrow { width: 64rpx; height: 64rpx; border-radius: 50%; border: 1px solid #F0E4DA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #7A5C4A; }
 	.month-arrow:active { background: #F5EDE6; }
@@ -473,9 +495,9 @@
 	.period-cycle-btn { display: flex; align-items: center; gap: 8rpx; padding: 16rpx 24rpx; background: #FFFFFF; border: 1px solid #F0E4DA; border-radius: 40rpx; color: #7A5C4A; font-size: 24rpx; font-weight: 500; }
 	.period-cycle-btn:active { border-color: #E8734A; color: #E8734A; }
 
-	.balance-card { margin: 16rpx 40rpx; background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; position: relative; }
-	.balance-card .gradient-strip { height: 12rpx; background: linear-gradient(135deg, #E8734A, #F2956E); }
-	.balance-card .card-body { padding: 40rpx 48rpx; }
+	.balance-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; position: relative; margin-bottom: 40rpx; }
+	.balance-card .gradient-strip { height: 20rpx; background: linear-gradient(135deg, #E8734A, #F2956E); }
+	.balance-card .card-body { padding: 25rpx 48rpx; }
 	.balance-card .balance-label { font-size: 28rpx; color: #A98B78; margin-bottom: 8rpx; }
 	.balance-card .balance-amount { font-size: 72rpx; font-weight: 700; color: #E8734A; line-height: 1.25; margin-bottom: 40rpx; }
 	.balance-card .summary-row { display: flex; gap: 48rpx; }
@@ -485,7 +507,7 @@
 	.balance-card .summary-item .amount.income { color: #4CAF50; }
 	.balance-card .summary-item .amount.expense { color: #E8734A; }
 
-	.budget-card { margin: 32rpx 40rpx; background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; }
+	.budget-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 40rpx; }
 	.budget-card-header { margin-bottom: 24rpx; }
 	.budget-card-title-row { display: flex; align-items: center; gap: 16rpx; color: #3D2316; }
 	.budget-card-title { font-size: 32rpx; font-weight: 600; flex: 1; }
@@ -504,13 +526,22 @@
 	.budget-stat-divider { width: 1px; height: 64rpx; background: #F0E4DA; flex-shrink: 0; }
 	.budget-tip { display: flex; align-items: flex-start; gap: 16rpx; padding: 24rpx; background: #FFF0E8; border-radius: 24rpx; font-size: 24rpx; color: #7A5C4A; line-height: 1.5; }
 
-	.recent-card { margin: 0 40rpx; background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
+	.recent-card { margin: 0; background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
 	.recent-card .card-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 40rpx; border-bottom: 1px solid #F0E4DA; }
 	.recent-card .card-title { font-size: 32rpx; font-weight: 600; color: #3D2316; }
 	.recent-card .card-link { font-size: 24rpx; color: #A98B78; }
 
-	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 32rpx 40rpx; border-bottom: 1px solid #F0E4DA; }
-	.tx-item:last-child { border-bottom: none; }
+	.tx-group:not(:last-child) { border-bottom: 1px solid #F0E4DA; }
+	.tx-date-header { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 40rpx 12rpx; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+	.tx-date-label { font-size: 26rpx; font-weight: 600; color: #7A5C4A; }
+	.tx-date-right { display: flex; align-items: center; gap: 12rpx; }
+	.tx-date-summary { font-size: 22rpx; color: #A98B78; }
+	.tx-collapse-arrow { width: 36rpx; height: 36rpx; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; flex-shrink: 0; }
+	.tx-collapse-arrow.collapsed { transform: rotate(-90deg); }
+	.icon-arrow-down-date { width: 28rpx; height: 28rpx; background-color: #A98B78; mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; }
+
+	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 24rpx 40rpx; }
+	.tx-item:last-child { padding-bottom: 32rpx; }
 	.tx-item:active { background: #F5EDE6; }
 	.tx-item .tx-emoji { width: 80rpx; height: 80rpx; border-radius: 24rpx; background: #F5EDE6; display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
 	.tx-item .tx-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
@@ -520,6 +551,31 @@
 	.tx-item .tx-amount.income { color: #4CAF50; }
 	.tx-item .tx-amount.expense { color: #3D2316; }
 
+	/* 账本切换下拉菜单 */
+	.ledger-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: transparent; z-index: 100; }
+	.ledger-dropdown { position: absolute; top: calc(var(--status-bar-height) + 90rpx); left: 40rpx; min-width: 280rpx; background: #FFFFFF; border-radius: 24rpx; box-shadow: 0 8rpx 32rpx rgba(61,35,22,0.12); }
+	.ledger-dropdown-arrow { position: absolute; top: -12rpx; left: 48rpx; width: 0; height: 0; border-left: 14rpx solid transparent; border-right: 14rpx solid transparent; border-bottom: 14rpx solid #FFFFFF; filter: drop-shadow(0 -4rpx 4rpx rgba(61,35,22,0.04)); }
+	.ledger-dropdown-list { padding: 8rpx 0; }
+	.ledger-dropdown-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 36rpx; cursor: pointer; transition: background 0.15s; min-width: 200rpx; }
+	.ledger-dropdown-item:active { background: #FFF5EE; }
+	.ledger-dropdown-item.current { background: #FFF5EE; }
+	.ledger-dropdown-name { font-size: 28rpx; color: #3D2316; white-space: nowrap; }
+	.ledger-dropdown-divider { height: 1px; margin: 4rpx 36rpx; border-top: 1rpx dashed #E0D0C4; }
+	.ledger-new-item { border-radius: 0 0 24rpx 24rpx; }
+	.ledger-new-text { font-size: 28rpx; color: #E8734A; font-weight: 500; }
+
 	.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: #E8734A; box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.35); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid #FFFFFF; }
 	.fab-btn:active { transform: scale(0.95); }
+	.fab-icon { width: 44rpx; height: 44rpx; background-color: #FFFFFF; mask: url(/static/icons/fab-add.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/fab-add.svg) center/contain no-repeat; }
+
+	.icon-base { mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-book-open { width: 36rpx; height: 36rpx; background-color: currentColor; mask: url(/static/icons/book-open.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/book-open.svg) center/contain no-repeat; }
+	.icon-arrow-down-small { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; }
+	.icon-bell { width: 40rpx; height: 40rpx; background-color: currentColor; mask: url(/static/icons/bell.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/bell.svg) center/contain no-repeat; }
+	.icon-arrow-left-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; }
+	.icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
+	.icon-refresh { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/refresh-cw.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/refresh-cw.svg) center/contain no-repeat; }
+	.icon-pie-chart { width: 36rpx; height: 36rpx; background-color: currentColor; mask: url(/static/icons/pie-chart.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/pie-chart.svg) center/contain no-repeat; }
+	.icon-arrow-right-budget { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
+	.icon-help-circle { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/help-circle.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/help-circle.svg) center/contain no-repeat; flex-shrink: 0; }
 </style>

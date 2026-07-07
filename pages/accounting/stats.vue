@@ -1,7 +1,9 @@
 <template>
 	<view class="stats-page">
-		<view class="stats-header">
-			<text class="header-title">统计</text>
+		<view class="custom-nav-bar">
+			<view class="stats-header">
+				<text class="header-title">统计</text>
+			</view>
 		</view>
 
 		<view class="period-selector">
@@ -48,9 +50,9 @@
 			<view class="stats-card trend-section">
 				<text class="section-title">月度趋势</text>
 				<view class="bar-chart">
-					<view v-for="(month, i) in trendData" :key="month.label" class="bar-col">
-						<view class="bar-fill" :class="{ current: i === trendData.length - 1 }" :style="{ height: month.height + '%' }"></view>
-						<text class="bar-label" :class="{ current: i === trendData.length - 1 }">{{ month.label }}</text>
+					<view v-for="month in trendData" :key="month.label" class="bar-col">
+						<view class="bar-fill" :class="{ current: month.isCurrent }" :style="{ height: month.height + '%' }"></view>
+						<text class="bar-label" :class="{ current: month.isCurrent }">{{ month.label }}</text>
 					</view>
 				</view>
 			</view>
@@ -58,13 +60,13 @@
 			<view style="height: 200rpx;"></view>
 		</scroll-view>
 
-		<TabBar currentTab="stats" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
+		<TabBar currentTab="stats" :showFab="false" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
 	</view>
 </template>
 
 <script>
 	import { mapState } from 'vuex'
-	import { formatMoney } from '@/common/accounting-utils.js'
+	import { formatMoney, CAT_ICONS } from '@/common/accounting-utils.js'
 	import TabBar from '@/components/TabBar.vue'
 
 	export default {
@@ -135,14 +137,12 @@
 			maxAmount() { return this.ranking.length > 0 ? this.ranking[0].amount : 1 },
 			trendData() {
 				const months = []
-				for (let i = 5; i >= 0; i--) {
-					const d = new Date(this.year, this.month - 1 - i, 1)
-					const year = d.getFullYear()
-					const month = d.getMonth() + 1
-					const p = year + '-' + String(month).padStart(2, '0')
+				for (let i = 0; i < 12; i++) {
+					const month = i + 1
+					const p = this.year + '-' + String(month).padStart(2, '0')
 					const txs = this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
 					const amount = txs.reduce((sum, t) => sum + t.amount, 0)
-					months.push({ label: month + '月', amount, year })
+					months.push({ label: month + '月', amount, year: this.year, isCurrent: month === this.month })
 				}
 				const max = Math.max(...months.map(m => m.amount), 1)
 				return months.map(m => ({ ...m, height: (m.amount / max * 100).toFixed(0) }))
@@ -155,21 +155,10 @@
 			formatMoney,
 			getCategoryName(cat) {
 				if (!cat) return '其他'
-				const map = {
-					food: '餐饮', transport: '交通', shopping: '购物', entertainment: '娱乐',
-					medical: '医疗', education: '教育', housing: '住房', salary: '工资',
-					bonus: '奖金', investment: '投资', other: '其他', communication: '通讯'
-				}
-				return map[cat] || cat
+				return cat
 			},
 			getCategoryEmoji(cat) {
-				if (!cat) return '📦'
-				const map = {
-					food: '🍜', transport: '🚗', shopping: '🛒', entertainment: '🎬',
-					medical: '💊', education: '📚', housing: '🏠', salary: '💰',
-					bonus: '🎁', investment: '📈', other: '📦', communication: '📱'
-				}
-				return map[cat] || '📦'
+				return CAT_ICONS[cat] || '📦'
 			},
 			barWidth(item) { return (item.amount / this.maxAmount * 100).toFixed(0) },
 			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
@@ -217,7 +206,7 @@
 	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: #E8734A; transition: width 0.6s ease; }
 
 	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: #3D2316; margin-bottom: 32rpx; display: block; }
-	.bar-chart { display: flex; align-items: flex-end; gap: 24rpx; height: 240rpx; padding-top: 16rpx; }
+	.bar-chart { display: flex; align-items: flex-end; gap: 8rpx; height: 260rpx; padding-top: 16rpx; }
 	.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12rpx; height: 100%; justify-content: flex-end; }
 	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: #FBBE9E; }
 	.bar-fill.current { background: #E8734A; }

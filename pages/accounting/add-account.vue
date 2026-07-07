@@ -2,11 +2,9 @@
 	<view class="add-account-page">
 		<!-- 自定义导航栏 -->
 		<view class="nav-bar">
-			<view class="nav-back" @click="goBack">
-				<svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="m15 18-6-6 6-6"/>
-				</svg>
-			</view>
+		<view class="nav-back" @click="goBack">
+			<view class="back-icon"></view>
+		</view>
 			<text class="nav-title">添加账户</text>
 			<view class="nav-placeholder"></view>
 		</view>
@@ -106,16 +104,8 @@
 						@input="onCardInput"
 					/>
 					<view class="card-toggle" @click="cardNumberVisible = !cardNumberVisible">
-						<svg v-if="cardNumberVisible" class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-							<circle cx="12" cy="12" r="3"/>
-						</svg>
-						<svg v-else class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-							<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-							<path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3.5 7 10 7c.78 0 1.53-.09 2.24-.26"/>
-							<path d="M2 2l20 20"/>
-						</svg>
+						<view v-if="cardNumberVisible" class="toggle-icon toggle-icon-open"></view>
+						<view v-else class="toggle-icon toggle-icon-off"></view>
 					</view>
 				</view>
 				<!-- 安全提示 -->
@@ -126,10 +116,7 @@
 				<view v-if="cardNumberRaw" class="card-preview" :style="{ borderColor: selectedColor + '44' }">
 					<view class="card-preview-top">
 						<text class="card-preview-type">{{ currentTypeLabel }}</text>
-						<svg class="card-preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<rect width="20" height="14" x="2" y="5" rx="2"/>
-							<line x1="2" x2="22" y1="10" y2="10"/>
-						</svg>
+						<view class="card-preview-icon"></view>
 					</view>
 					<text class="card-preview-number">{{ displayCardNumber }}</text>
 					<view class="card-preview-bottom">
@@ -382,7 +369,9 @@
 	.back-icon {
 		width: 36rpx;
 		height: 36rpx;
-		color: #3D2316;
+		background-color: #3D2316;
+		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
 	}
 	.nav-title {
 		font-size: 34rpx;
@@ -467,7 +456,16 @@
 	.toggle-icon {
 		width: 32rpx;
 		height: 32rpx;
-		color: #7A5C4A;
+	}
+	.toggle-icon-open {
+		background-color: #7A5C4A;
+		mask: url(/static/icons/eye-open.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/eye-open.svg) center/contain no-repeat;
+	}
+	.toggle-icon-off {
+		background-color: #7A5C4A;
+		mask: url(/static/icons/eye-off.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/eye-off.svg) center/contain no-repeat;
 	}
 	.card-hint {
 		font-size: 22rpx;
@@ -504,7 +502,9 @@
 	.card-preview-icon {
 		width: 40rpx;
 		height: 40rpx;
-		color: #fff;
+		background-color: #fff;
+		mask: url(/static/icons/credit-card.svg) center/contain no-repeat;
+		-webkit-mask: url(/static/icons/credit-card.svg) center/contain no-repeat;
 	}
 	.card-preview-number {
 		font-size: 38rpx;

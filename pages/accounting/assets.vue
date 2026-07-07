@@ -2,15 +2,11 @@
 	<view class="accounts-page">
 		<view class="top-nav">
 			<view class="nav-back" @click="backToHome" aria-label="返回">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M15 18l-6-6 6-6" stroke="#3D2316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<view class="back-svg"></view>
 			</view>
 			<text class="nav-title">我的账户</text>
 			<view class="nav-add" @click="showAddAccount" aria-label="添加账户">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M12 5v14M5 12h14" stroke="#3D2316" stroke-width="2" stroke-linecap="round"/>
-				</svg>
+				<view class="plus-svg"></view>
 			</view>
 		</view>
 
@@ -69,17 +65,13 @@
 						<text class="account-summary">{{ getAccountSummary(account) }}</text>
 					</view>
 					<view class="account-arrow">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M9 18l6-6-6-6" stroke="#A98B78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
+						<view class="arrow-svg"></view>
 					</view>
 				</view>
 
 				<view class="add-account-card" @click="showAddAccount">
 					<view class="plus-icon">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 5v14M5 12h14" stroke="#E8734A" stroke-width="2" stroke-linecap="round"/>
-						</svg>
+						<view class="card-plus-svg"></view>
 					</view>
 					<text class="add-label">添加账户</text>
 				</view>
@@ -401,5 +393,10 @@
 	.add-account-card:active .add-label {
 		color: #E8734A;
 	}
+
+	.back-svg { width: 20px; height: 20px; background-color: #3D2316; mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; }
+	.nav-add .plus-svg { width: 20px; height: 20px; background-color: #3D2316; mask: url(/static/icons/plus.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat; }
+	.arrow-svg { width: 16px; height: 16px; background-color: #A98B78; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
+	.card-plus-svg { width: 24px; height: 24px; background-color: #E8734A; mask: url(/static/icons/plus.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat; }
 
 	</style>

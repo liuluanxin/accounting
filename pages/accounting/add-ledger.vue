@@ -157,7 +157,7 @@
 					const res = await this.$store.dispatch('accounting/addLedger', ledgerData)
 					if (res.success) {
 						uni.showToast({ title: '账本创建成功 ✨', icon: 'none' })
-						setTimeout(() => uni.navigateBack(), 600)
+						setTimeout(() => uni.redirectTo({ url: '/pages/accounting/ledgers' }), 600)
 					} else {
 						uni.showToast({ title: res.message || '创建失败', icon: 'none' })
 					}
@@ -187,10 +187,13 @@
 
 <style lang="scss" scoped>
 	.add-ledger-page {
-		min-height: 100vh;
+		height: 100vh;
 		background: #FFF9F5;
 		display: flex;
 		flex-direction: column;
+		width: 100%;
+		box-sizing: border-box;
+		overflow-x: hidden;
 	}
 
 	/* ===== 导航栏 ===== */
@@ -199,11 +202,13 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: #FFFFFF;
+		background: #FFF9F5;
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		border-bottom: 1px solid #F0E4DA;
+		width: 100%;
+		box-sizing: border-box;
+		flex-shrink: 0;
 	}
 	.nav-back {
 		width: 72rpx;
@@ -237,7 +242,9 @@
 	/* ===== 滚动区域 ===== */
 	.form-scroll {
 		flex: 1;
+		width: 100%;
 		padding: 20rpx 28rpx;
+		box-sizing: border-box;
 	}
 
 	/* ===== 表单区块 ===== */
@@ -389,6 +396,7 @@
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 		background: linear-gradient(to top, #FFF9F5 60%, transparent);
 		z-index: 100;
+		box-sizing: border-box;
 	}
 	.btn-save {
 		height: 96rpx;

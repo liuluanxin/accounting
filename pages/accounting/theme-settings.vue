@@ -1,7 +1,13 @@
 <template>
-	<view class="page">
-		<view class="nav-back" @click="goBack"><text>‹</text></view>
-		<view class="page-title">主题设置</view>
+	<view class="theme-settings-page">
+		<!-- 自定义导航栏 - 标题居中 -->
+		<view class="nav-bar">
+			<view class="nav-back" @click="goBack">
+				<text class="back-icon">‹</text>
+			</view>
+			<text class="nav-title">主题设置</text>
+			<view class="nav-placeholder"></view>
+		</view>
 
 		<scroll-view scroll-y class="scroll">
 			<view class="section-desc">
@@ -67,12 +73,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
-.nav-back { position: fixed; top: calc(var(--status-bar-height) + 16rpx); left: 24rpx; width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 60rpx; color: var(--text-primary, #3D2316); z-index: 10; }
-.page-title { padding: calc(var(--status-bar-height) + 24rpx) 32rpx 16rpx; font-size: 36rpx; font-weight: 700; color: var(--text-primary, #3D2316); flex-shrink: 0; }
+.theme-settings-page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+
+/* 自定义导航栏 - 标题居中 */
+.nav-bar { display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; flex-shrink: 0; }
+.nav-back { width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 56rpx; color: var(--text-primary, #3D2316); }
+.back-icon { font-weight: 300; }
+.nav-title { flex: 1; text-align: center; font-size: 34rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
+.nav-placeholder { width: 64rpx; }
+
 .scroll { flex: 1; padding: 0 32rpx 80rpx; }
 
-.section-desc { padding: 8rpx 0 24rpx; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); }
+.section-desc { padding: 8rpx 0 24rpx; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
 
 .theme-list { display: flex; flex-direction: column; gap: 24rpx; }
 .theme-card { background: var(--card-bg, #fff); border-radius: 24rpx; padding: 0; overflow: hidden; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); border: 3rpx solid transparent; transition: all 0.25s; }

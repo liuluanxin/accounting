@@ -5,13 +5,13 @@
 
 		<scroll-view scroll-y class="login-scroll">
 			<view class="login-content">
-				<view class="login-logo">
-					<view class="logo-icon">
-						<text class="wallet-icon">👛</text>
-					</view>
-					<text class="app-title">记账助手</text>
-					<text class="app-subtitle">轻松管理每一笔开支</text>
+			<view class="login-logo">
+				<view class="logo-icon">
+					<image class="logo-img" src="/static/app-icon.png" mode="aspectFit" />
 				</view>
+				<text class="app-title">记账助手</text>
+				<text class="app-subtitle">轻松管理每一笔开支</text>
+			</view>
 
 				<view class="login-form-card">
 					<view class="form-group">
@@ -74,8 +74,8 @@
 	export default {
 		data() {
 			return { 
-				phone: '138****8888', 
-				password: '········', 
+				phone: '', 
+				password: '', 
 				logining: false,
 				showPassword: false,
 				rememberMe: false
@@ -90,6 +90,25 @@
 				Logger.info('Login', '用户登录', { phone: this.phone })
 
 				try {
+					// 校验已注册用户
+					const raw = uni.getStorageSync('registered_user')
+					const registered = raw ? JSON.parse(raw) : null
+					if (!registered) {
+						uni.showToast({ title: '账号未注册，请先注册', icon: 'none' })
+						this.logining = false
+						return
+					}
+					if (registered.phone !== this.phone.trim()) {
+						uni.showToast({ title: '该手机号未注册', icon: 'none' })
+						this.logining = false
+						return
+					}
+					if (registered.password !== this.password) {
+						uni.showToast({ title: '密码错误', icon: 'none' })
+						this.logining = false
+						return
+					}
+
 					const now = Date.now()
 					uni.setStorageSync('isLoggedIn', 'true')
 					uni.setStorageSync('loginTime', now)
@@ -137,6 +156,14 @@
 		padding: 0 40rpx;
 		box-sizing: border-box;
 	}
+	/* 中等屏（大屏手机）增加左右呼吸空间 */
+	@media (min-width: 414px) {
+		.login-scroll { padding: 0 60rpx; }
+	}
+	/* 平板及以上 */
+	@media (min-width: 768px) {
+		.login-scroll { padding: 0 80rpx; }
+	}
 	.decoration-blob {
 		position: absolute;
 		border-radius: 50%;
@@ -180,15 +207,17 @@
 		height: 128rpx;
 		margin: 0 auto 32rpx;
 		border-radius: 32rpx;
-		background: linear-gradient(135deg, #E8734A 0%, #F2956E 100%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		overflow: hidden;
+		background: #FFFFFF;
 		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		padding: 8rpx;
+		box-sizing: border-box;
 	}
-	.wallet-icon {
-		font-size: 64rpx;
-		color: #fff;
+	.logo-img {
+		width: 100%;
+		height: 100%;
+		border-radius: 24rpx;
+		background: transparent;
 	}
 	.app-title {
 		display: block;
@@ -206,9 +235,21 @@
 	.login-form-card {
 		background: #fff;
 		border-radius: 32rpx;
-		padding: 40rpx;
+		padding: 36rpx 32rpx;
 		box-shadow: 0 8rpx 24rpx rgba(61, 35, 22, 0.08);
 		margin-bottom: 40rpx;
+	}
+	/* 小屏手机：卡片内边距压缩 */
+	@media (max-width: 374px) {
+		.login-form-card { padding: 28rpx 24rpx; }
+	}
+	/* 大屏手机：卡片内边距舒展 */
+	@media (min-width: 414px) {
+		.login-form-card { padding: 44rpx 48rpx; }
+	}
+	/* 平板及以上 */
+	@media (min-width: 768px) {
+		.login-form-card { padding: 52rpx 56rpx; }
 	}
 
 	.form-group {
@@ -227,7 +268,7 @@
 		border-radius: 50rpx;
 		background: #FFF5EE;
 		border: 2rpx solid #E8D5C8;
-		padding: 0 24rpx;
+		padding: 20rpx 24rpx;
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
@@ -240,12 +281,12 @@
 	}
 	.input-field {
 		flex: 1;
-		height: 88rpx;
 		font-size: 30rpx;
 		color: #3D2316;
 		background: transparent;
 		border: none;
 		outline: none;
+		text-align: left;
 	}
 	.input-field::placeholder {
 		color: #C8A896;
@@ -298,18 +339,26 @@
 	}
 
 	.btn-primary {
-		width: 100%;
+		width: 86%;
+		max-width: 520rpx;
+		min-width: 200rpx;
+		margin: 0 auto;
 		height: 96rpx;
+		min-height: 44px; /* 最小触摸目标 */
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background: #E8734A;
 		color: #fff;
-		font-size: 32rpx;
+		font-size: 40rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
 		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
 		transition: background 0.2s;
+		cursor: pointer;
+		user-select: none;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 	}
 	.btn-primary:active {
 		background: #C95A33;
@@ -374,14 +423,18 @@
 		color: #E8734A;
 	}
 
+	@media (min-width: 414px) {
+		.login-content { padding-top: 100rpx; }
+	}
 	@media (min-width: 768px) {
-		.login-page { padding: 0 80rpx; }
+		.login-page { padding: 0; }
 		.login-content { padding-top: 80rpx; }
 		.app-title { font-size: 48rpx; }
 	}
-	@media (max-width: 360px) {
-		.login-page { padding: 0 24rpx; }
-		.login-form-card { padding: 28rpx; }
+	@media (max-width: 374px) {
+		.login-page { padding: 0; }
+		.login-content { padding-top: 80rpx; }
+		.btn-primary { height: 80rpx; font-size: 28rpx; }
 		.social-login { gap: 32rpx; }
 		.social-btn { width: 80rpx; height: 80rpx; }
 	}

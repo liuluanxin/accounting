@@ -93,6 +93,12 @@ export default {
 		return apiRequest({ url: ENDPOINTS.ledgers.create, method: 'POST', data: ledgerData })
 	},
 
+	/** 删除账本 */
+	async deleteLedger(id) {
+		Logger.info(MODULE, 'deleteLedger', { id })
+		return apiRequest({ url: ENDPOINTS.ledgers.delete, method: 'POST', data: { id } })
+	},
+
   // ==================== 仪表盘 ====================
 
   /** 获取月度总览 */
