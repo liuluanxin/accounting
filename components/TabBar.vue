@@ -6,8 +6,8 @@
 			</view>
 		</view>
 		<nav class="tab-bar" role="tablist">
-			<view v-for="tab in tabs" :key="tab.id" 
-				class="tab-item" 
+			<view v-for="tab in tabs" :key="tab.id"
+				class="tab-item"
 				:class="{ active: currentTab === tab.id }"
 				@click="handleTabClick(tab.id)"
 				role="tab">
@@ -111,6 +111,12 @@
 		width: 22px;
 		height: 22px;
 		background-color: #FFFFFF;
+		mask-size: contain;
+		-webkit-mask-size: contain;
+		mask-repeat: no-repeat;
+		-webkit-mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-position: center;
 	}
 
 	.tab-bar {
