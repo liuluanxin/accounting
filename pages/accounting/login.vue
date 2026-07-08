@@ -70,8 +70,11 @@
 
 <script>
 	import Logger from '@/common/logger.js'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return { 
 				phone: '', 
@@ -82,6 +85,9 @@
 			}
 		},
 		methods: {
+			getIconStyle(name) {
+				return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
+			},
 			async handleLogin() {
 				if (!this.phone.trim()) { uni.showToast({ title: '请输入手机号/邮箱', icon: 'none' }); return }
 				if (!this.password.trim()) { uni.showToast({ title: '请输入密码', icon: 'none' }); return }
@@ -142,7 +148,7 @@
 <style lang="scss" scoped>
 	.login-page {
 		min-height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		width: 100%;
 		box-sizing: border-box;
 		overflow-x: hidden;
@@ -175,7 +181,7 @@
 		transform: translateX(-50%);
 		width: 640rpx;
 		height: 640rpx;
-		background: radial-gradient(circle at 40% 40%, #FDE6D4 0%, #FBBE9E 40%, transparent 70%);
+		background: radial-gradient(circle at 40% 40%, rgba(232, 115, 74, 0.1) 0%, rgba(232, 115, 74, 0.3) 40%, transparent 70%);
 		opacity: 0.6;
 	}
 	.blob-2 {
@@ -183,7 +189,7 @@
 		right: -120rpx;
 		width: 400rpx;
 		height: 400rpx;
-		background: radial-gradient(circle at 60% 30%, #FBBE9E 0%, transparent 60%);
+		background: radial-gradient(circle at 60% 30%, rgba(232, 115, 74, 0.3) 0%, transparent 60%);
 		opacity: 0.4;
 	}
 
@@ -208,7 +214,7 @@
 		margin: 0 auto 32rpx;
 		border-radius: 32rpx;
 		overflow: hidden;
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
 		padding: 8rpx;
 		box-sizing: border-box;
@@ -223,17 +229,17 @@
 		display: block;
 		font-size: 48rpx;
 		font-weight: 700;
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		margin-bottom: 8rpx;
 	}
 	.app-subtitle {
 		display: block;
 		font-size: 26rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 
 	.login-form-card {
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		padding: 36rpx 32rpx;
 		box-shadow: 0 8rpx 24rpx rgba(61, 35, 22, 0.08);
@@ -259,30 +265,30 @@
 		display: block;
 		font-size: 26rpx;
 		font-weight: 500;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-bottom: 12rpx;
 	}
 	.input-wrapper {
 		display: flex;
 		align-items: center;
 		border-radius: 50rpx;
-		background: #FFF5EE;
-		border: 2rpx solid #E8D5C8;
+		background: var(--input-bg, #FFF5EE);
+		border: 2rpx solid var(--border, #E8D5C8);
 		padding: 20rpx 24rpx;
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 	}
 	.input-icon {
 		font-size: 32rpx;
 		margin-right: 16rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.input-field {
 		flex: 1;
 		font-size: 30rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
 		outline: none;
@@ -313,15 +319,15 @@
 		width: 36rpx;
 		height: 36rpx;
 		border-radius: 8rpx;
-		border: 2rpx solid #E8D5C8;
+		border: 2rpx solid var(--border, #E8D5C8);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s;
 	}
 	.checkbox.checked {
-		background: #E8734A;
-		border-color: #E8734A;
+		background: var(--primary, #E8734A);
+		border-color: var(--primary, #E8734A);
 	}
 	.check-icon {
 		font-size: 24rpx;
@@ -330,11 +336,11 @@
 	}
 	.remember-text {
 		font-size: 26rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 	}
 	.forgot-link {
 		font-size: 26rpx;
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 500;
 	}
 
@@ -348,7 +354,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #E8734A;
+		background: var(--primary, #E8734A);
 		color: #fff;
 		font-size: 40rpx;
 		font-weight: 600;
@@ -361,17 +367,17 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 	.btn-primary:active {
-		background: #C95A33;
+		background: var(--primary-dark, #C95A33);
 	}
 
 	.register-link {
 		text-align: center;
 		font-size: 28rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		margin-bottom: 64rpx;
 	}
 	.link-text {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 600;
 	}
 
@@ -387,11 +393,11 @@
 	.divider-line {
 		flex: 1;
 		height: 2rpx;
-		background: #F0E4DA;
+		background: var(--border, #F0E4DA);
 	}
 	.divider-text {
 		font-size: 24rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.social-login {
 		display: flex;
@@ -402,7 +408,7 @@
 		width: 96rpx;
 		height: 96rpx;
 		border-radius: 50%;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -420,7 +426,7 @@
 	}
 	.social-icon-phone {
 		font-size: 48rpx;
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 	}
 
 	@media (min-width: 414px) {

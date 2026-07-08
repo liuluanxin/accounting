@@ -3,7 +3,7 @@
 		<!-- 自定义导航栏 -->
 		<view class="nav-bar">
 		<view class="nav-back" @click="goBack">
-			<view class="back-icon"></view>
+			<view class="back-icon" :style="getIconStyle('arrow-left')"></view>
 		</view>
 			<text class="nav-title">添加账户</text>
 			<view class="nav-placeholder"></view>
@@ -104,8 +104,8 @@
 						@input="onCardInput"
 					/>
 					<view class="card-toggle" @click="cardNumberVisible = !cardNumberVisible">
-						<view v-if="cardNumberVisible" class="toggle-icon toggle-icon-open"></view>
-						<view v-else class="toggle-icon toggle-icon-off"></view>
+						<view v-if="cardNumberVisible" class="toggle-icon toggle-icon-open" :style="getIconStyle('eye-open')"></view>
+						<view v-else class="toggle-icon toggle-icon-off" :style="getIconStyle('eye-off')"></view>
 					</view>
 				</view>
 				<!-- 安全提示 -->
@@ -116,7 +116,7 @@
 				<view v-if="cardNumberRaw" class="card-preview" :style="{ borderColor: selectedColor + '44' }">
 					<view class="card-preview-top">
 						<text class="card-preview-type">{{ currentTypeLabel }}</text>
-						<view class="card-preview-icon"></view>
+						<view class="card-preview-icon" :style="getIconStyle('credit-card')"></view>
 					</view>
 					<text class="card-preview-number">{{ displayCardNumber }}</text>
 					<view class="card-preview-bottom">
@@ -177,6 +177,8 @@
 
 <script>
 	import { mapState } from 'vuex'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	const ACCOUNT_TYPES = [
 		{ value: 'cash', label: '现金', icon: '💵' },
@@ -201,6 +203,7 @@
 	]
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return {
 				accountName: '',
@@ -260,6 +263,12 @@
 			uni.offKeyboardHeightChange(this.onKeyboardHeightChange)
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			onKeyboardHeightChange(e) {
 				this.keyboardHeight = (e && e.height) || 0
 			},
@@ -335,7 +344,7 @@
 <style lang="scss" scoped>
 	.add-account-page {
 		min-height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 	}
@@ -346,11 +355,11 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		border-bottom: 1px solid #F0E4DA;
+		border-bottom: 1px solid var(--border, #F0E4DA);
 	}
 	.nav-back {
 		width: 72rpx;
@@ -359,24 +368,28 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: #FFF5EE;
+		background: var(--input-bg, #FFF5EE);
 		transition: all 0.2s;
 	}
 	.nav-back:active {
-		background: #F0E4DA;
+		background: var(--border, #F0E4DA);
 		transform: scale(0.95);
 	}
 	.back-icon {
 		width: 36rpx;
 		height: 36rpx;
-		background-color: #3D2316;
-		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		background-color: var(--text-primary, #3D2316);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.nav-placeholder {
 		width: 72rpx;
@@ -401,7 +414,7 @@
 	.label-text {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.label-required {
 		color: #FF6B6B;
@@ -409,28 +422,28 @@
 	}
 	.label-hint {
 		font-size: 22rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-left: 8rpx;
 	}
 
 	/* ===== 输入框 ===== */
 	.input-wrapper {
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 16rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		padding: 0 24rpx;
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 	}
 	.form-input {
 		height: 92rpx;
 		font-size: 30rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.input-placeholder {
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		font-size: 28rpx;
 	}
 	.card-input-wrapper {
@@ -451,21 +464,29 @@
 		transition: all 0.2s;
 	}
 	.card-toggle:active {
-		background: #FFF5EE;
+		background: var(--input-bg, #FFF5EE);
 	}
 	.toggle-icon {
 		width: 32rpx;
 		height: 32rpx;
 	}
 	.toggle-icon-open {
-		background-color: #7A5C4A;
-		mask: url(/static/icons/eye-open.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/eye-open.svg) center/contain no-repeat;
+		background-color: var(--text-secondary, #7A5C4A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.toggle-icon-off {
-		background-color: #7A5C4A;
-		mask: url(/static/icons/eye-off.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/eye-off.svg) center/contain no-repeat;
+		background-color: var(--text-secondary, #7A5C4A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.card-hint {
 		font-size: 22rpx;
@@ -485,8 +506,8 @@
 		padding: 32rpx 28rpx;
 		border-radius: 20rpx;
 		border: 2rpx solid;
-		background: linear-gradient(135deg, #3D2316 0%, #5A3D2E 100%);
-		color: #fff;
+		background: linear-gradient(135deg, var(--text-primary, #3D2316) 0%, #5A3D2E 100%);
+		color: var(--card-bg, #FFFFFF);
 	}
 	.card-preview-top {
 		display: flex;
@@ -502,9 +523,13 @@
 	.card-preview-icon {
 		width: 40rpx;
 		height: 40rpx;
-		background-color: #fff;
-		mask: url(/static/icons/credit-card.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/credit-card.svg) center/contain no-repeat;
+		background-color: var(--card-bg, #FFFFFF);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.card-preview-number {
 		font-size: 38rpx;
@@ -537,9 +562,9 @@
 		gap: 6rpx;
 		padding: 16rpx 28rpx;
 		margin-right: 16rpx;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 20rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		min-width: 100rpx;
 		transition: all 0.2s;
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
@@ -549,8 +574,8 @@
 	}
 	.type-active {
 		background: rgba(232, 115, 74, 0.1);
-		border-color: #E8734A;
-		color: #E8734A;
+		border-color: var(--primary, #E8734A);
+		color: var(--primary, #E8734A);
 		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.15);
 	}
 	.type-emoji {
@@ -566,10 +591,10 @@
 		display: grid;
 		grid-template-columns: repeat(7, 1fr);
 		gap: 12rpx;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		padding: 20rpx;
 		border-radius: 20rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 	}
 	.icon-item {
@@ -581,13 +606,13 @@
 		border-radius: 16rpx;
 		border: 2rpx solid transparent;
 		transition: all 0.2s;
-		background: #FFF5EE;
+		background: var(--input-bg, #FFF5EE);
 	}
 	.icon-item:active {
 		transform: scale(0.9);
 	}
 	.icon-selected {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 		background: rgba(232, 115, 74, 0.1);
 		box-shadow: 0 0 0 2rpx rgba(232, 115, 74, 0.2);
 	}
@@ -600,10 +625,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 16rpx;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		padding: 20rpx;
 		border-radius: 20rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 	}
 	.color-dot {
@@ -626,7 +651,7 @@
 	}
 	.color-check {
 		font-size: 24rpx;
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 		font-weight: 700;
 		text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.3);
 	}
@@ -639,7 +664,7 @@
 	.balance-prefix {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		margin-right: 12rpx;
 	}
 	.balance-input {
@@ -654,12 +679,12 @@
 		right: 0;
 		padding: 20rpx 28rpx;
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		background: linear-gradient(to top, #FFF9F5 60%, transparent);
+		background: linear-gradient(to top, var(--bg, #FFF9F5) 60%, transparent);
 		z-index: 100;
 	}
 	.btn-save {
 		height: 96rpx;
-		background: linear-gradient(135deg, #E8734A, #D4613A);
+		background: linear-gradient(135deg, var(--primary, #E8734A), #D4613A);
 		border-radius: 48rpx;
 		display: flex;
 		align-items: center;
@@ -681,7 +706,7 @@
 	.btn-save-text {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 	}
 
 	/* ===== 响应式 ===== */

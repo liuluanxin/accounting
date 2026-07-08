@@ -22,11 +22,11 @@
 					<!-- 月份标签行：嵌入日历卡片内，箭头在最外两侧 -->
 					<view class="card-month-row">
 						<view class="card-month-arrow" @click="prevMonth">
-							<view class="icon-arrow-left-month"></view>
+							<view class="icon-arrow-left-month" :style="getIconStyle('arrow-left')"></view>
 						</view>
 						<text class="card-month-text" @click="showMonthPicker">{{ calYear }}年{{ calMonth }}月</text>
 						<view class="card-month-arrow" @click="nextMonth">
-							<view class="icon-arrow-right-month"></view>
+							<view class="icon-arrow-right-month" :style="getIconStyle('arrow-right')"></view>
 						</view>
 					</view>
 					<view class="weekday-header">
@@ -88,8 +88,11 @@
 	import { mapState } from 'vuex'
 	import { WEEKDAYS, CAT_ICONS } from '@/common/accounting-utils.js'
 	import TabBar from '@/components/TabBar.vue'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
+		mixins: [themeMixin],
 		components: { TabBar },
 		data() {
 			const now = new Date()
@@ -102,15 +105,23 @@
 			}
 		},
 		computed: {
-			...mapState('accounting', ['data', 'loading', 'error', 'initialized']),
+			...mapState('accounting', ['data', 'loading', 'error', 'initialized', 'homeLedgerMode']),
 			firstDay() { return new Date(this.calYear, this.calMonth - 1, 1).getDay() },
 			daysInMonth() { return new Date(this.calYear, this.calMonth, 0).getDate() },
 			isCurrent() { return this.calYear === this.today.getFullYear() && this.calMonth === this.today.getMonth() + 1 },
 			currentDay() { return this.today.getDate() },
+			filteredTransactions() {
+				const mode = this.homeLedgerMode
+				const txs = this.data.transactions || []
+				if (mode === 'all') return txs
+				const currentL = this.data.ledgers.find(l => l.current)
+				if (!currentL) return txs
+				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
+			},
 			dailyData() {
 				const p = this.calYear + '-' + String(this.calMonth).padStart(2, '0')
 				const map = {}
-				this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0).forEach(t => {
+				this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0).forEach(t => {
 					const d = parseInt(t.date.split('-')[2], 10)
 					if (!map[d]) map[d] = { income: 0, expense: 0 }
 					if (t.type === 'income') map[d].income += t.amount
@@ -122,13 +133,20 @@
 				return this.calYear + '-' + String(this.calMonth).padStart(2, '0') + '-' + String(this.calDay).padStart(2, '0')
 			},
 			dayTxList() {
-				return this.data.transactions.filter(t => t.date === this.selectedDate).sort((a, b) => b.time.localeCompare(a.time))
+				return this.filteredTransactions.filter(t => t.date === this.selectedDate).sort((a, b) => b.time.localeCompare(a.time))
 			}
 		},
 		onLoad() {
 			if (!this.initialized) this.$store.dispatch('accounting/initialize')
 		},
+		onShow() {
+			this.$forceUpdate()
+		},
 		methods: {
+			getIconStyle(name) {
+				const uri = ICONS[name] || ''
+				return { 'mask-image': 'url(' + uri + ')', '-webkit-mask-image': 'url(' + uri + ')' }
+			},
 			isToday(d) { return this.isCurrent && d === this.currentDay },
 			selectDay(d) { this.calDay = d },
 			prevMonth() {
@@ -188,80 +206,78 @@
 </script>
 
 <style lang="scss" scoped>
-	.calendar-page { height: 100vh; background: #FFF9F5; box-sizing: border-box; width: 100%; overflow-x: hidden; display: flex; flex-direction: column; }
+	.calendar-page { height: 100vh; background: var(--bg, #FFF9F5); box-sizing: border-box; width: 100%; overflow-x: hidden; display: flex; flex-direction: column; }
 
 	/* 自定义导航栏 - 文字居中 */
-	.custom-nav-bar { position: sticky; top: 0; z-index: 20; padding: calc(var(--status-bar-height) + 20rpx) 40rpx 16rpx; background: #FFF9F5; display: flex; align-items: center; justify-content: center; }
-	.nav-title { font-size: 36rpx; font-weight: 600; color: #3D2316; }
+	.custom-nav-bar { position: sticky; top: 0; z-index: 20; padding: calc(var(--status-bar-height) + 20rpx) 40rpx 16rpx; background: var(--bg, #FFF9F5); display: flex; align-items: center; justify-content: center; }
+	.nav-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
 
 	.cal-scroll { flex: 1; width: 100%; box-sizing: border-box; padding: 0 40rpx 140rpx; }
 
 	/* 月份标签行 - 嵌入日历卡片顶部，箭头在最外两侧 */
-	.card-month-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 2rpx solid #F0E4DA; margin: 0 -24rpx 16rpx; padding: 8rpx 0 16rpx; }
-	.card-month-arrow { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; color: #7A5C4A; cursor: pointer; flex-shrink: 0; }
-	.card-month-arrow:active { background: #F5EDE6; border-radius: 50%; }
-	.card-month-arrow .icon-arrow-left-month, .card-month-arrow .icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: #7A5C4A; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.card-month-arrow .icon-arrow-left-month { mask-image: url(/static/icons/arrow-left.svg); -webkit-mask-image: url(/static/icons/arrow-left.svg); }
-	.card-month-arrow .icon-arrow-right-month { mask-image: url(/static/icons/arrow-right.svg); -webkit-mask-image: url(/static/icons/arrow-right.svg); }
-	.card-month-text { font-size: 32rpx; font-weight: 600; color: #3D2316; cursor: pointer; white-space: nowrap; }
+	.card-month-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 2rpx solid var(--border, #F0E4DA); margin: 0 -24rpx 16rpx; padding: 8rpx 0 16rpx; }
+	.card-month-arrow { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #7A5C4A); cursor: pointer; flex-shrink: 0; }
+	.card-month-arrow:active { background: var(--border, #F5EDE6); border-radius: 50%; }
+	.card-month-arrow .icon-arrow-left-month, .card-month-arrow .icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: var(--text-secondary, #7A5C4A); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.card-month-text { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); cursor: pointer; white-space: nowrap; }
 
 	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: #7A5C4A; text-align: center; }
-	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(232, 115, 74, 0.2); border-top-color: #E8734A; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
+	.state-text { font-size: 28rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
+	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(232, 115, 74, 0.2); border-top-color: var(--primary, #E8734A); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
 	@keyframes spin { to { transform: rotate(360deg); } }
 
-	.calendar-card { background: #FFFFFF; border-radius: 32rpx; padding: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-top: 16rpx; }
+	.calendar-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; padding: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-top: 16rpx; }
 
 	.weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 16rpx; }
-	.weekday-header text { text-align: center; font-size: 24rpx; font-weight: 500; color: #A98B78; padding: 8rpx 0; }
-	.weekday-header text.weekend { color: #E8734A; }
+	.weekday-header text { text-align: center; font-size: 24rpx; font-weight: 500; color: var(--text-tertiary, #A98B78); padding: 8rpx 0; }
+	.weekday-header text.weekend { color: var(--primary, #E8734A); }
 
 	.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 	.day-cell { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12rpx; min-height: 112rpx; cursor: pointer; border-radius: 24rpx; transition: background 0.2s; }
 	.day-cell.empty { cursor: default; min-height: 112rpx; }
-	.day-number { font-size: 28rpx; font-weight: 400; color: #3D2316; line-height: 1; }
+	.day-number { font-size: 28rpx; font-weight: 400; color: var(--text-primary, #3D2316); line-height: 1; }
 
-	.day-cell.today { background: #E8734A; border-radius: 24rpx; }
+	.day-cell.today { background: var(--primary, #E8734A); border-radius: 24rpx; }
 	.day-cell.today .day-number { color: #FFFFFF; font-weight: 600; }
-	.day-cell.active { background: #FDE6D4; }
-	.day-cell.active .day-number { color: #E8734A; font-weight: 600; }
-	.day-cell.today.active { background: #E8734A; }
+	.day-cell.active { background: rgba(232, 115, 74, 0.1); }
+	.day-cell.active .day-number { color: var(--primary, #E8734A); font-weight: 600; }
+	.day-cell.today.active { background: var(--primary, #E8734A); }
 	.day-cell.today.active .day-number { color: #FFFFFF; }
 
 	.day-amounts { display: flex; flex-direction: column; align-items: center; gap: 2rpx; margin-top: 6rpx; width: 100%; }
-	.day-expense { font-size: 18rpx; font-weight: 500; color: #E8734A; line-height: 1.2; }
-	.day-income { font-size: 18rpx; font-weight: 500; color: #4CAF50; line-height: 1.2; }
+	.day-expense { font-size: 18rpx; font-weight: 500; color: var(--primary, #E8734A); line-height: 1.2; }
+	.day-income { font-size: 18rpx; font-weight: 500; color: var(--income, #4CAF50); line-height: 1.2; }
 	.day-cell.today .day-expense { color: rgba(255,255,255,0.9); }
 	.day-cell.today .day-income { color: rgba(255,255,255,0.9); }
 
-	.day-detail-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-top: 24rpx; overflow: hidden; }
+	.day-detail-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-top: 24rpx; overflow: hidden; }
 
-	.day-detail-header { padding: 32rpx 40rpx 24rpx; border-bottom: 2rpx solid #F0E4DA; }
-	.day-detail-title { font-size: 32rpx; font-weight: 600; color: #3D2316; margin-bottom: 8rpx; }
-	.day-detail-summary { font-size: 24rpx; color: #A98B78; display: flex; align-items: center; gap: 12rpx; }
-	.day-detail-summary .expense-val { color: #E8734A; font-weight: 500; }
-	.day-detail-summary .income-val { color: #4CAF50; font-weight: 500; }
-	.summary-divider { color: #E8D5C8; }
+	.day-detail-header { padding: 32rpx 40rpx 24rpx; border-bottom: 2rpx solid var(--border, #F0E4DA); }
+	.day-detail-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); margin-bottom: 8rpx; }
+	.day-detail-summary { font-size: 24rpx; color: var(--text-tertiary, #A98B78); display: flex; align-items: center; gap: 12rpx; }
+	.day-detail-summary .expense-val { color: var(--primary, #E8734A); font-weight: 500; }
+	.day-detail-summary .income-val { color: var(--income, #4CAF50); font-weight: 500; }
+	.summary-divider { color: var(--border, #E8D5C8); }
 
-	.transaction-item { display: flex; align-items: center; padding: 28rpx 40rpx; border-bottom: 2rpx solid #F0E4DA; gap: 24rpx; }
+	.transaction-item { display: flex; align-items: center; padding: 28rpx 40rpx; border-bottom: 2rpx solid var(--border, #F0E4DA); gap: 24rpx; }
 	.transaction-item:last-child { border-bottom: none; }
 
-	.tx-emoji { font-size: 44rpx; width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; background: #FFF9F5; border-radius: 20rpx; flex-shrink: 0; }
+	.tx-emoji { font-size: 44rpx; width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; background: var(--bg, #FFF9F5); border-radius: 20rpx; flex-shrink: 0; }
 
 	.tx-info { flex: 1; min-width: 0; }
-	.tx-title { font-size: 28rpx; font-weight: 500; color: #3D2316; display: block; }
-	.tx-category { font-size: 22rpx; color: #A98B78; margin-top: 4rpx; display: block; }
+	.tx-title { font-size: 28rpx; font-weight: 500; color: var(--text-primary, #3D2316); display: block; }
+	.tx-category { font-size: 22rpx; color: var(--text-tertiary, #A98B78); margin-top: 4rpx; display: block; }
 
 	.tx-amount { font-size: 28rpx; font-weight: 600; flex-shrink: 0; }
-	.tx-amount.expense { color: #E8734A; }
-	.tx-amount.income { color: #4CAF50; }
+	.tx-amount.expense { color: var(--primary, #E8734A); }
+	.tx-amount.income { color: var(--income, #4CAF50); }
 
-	.empty-tx { text-align: center; padding: 60rpx 40rpx; color: #A98B78; font-size: 26rpx; }
+	.empty-tx { text-align: center; padding: 60rpx 40rpx; color: var(--text-tertiary, #A98B78); font-size: 26rpx; }
 
-	.goto-bills { display: block; text-align: center; padding: 28rpx 40rpx; font-size: 26rpx; color: #E8734A; font-weight: 500; border-top: 2rpx solid #F0E4DA; }
+	.goto-bills { display: block; text-align: center; padding: 28rpx 40rpx; font-size: 26rpx; color: var(--primary, #E8734A); font-weight: 500; border-top: 2rpx solid var(--border, #F0E4DA); }
 
-	.btn-secondary { padding: 20rpx 48rpx; background: #FDE6D4; color: #E8734A; border-radius: 50rpx; font-size: 28rpx; font-weight: 500; }
+	.btn-secondary { padding: 20rpx 48rpx; background: rgba(232, 115, 74, 0.1); color: var(--primary, #E8734A); border-radius: 50rpx; font-size: 28rpx; font-weight: 500; }
 
 	@media (min-width: 768px) {
 		.cal-scroll { max-width: 650px; margin: 0 auto; width: 100%; padding-left: 48rpx; padding-right: 48rpx; }

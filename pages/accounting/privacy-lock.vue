@@ -42,8 +42,11 @@
 
 <script>
 import { hasPin, setPin, clearPin, verifyPin, markVerified } from '@/common/privacy-lock.js'
+import themeMixin from '@/common/theme-mixin.js'
+import ICONS from '@/common/icon-base64.js'
 
 export default {
+	mixins: [themeMixin],
 	data() {
 		return {
 			isSetupMode: false,
@@ -62,6 +65,9 @@ export default {
 		else if (mode === 'change') this.isChangeMode = true
 	},
 	methods: {
+		getIconStyle(name) {
+			return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
+		},
 		pressKey(n) {
 			if (this.error) return
 			if (this.isSetupMode || this.isChangeMode) {
@@ -131,20 +137,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #FFF9F5; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 32rpx; box-sizing: border-box; }
+.page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 32rpx; box-sizing: border-box; }
 .verify-mode, .setup-mode { width: 100%; display: flex; flex-direction: column; align-items: center; }
 .lock-icon { font-size: 100rpx; margin-bottom: 32rpx; }
-.title { font-size: 40rpx; font-weight: 700; color: #3D2316; margin-bottom: 8rpx; }
-.subtitle { font-size: 26rpx; color: #7A5C4A; margin-bottom: 64rpx; }
+.title { font-size: 40rpx; font-weight: 700; color: var(--text-primary, #3D2316); margin-bottom: 8rpx; }
+.subtitle { font-size: 26rpx; color: var(--text-secondary, #7A5C4A); margin-bottom: 64rpx; }
 
 .pin-display { display: flex; gap: 24rpx; margin-bottom: 64rpx; }
-.dot { width: 56rpx; height: 56rpx; border-radius: 50%; background: #FFF5EE; border: 2rpx solid #E8734A; transition: all 0.15s; }
-.dot.filled { background: #E8734A; transform: scale(1.05); }
+.dot { width: 56rpx; height: 56rpx; border-radius: 50%; background: var(--input-bg, #FFF5EE); border: 2rpx solid var(--primary, #E8734A); transition: all 0.15s; }
+.dot.filled { background: var(--primary, #E8734A); transform: scale(1.05); }
 .dot.error { background: #E89B9B; border-color: #E89B9B; transform: scale(0.92); }
 
 .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24rpx; width: 100%; max-width: 540rpx; }
-.key { width: 100%; aspect-ratio: 1; max-width: 160rpx; margin: 0 auto; background: #FFFFFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48rpx; font-weight: 500; color: #3D2316; box-shadow: 0 4rpx 12rpx rgba(61, 35, 22, 0.08); transition: all 0.15s; -webkit-tap-highlight-color: transparent; user-select: none; }
-.key:active { transform: scale(0.94); background: #FFF5EE; }
+.key { width: 100%; aspect-ratio: 1; max-width: 160rpx; margin: 0 auto; background: var(--card-bg, #FFFFFF); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48rpx; font-weight: 500; color: var(--text-primary, #3D2316); box-shadow: 0 4rpx 12rpx rgba(61, 35, 22, 0.08); transition: all 0.15s; -webkit-tap-highlight-color: transparent; user-select: none; }
+.key:active { transform: scale(0.94); background: var(--input-bg, #FFF5EE); }
 .key.empty { background: transparent; box-shadow: none; pointer-events: none; }
-.key.del { background: #F0E4DA; }
+.key.del { background: var(--border, #F0E4DA); }
 </style>

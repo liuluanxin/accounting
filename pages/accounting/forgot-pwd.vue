@@ -2,7 +2,7 @@
 	<view class="forgot-page">
 		<view class="page-header">
 			<view class="header-back" @click="goBack">
-				<view class="back-icon"></view>
+				<view class="back-icon" :style="getIconStyle('arrow-left')"></view>
 			</view>
 			<text class="header-title">找回密码</text>
 			<view class="header-spacer"></view>
@@ -13,7 +13,7 @@
 				<view class="illustration-area">
 					<view class="lock-icon-wrapper">
 					<view class="lock-icon-inner">
-						<view class="lock-icon"></view>
+						<view class="lock-icon" :style="getIconStyle('lock')"></view>
 						</view>
 						<view class="deco-circle deco-1"></view>
 						<view class="deco-circle deco-2"></view>
@@ -139,7 +139,7 @@
 					<template v-if="step === 3">
 						<view class="success-state">
 							<view class="success-icon-wrapper">
-						<view class="success-icon"></view>
+						<view class="success-icon" :style="getIconStyle('check')"></view>
 					</view>
 							<text class="success-title">密码重置成功</text>
 							<text class="success-desc">请使用新密码登录你的账户</text>
@@ -157,8 +157,11 @@
 <script>
 	import Logger from '@/common/logger.js'
 	import { rules, validate } from '@/common/validator.js'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return {
 				step: 1,
@@ -183,6 +186,12 @@
 			if (this.countdownTimer) clearInterval(this.countdownTimer)
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			validateField(field) {
 				const fieldRules = {
 					phone: [rules.required('请输入手机号'), rules.phone()],
@@ -252,7 +261,7 @@
 <style lang="scss" scoped>
 	.forgot-page {
 		min-height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -273,24 +282,28 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04);
 		transition: background 0.2s;
 	}
 	.header-back:active {
-		background: #F5EDE6;
+		background: var(--border, #F0E4DA);
 	}
 	.back-icon {
 		width: 44rpx;
 		height: 44rpx;
-		background-color: #3D2316;
-		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		background-color: var(--text-primary, #3D2316);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.header-title {
 		font-size: 36rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.header-spacer {
 		width: 80rpx;
@@ -321,7 +334,7 @@
 		width: 100%;
 		height: 100%;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #FDE6D4, #FBBE9E);
+		background: linear-gradient(135deg, rgba(232, 115, 74, 0.1), rgba(232, 115, 74, 0.3));
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -329,9 +342,13 @@
 	.lock-icon {
 		width: 80rpx;
 		height: 80rpx;
-		background-color: #E8734A;
-		mask: url(/static/icons/lock.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;
+		background-color: var(--primary, #E8734A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.deco-circle {
 		position: absolute;
@@ -342,7 +359,7 @@
 		right: -8rpx;
 		width: 40rpx;
 		height: 40rpx;
-		background: #FBBE9E;
+		background: rgba(232, 115, 74, 0.3);
 		opacity: 0.6;
 	}
 	.deco-2 {
@@ -370,44 +387,44 @@
 		width: 48rpx;
 		height: 48rpx;
 		border-radius: 50%;
-		background: #F5EDE6;
+		background: var(--border, #F0E4DA);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.3s;
 	}
 	.step-item.active .step-dot {
-		background: #E8734A;
+		background: var(--primary, #E8734A);
 	}
 	.step-num {
 		font-size: 24rpx;
 		font-weight: 600;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.step-item.active .step-num {
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 	}
 	.step-label {
 		font-size: 24rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.step-item.active .step-label {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 	}
 	.step-connector {
 		width: 64rpx;
 		height: 4rpx;
-		background: #E8D5C8;
+		background: var(--border, #F0E4DA);
 		border-radius: 2rpx;
 		margin: 0 16rpx;
 		transition: all 0.3s;
 	}
 	.step-connector.active {
-		background: #E8734A;
+		background: var(--primary, #E8734A);
 	}
 
 	.forgot-form-card {
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		padding: 48rpx;
 		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
@@ -416,7 +433,7 @@
 	.form-desc {
 		display: block;
 		font-size: 28rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		line-height: 1.6;
 		margin-bottom: 40rpx;
 	}
@@ -429,7 +446,7 @@
 	.field-label {
 		display: block;
 		font-size: 26rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-bottom: 12rpx;
 		font-weight: 500;
 	}
@@ -438,14 +455,14 @@
 		display: flex;
 		align-items: center;
 		border-radius: 24rpx;
-		background: #FFF5EE;
-		border: 2rpx solid #E8D5C8;
+		background: var(--input-bg, #FFF5EE);
+		border: 2rpx solid var(--border, #F0E4DA);
 		padding: 0 32rpx;
 		transition: border-color 0.2s;
 		box-sizing: border-box;
 	}
 	.input-wrapper:focus-within {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 	}
 	.input-wrapper.input-error {
 		border-color: #E53935 !important;
@@ -454,7 +471,7 @@
 		flex: 1;
 		height: 96rpx;
 		font-size: 30rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
 		outline: none;
@@ -465,13 +482,13 @@
 	.prefix-text {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-right: 16rpx;
 	}
 	.divider-line {
 		width: 2rpx;
 		height: 40rpx;
-		background: #E8D5C8;
+		background: var(--border, #F0E4DA);
 		margin-right: 24rpx;
 	}
 
@@ -490,15 +507,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #FDE6D4;
-		color: #E8734A;
+		background: rgba(232, 115, 74, 0.1);
+		color: var(--primary, #E8734A);
 		font-size: 28rpx;
 		font-weight: 500;
 		border-radius: 24rpx;
 		transition: all 0.2s;
 	}
 	.code-btn:active {
-		background: #FBBE9E;
+		background: rgba(232, 115, 74, 0.3);
 	}
 	.code-sent {
 		opacity: 0.5;
@@ -526,8 +543,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #E8734A;
-		color: #fff;
+		background: var(--primary, #E8734A);
+		color: var(--card-bg, #FFFFFF);
 		font-size: 32rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
@@ -535,7 +552,7 @@
 		transition: background 0.2s;
 	}
 	.btn-primary:active {
-		background: #C95A33;
+		background: var(--primary-dark, #C95A33);
 	}
 	.btn-disabled {
 		opacity: 0.4;
@@ -554,26 +571,26 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #F5EDE6;
-		color: #7A5C4A;
+		background: var(--border, #F0E4DA);
+		color: var(--text-secondary, #7A5C4A);
 		font-size: 30rpx;
 		font-weight: 500;
 		border-radius: 50rpx;
 		transition: background 0.2s;
 	}
 	.btn-secondary:active {
-		background: #E8D5C8;
+		background: var(--border, #F0E4DA);
 	}
 
 	.tip-text {
 		display: block;
 		text-align: center;
 		font-size: 24rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		margin-top: 32rpx;
 	}
 	.tip-link {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 500;
 		text-decoration: underline;
 	}
@@ -589,7 +606,7 @@
 		width: 120rpx;
 		height: 120rpx;
 		border-radius: 50%;
-		background: #E8734A;
+		background: var(--primary, #E8734A);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -599,19 +616,23 @@
 	.success-icon {
 		width: 64rpx;
 		height: 64rpx;
-		background-color: #fff;
-		mask: url(/static/icons/check.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/check.svg) center/contain no-repeat;
+		background-color: var(--card-bg, #FFFFFF);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.success-title {
 		font-size: 36rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		margin-bottom: 16rpx;
 	}
 	.success-desc {
 		font-size: 28rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		margin-bottom: 48rpx;
 	}
 

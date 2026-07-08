@@ -2,11 +2,11 @@
 	<view class="accounts-page">
 		<view class="top-nav">
 			<view class="nav-back" @click="backToHome" aria-label="返回">
-				<view class="back-svg"></view>
+				<view class="back-svg" :style="getIconStyle('arrow-left')"></view>
 			</view>
 			<text class="nav-title">我的账户</text>
 			<view class="nav-add" @click="showAddAccount" aria-label="添加账户">
-				<view class="plus-svg"></view>
+				<view class="plus-svg" :style="getIconStyle('plus')"></view>
 			</view>
 		</view>
 
@@ -65,13 +65,13 @@
 						<text class="account-summary">{{ getAccountSummary(account) }}</text>
 					</view>
 					<view class="account-arrow">
-						<view class="arrow-svg"></view>
+						<view class="arrow-svg" :style="getIconStyle('arrow-right')"></view>
 					</view>
 				</view>
 
 				<view class="add-account-card" @click="showAddAccount">
 					<view class="plus-icon">
-						<view class="card-plus-svg"></view>
+						<view class="card-plus-svg" :style="getIconStyle('plus')"></view>
 					</view>
 					<text class="add-label">添加账户</text>
 				</view>
@@ -88,9 +88,12 @@
 	import { mapState } from 'vuex'
 	import { formatMoney } from '@/common/accounting-utils.js'
 	import TabBar from '@/components/TabBar.vue'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
 		components: { TabBar },
+		mixins: [themeMixin],
 		computed: {
 			...mapState('accounting', ['data', 'assetsLoading', 'error', 'initialized']),
 			totalAssets() {
@@ -112,6 +115,12 @@
 		},
 		methods: {
 			formatMoney,
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			getAccentClass(account) {
 				const typeMap = { credit: 'accent-blue', debit: 'accent-coral', wallet: 'accent-green' }
 				return typeMap[account.type] || 'accent-coral'
@@ -148,7 +157,7 @@
 <style lang="scss" scoped>
 	.accounts-page {
 		min-height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		font-family: 'Inter', 'PingFang SC', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 		display: flex;
 		flex-direction: column;
@@ -161,22 +170,22 @@
 		height: 88rpx;
 		padding: 0 40rpx;
 		position: relative;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 	}
 	.nav-back, .nav-add {
 		width: 72rpx;
 		height: 72rpx;
 		border-radius: 50%;
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 	}
-	.nav-back:active { background: #F5EDE6; }
-	.nav-add { color: #E8734A; }
-	.nav-add:active { background: #FDE6D4; }
+	.nav-back:active { background: var(--border, #F5EDE6); }
+	.nav-add { color: var(--primary, #E8734A); }
+	.nav-add:active { background: rgba(232, 115, 74, 0.1); }
 	.nav-icon { font-size: 36rpx; }
 	.nav-title {
 		position: absolute;
@@ -184,7 +193,7 @@
 		transform: translateX(-50%);
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 
 	.accounts-scroll {
@@ -203,13 +212,13 @@
 		padding: 120rpx 40rpx;
 	}
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: #7A5C4A; text-align: center; }
-	.state-hint { font-size: 24rpx; color: #A98B78; margin-top: 16rpx; }
+	.state-text { font-size: 28rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
+	.state-hint { font-size: 24rpx; color: var(--text-tertiary, #A98B78); margin-top: 16rpx; }
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
 		border: 4rpx solid rgba(232, 115, 74, 0.2);
-		border-top-color: #E8734A;
+		border-top-color: var(--primary, #E8734A);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 		margin-bottom: 24rpx;
@@ -217,7 +226,7 @@
 	@keyframes spin { to { transform: rotate(360deg); } }
 
 	.total-assets-card {
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
 		overflow: hidden;
@@ -225,21 +234,21 @@
 	}
 	.gradient-strip {
 		height: 12rpx;
-		background: linear-gradient(135deg, #E8734A, #F2956E);
+		background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-shadow, rgba(232, 115, 74, 0.3)));
 	}
 	.card-body {
 		padding: 40rpx 48rpx;
 	}
 	.assets-label {
 		font-size: 26rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		display: block;
 		margin-bottom: 16rpx;
 	}
 	.assets-amount {
 		font-size: 60rpx;
 		font-weight: 700;
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		display: block;
 		line-height: 1.25;
 		margin-bottom: 40rpx;
@@ -254,32 +263,32 @@
 		flex-direction: column;
 		gap: 8rpx;
 		padding: 24rpx;
-		background: #F5EDE6;
+		background: var(--border, #F5EDE6);
 		border-radius: 24rpx;
 	}
 	.stat-label {
 		font-size: 22rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.stat-value {
 		font-size: 26rpx;
 		font-weight: 600;
 	}
-	.stat-value.neutral { color: #7A5C4A; }
-	.stat-value.green { color: #4CAF50; }
-	.stat-value.coral { color: #E8734A; }
+	.stat-value.neutral { color: var(--text-secondary, #7A5C4A); }
+	.stat-value.green { color: var(--expense, #4CAF50); }
+	.stat-value.coral { color: var(--primary, #E8734A); }
 
 	.section-title {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		margin-top: 64rpx;
 		margin-bottom: 32rpx;
 		display: block;
 	}
 
 	.account-card {
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04);
 		padding: 32rpx 40rpx;
@@ -303,9 +312,9 @@
 		width: 8rpx;
 		border-radius: 0 8rpx 8rpx 0;
 	}
-	.account-card.accent-coral::before { background: #E8734A; }
-	.account-card.accent-blue::before { background: #42A5F5; }
-	.account-card.accent-green::before { background: #4CAF50; }
+	.account-card.accent-coral::before { background: var(--primary, #E8734A); }
+	.account-card.accent-blue::before { background: var(--primary, #42A5F5); }
+	.account-card.accent-green::before { background: var(--expense, #4CAF50); }
 
 	.account-icon {
 		width: 88rpx;
@@ -317,9 +326,9 @@
 		font-size: 40rpx;
 		flex-shrink: 0;
 	}
-	.account-icon.coral-bg { background: #FDE6D4; color: #E8734A; }
-	.account-icon.blue-bg { background: #E3F2FD; color: #42A5F5; }
-	.account-icon.green-bg { background: #E8F5E9; color: #4CAF50; }
+	.account-icon.coral-bg { background: rgba(232, 115, 74, 0.1); color: var(--primary, #E8734A); }
+	.account-icon.blue-bg { background: rgba(66, 165, 245, 0.1); color: var(--primary, #42A5F5); }
+	.account-icon.green-bg { background: rgba(76, 175, 80, 0.1); color: var(--expense, #4CAF50); }
 
 	.account-info {
 		flex: 1;
@@ -328,7 +337,7 @@
 	.account-name {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		display: block;
 		margin-bottom: 4rpx;
 		white-space: nowrap;
@@ -338,26 +347,26 @@
 	.account-balance {
 		font-size: 40rpx;
 		font-weight: 700;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		display: block;
 		line-height: 1.25;
 		margin-bottom: 4rpx;
 	}
 	.account-summary {
 		font-size: 22rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		display: block;
 	}
 
 	.account-arrow {
-		color: #C8A896;
+		color: var(--text-tertiary, #C8A896);
 		font-size: 32rpx;
 		flex-shrink: 0;
 	}
 
 	.add-account-card {
 		background: transparent;
-		border: 4rpx dashed #E8D5C8;
+		border: 4rpx dashed var(--border, #E8D5C8);
 		border-radius: 32rpx;
 		padding: 48rpx;
 		display: flex;
@@ -367,36 +376,36 @@
 		margin-bottom: 24rpx;
 	}
 	.add-account-card:active {
-		border-color: #E8734A;
-		background: #FDE6D4;
+		border-color: var(--primary, #E8734A);
+		background: rgba(232, 115, 74, 0.1);
 	}
 	.plus-icon {
 		width: 56rpx;
 		height: 56rpx;
 		border-radius: 50%;
-		border: 4rpx solid #E8D5C8;
+		border: 4rpx solid var(--border, #E8D5C8);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		font-size: 28rpx;
 	}
 	.add-account-card:active .plus-icon {
-		border-color: #E8734A;
-		color: #E8734A;
+		border-color: var(--primary, #E8734A);
+		color: var(--primary, #E8734A);
 	}
 	.add-label {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.add-account-card:active .add-label {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 	}
 
-	.back-svg { width: 20px; height: 20px; background-color: #3D2316; mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; }
-	.nav-add .plus-svg { width: 20px; height: 20px; background-color: #3D2316; mask: url(/static/icons/plus.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat; }
-	.arrow-svg { width: 16px; height: 16px; background-color: #A98B78; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
-	.card-plus-svg { width: 24px; height: 24px; background-color: #E8734A; mask: url(/static/icons/plus.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat; }
+	.back-svg { width: 20px; height: 20px; background-color: var(--text-primary, #3D2316); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.nav-add .plus-svg { width: 20px; height: 20px; background-color: var(--text-primary, #3D2316); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.arrow-svg { width: 16px; height: 16px; background-color: var(--text-tertiary, #A98B78); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.card-plus-svg { width: 24px; height: 24px; background-color: var(--primary, #E8734A); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
 
 	</style>

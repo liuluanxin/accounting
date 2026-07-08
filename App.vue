@@ -55,7 +55,7 @@
 				}
 			}, 300)
 		},
-		onShow: function() { Logger.debug('App', '应用进入前台') },
+		onShow: function() { Logger.debug('App', '应用进入前台'); applyTheme(getCurrentTheme()) },
 		onHide: function() { Logger.debug('App', '应用进入后台') }
 	}
 </script>

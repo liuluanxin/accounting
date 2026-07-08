@@ -1,5 +1,6 @@
 <template>
 	<view class="profile-page">
+		<view class="navbar-spacer"></view>
 		<scroll-view scroll-y class="profile-scroll">
 			<view class="user-card">
 				<view class="gradient-header"></view>
@@ -32,32 +33,32 @@
 				<view class="menu-item" @click="goLedgerPage">
 					<text class="menu-icon">📒</text>
 					<text class="menu-text">我的账本</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="showMonthlyReport">
 					<text class="menu-icon">📊</text>
 					<text class="menu-text">月度报告</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="goBudgetPage">
 					<text class="menu-icon">💰</text>
 					<text class="menu-text">预算管理</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="showReminder">
 					<text class="menu-icon">🎯</text>
 					<text class="menu-text">记账提醒</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="showCategoryManage">
 					<text class="menu-icon">🏷️</text>
 					<text class="menu-text">分类管理</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="exportData">
 					<text class="menu-icon">📤</text>
 					<text class="menu-text">数据导出</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 			</view>
 
@@ -65,22 +66,22 @@
 				<view class="menu-item" @click="showSecuritySettings">
 					<text class="menu-icon">🔒</text>
 					<text class="menu-text">安全设置</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="goThemeSettings">
 					<text class="menu-icon">🎨</text>
 					<text class="menu-text">主题设置</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="showHelp">
 					<text class="menu-icon">❓</text>
 					<text class="menu-text">帮助与反馈</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 				<view class="menu-item" @click="showAbout">
 					<text class="menu-icon">ℹ️</text>
 					<text class="menu-text">关于我们</text>
-					<view class="menu-arrow"></view>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 			</view>
 
@@ -90,8 +91,6 @@
 					<text class="menu-text logout-text">退出登录</text>
 				</view>
 			</view>
-
-			<view style="height: 200rpx;"></view>
 		</scroll-view>
 
 		<TabBar currentTab="profile" :showFab="false" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
@@ -103,8 +102,11 @@
 	import { formatMoney, todayStr } from '@/common/accounting-utils.js'
 	import { exportCSV, transactionsToCSV } from '@/common/export-helper.js'
 	import TabBar from '@/components/TabBar.vue'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
+		mixins: [themeMixin],
 		components: { TabBar },
 		computed: {
 			...mapState('accounting', ['data', 'initialized']),
@@ -140,6 +142,12 @@
 			if (!this.initialized) this.$store.dispatch('accounting/initialize')
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			formatMoney,
 			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
 			goLedgerPage() { uni.navigateTo({ url: '/pages/accounting/ledgers' }) },
@@ -218,47 +226,52 @@
 </script>
 
 <style lang="scss" scoped>
-	.profile-page { height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; }
-	.profile-scroll { flex: 1; width: 100%; padding: 0 40rpx; padding-bottom: 180rpx; box-sizing: border-box; }
+	.profile-page { position: relative; height: 100vh; width: 100%; background: var(--bg, #FFF9F5); box-sizing: border-box; overflow-x: hidden; }
+	.navbar-spacer { position: absolute; top: 0; left: 0; right: 0; height: 88rpx; background: var(--bg, #FFF9F5); z-index: 10; box-sizing: border-box; }
+	.profile-scroll { position: absolute; top: 88rpx; bottom: 0; left: 0; right: 0; padding: 0 40rpx; padding-bottom: 180rpx; box-sizing: border-box; }
 
-	.user-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; margin-top: 32rpx; }
-	.user-card .gradient-header { height: 160rpx; background: linear-gradient(135deg, #F2956E, #FBBE9E, #FDE6D4); }
+	.user-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; margin-top: 32rpx; }
+	.user-card .gradient-header { height: 160rpx; background: linear-gradient(135deg, var(--primary-shadow, rgba(242, 149, 110, 0.5)), rgba(232, 115, 74, 0.2), rgba(232, 115, 74, 0.06)); }
 	.user-card .user-info { display: flex; align-items: center; gap: 32rpx; padding: 0 40rpx 40rpx; margin-top: -64rpx; position: relative; }
-	.user-card .avatar { width: 100rpx; height: 100rpx; min-width: 100rpx; border-radius: 50%; background: #E8734A; display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; color: #FFFFFF; border: 6rpx solid #FFFFFF; box-shadow: 0 4rpx 8rpx rgba(61, 35, 22, 0.04); }
+	.user-card .avatar { width: 100rpx; height: 100rpx; min-width: 100rpx; border-radius: 50%; background: var(--primary, #E8734A); display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; color: var(--card-bg, #FFFFFF); border: 6rpx solid var(--card-bg, #FFFFFF); box-shadow: 0 4rpx 8rpx rgba(61, 35, 22, 0.04); }
 	.user-card .user-detail { flex: 1; min-width: 0; }
-	.user-card .user-name { font-size: 36rpx; font-weight: 600; color: #3D2316; line-height: 1.25; display: block; }
-	.user-card .user-phone { font-size: 26rpx; color: #A98B78; margin-top: 8rpx; display: block; }
-	.user-card .badge { padding: 8rpx 24rpx; background: #FDE6D4; border-radius: 50rpx; font-size: 22rpx; color: #C95A33; font-weight: 500; white-space: nowrap; }
+	.user-card .user-name { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); line-height: 1.25; display: block; }
+	.user-card .user-phone { font-size: 26rpx; color: var(--text-tertiary, #A98B78); margin-top: 8rpx; display: block; }
+	.user-card .badge { padding: 8rpx 24rpx; background: rgba(232, 115, 74, 0.1); border-radius: 50rpx; font-size: 22rpx; color: var(--primary, #C95A33); font-weight: 500; white-space: nowrap; }
 
 	.summary-row { display: flex; gap: 24rpx; margin: 32rpx 0; }
-	.summary-item { flex: 1; background: #FFFFFF; border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 32rpx 24rpx; text-align: center; border-top: 4rpx solid transparent; }
-	.summary-item.income { border-top-color: #4CAF50; }
-	.summary-item.expense { border-top-color: #E8734A; }
-	.summary-item.balance { border-top-color: #F2956E; }
-	.summary-item .summary-label { font-size: 24rpx; color: #A98B78; display: block; margin-bottom: 16rpx; }
+	.summary-item { flex: 1; background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 32rpx 24rpx; text-align: center; border-top: 4rpx solid transparent; }
+	.summary-item.income { border-top-color: var(--income, #4CAF50); }
+	.summary-item.expense { border-top-color: var(--primary, #E8734A); }
+	.summary-item.balance { border-top-color: var(--primary-shadow, rgba(242, 149, 110, 0.8)); }
+	.summary-item .summary-label { font-size: 24rpx; color: var(--text-tertiary, #A98B78); display: block; margin-bottom: 16rpx; }
 	.summary-item .summary-value { font-size: 36rpx; font-weight: 700; }
-	.summary-item.income .summary-value { color: #4CAF50; }
-	.summary-item.expense .summary-value { color: #E8734A; }
-	.summary-item.balance .summary-value { color: #F2956E; }
+	.summary-item.income .summary-value { color: var(--income, #4CAF50); }
+	.summary-item.expense .summary-value { color: var(--primary, #E8734A); }
+	.summary-item.balance .summary-value { color: var(--text-primary, #F2956E); }
 
-	.menu-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-bottom: 32rpx; overflow: hidden; }
-	.menu-card .menu-item { display: flex; align-items: center; padding: 32rpx 40rpx; border-bottom: 1px solid #F0E4DA; }
+	.menu-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-bottom: 32rpx; overflow: hidden; }
+	.menu-card .menu-item { display: flex; align-items: center; padding: 32rpx 40rpx; border-bottom: 1px solid var(--border, #F0E4DA); }
 	.menu-card .menu-item:last-child { border-bottom: none; }
-	.menu-card .menu-item:active { background: #F5EDE6; }
+	.menu-card .menu-item:active { background: var(--border, #F5EDE6); }
 	.menu-card .menu-icon { font-size: 40rpx; margin-right: 24rpx; }
-	.menu-card .menu-text { flex: 1; font-size: 30rpx; color: #3D2316; }
+	.menu-card .menu-text { flex: 1; font-size: 30rpx; color: var(--text-primary, #3D2316); }
 	.menu-card .menu-arrow {
 		flex-shrink: 0;
 		width: 32rpx;
 		height: 32rpx;
-		background-color: #C8A896;
-		mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
+		background-color: var(--text-tertiary, #C8A896);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 
 	.logout-card .logout-item { justify-content: center; }
 	.logout-card .logout-item .menu-icon { margin-right: 16rpx; }
-	.logout-card .logout-text { color: #E8734A; }
+	.logout-card .logout-text { color: var(--primary, #E8734A); }
 
 	
 </style>

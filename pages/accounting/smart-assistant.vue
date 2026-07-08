@@ -15,7 +15,7 @@
 			<!-- 三大入口 -->
 			<view class="quick-grid">
 				<view class="quick-card" @click="goQuickRecord('photo')">
-					<view class="quick-icon" style="background: rgba(232, 115, 74, 0.12); color: #E8734A;">📷</view>
+					<view class="quick-icon" style="background: rgba(232, 115, 74, 0.12); color: var(--primary, #E8734A);">📷</view>
 					<text class="quick-name">拍照记账</text>
 					<text class="quick-desc">拍小票自动识别</text>
 				</view>
@@ -25,7 +25,7 @@
 					<text class="quick-desc">说话即可记录</text>
 				</view>
 				<view class="quick-card" @click="goQuickRecord('ai')">
-					<view class="quick-icon" style="background: rgba(169, 139, 120, 0.15); color: #A98B78;">🤖</view>
+					<view class="quick-icon" style="background: rgba(169, 139, 120, 0.15); color: var(--text-tertiary, #A98B78);">🤖</view>
 					<text class="quick-name">AI 识别</text>
 					<text class="quick-desc">智能分析场景</text>
 				</view>
@@ -56,7 +56,11 @@
 
 <script>
 import { mapState } from 'vuex'
+import themeMixin from '@/common/theme-mixin.js'
+import ICONS from '@/common/icon-base64.js'
+
 export default {
+	mixins: [themeMixin],
 	data() {
 		return {
 			templates: [
@@ -73,6 +77,9 @@ export default {
 		...mapState('accounting', ['data', 'initialized'])
 	},
 	methods: {
+		getIconStyle(name) {
+			return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
+		},
 		goBack() { uni.navigateBack() },
 		goQuickRecord(mode) {
 			if (mode === 'photo') {
@@ -127,36 +134,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: #FFF9F5; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
-.nav-back { position: fixed; top: calc(var(--status-bar-height) + 16rpx); left: 24rpx; width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 60rpx; color: #3D2316; z-index: 10; }
-.page-title { padding: calc(var(--status-bar-height) + 24rpx) 32rpx 16rpx; font-size: 36rpx; font-weight: 700; color: #3D2316; flex-shrink: 0; }
+.page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+.nav-back { position: fixed; top: calc(var(--status-bar-height) + 16rpx); left: 24rpx; width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 60rpx; color: var(--text-primary, #3D2316); z-index: 10; }
+.page-title { padding: calc(var(--status-bar-height) + 24rpx) 32rpx 16rpx; font-size: 36rpx; font-weight: 700; color: var(--text-primary, #3D2316); flex-shrink: 0; }
 .scroll { flex: 1; padding: 0 32rpx 80rpx; }
 
 .hero-card { background: linear-gradient(135deg, #FFE5D9 0%, #FFCDB2 50%, #E8A598 100%); border-radius: 24rpx; padding: 40rpx 32rpx; display: flex; align-items: center; gap: 24rpx; box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.25); }
 .hero-icon { font-size: 80rpx; }
 .hero-text { display: flex; flex-direction: column; gap: 6rpx; flex: 1; }
-.hero-title { font-size: 32rpx; font-weight: 700; color: #3D2316; }
-.hero-subtitle { font-size: 22rpx; color: #7A5C4A; }
+.hero-title { font-size: 32rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
+.hero-subtitle { font-size: 22rpx; color: var(--text-secondary, #7A5C4A); }
 
 .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; margin: 24rpx 0 8rpx; }
-.quick-card { background: #FFFFFF; border-radius: 20rpx; padding: 28rpx 16rpx; display: flex; flex-direction: column; align-items: center; gap: 10rpx; box-shadow: 0 2rpx 12rpx rgba(61, 35, 22, 0.06); transition: all 0.2s; }
+.quick-card { background: var(--card-bg, #FFFFFF); border-radius: 20rpx; padding: 28rpx 16rpx; display: flex; flex-direction: column; align-items: center; gap: 10rpx; box-shadow: 0 2rpx 12rpx rgba(61, 35, 22, 0.06); transition: all 0.2s; }
 .quick-card:active { transform: scale(0.96); }
 .quick-icon { width: 80rpx; height: 80rpx; line-height: 80rpx; text-align: center; font-size: 44rpx; border-radius: 24rpx; }
-.quick-name { font-size: 26rpx; font-weight: 600; color: #3D2316; }
-.quick-desc { font-size: 20rpx; color: #7A5C4A; }
+.quick-name { font-size: 26rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+.quick-desc { font-size: 20rpx; color: var(--text-secondary, #7A5C4A); }
 
-.section { background: #FFFFFF; border-radius: 24rpx; padding: 24rpx 28rpx; margin-top: 24rpx; box-shadow: 0 2rpx 12rpx rgba(61, 35, 22, 0.06); }
-.section-title { display: block; font-size: 28rpx; font-weight: 700; color: #3D2316; margin-bottom: 16rpx; }
+.section { background: var(--card-bg, #FFFFFF); border-radius: 24rpx; padding: 24rpx 28rpx; margin-top: 24rpx; box-shadow: 0 2rpx 12rpx rgba(61, 35, 22, 0.06); }
+.section-title { display: block; font-size: 28rpx; font-weight: 700; color: var(--text-primary, #3D2316); margin-bottom: 16rpx; }
 .template-list { display: flex; flex-direction: column; }
-.template-item { display: flex; align-items: center; gap: 20rpx; padding: 20rpx 0; border-bottom: 1px solid #F0E4DA; }
+.template-item { display: flex; align-items: center; gap: 20rpx; padding: 20rpx 0; border-bottom: 1px solid var(--border, #F0E4DA); }
 .template-item:last-child { border-bottom: none; }
 .tpl-emoji { font-size: 48rpx; }
 .tpl-info { display: flex; flex-direction: column; gap: 4rpx; flex: 1; }
-.tpl-name { font-size: 28rpx; font-weight: 600; color: #3D2316; }
-.tpl-desc { font-size: 22rpx; color: #7A5C4A; }
-.tpl-arrow { font-size: 36rpx; color: #A98B78; }
+.tpl-name { font-size: 28rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+.tpl-desc { font-size: 22rpx; color: var(--text-secondary, #7A5C4A); }
+.tpl-arrow { font-size: 36rpx; color: var(--text-tertiary, #A98B78); }
 
-.tip { display: flex; align-items: center; gap: 12rpx; padding: 20rpx 24rpx; background: #FFFFFF; border-radius: 16rpx; margin-top: 24rpx; }
+.tip { display: flex; align-items: center; gap: 12rpx; padding: 20rpx 24rpx; background: var(--card-bg, #FFFFFF); border-radius: 16rpx; margin-top: 24rpx; }
 .tip-icon { font-size: 28rpx; }
-.tip-text { font-size: 24rpx; color: #7A5C4A; flex: 1; }
+.tip-text { font-size: 24rpx; color: var(--text-secondary, #7A5C4A); flex: 1; }
 </style>

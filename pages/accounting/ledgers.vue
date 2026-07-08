@@ -15,14 +15,14 @@
 			</view>
 
 			<view v-else-if="error" class="state-container">
-				<view class="state-icon state-icon-warning"></view>
+				<view class="state-icon state-icon-warning" :style="getIconStyle('alert-triangle')"></view>
 				<text class="state-text">{{ error }}</text>
 				<view class="btn-secondary" @click="initData">重试</view>
 			</view>
 
 			<template v-else>
 				<view v-if="ledgers.length === 0" class="state-container">
-					<view class="state-icon state-icon-empty"></view>
+					<view class="state-icon state-icon-empty" :style="getIconStyle('book')"></view>
 					<text class="state-text">暂无账本</text>
 					<text class="state-hint">点击右上角 + 创建你的第一个账本</text>
 				</view>
@@ -87,14 +87,14 @@
 											</view>
 										</view>
 									</view>
-									<view class="ledger-arrow"></view>
+									<view class="ledger-arrow" :style="getIconStyle('arrow-right')"></view>
 								</view>
 							</view>
 						</view>
 					</view>
 
 					<view class="add-ledger-card" @click="goAddLedger">
-						<view class="add-icon-large"></view>
+						<view class="add-icon-large" :style="getIconStyle('plus')"></view>
 						<text class="add-text">新建账本</text>
 					</view>
 
@@ -109,6 +109,8 @@
 <script>
 	import { mapState } from 'vuex'
 	import Logger from '@/common/logger.js'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	const COVER_OPTIONS = [
 		{ icon: '📒', gradient: 'linear-gradient(135deg, #E8734A, #C95A33)', name: '珊瑚暖色' },
@@ -126,6 +128,7 @@
 	const ACCENT_COLORS = ['#E8734A', '#D4865E', '#4CAF50', '#C4836A']
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return {
 				coverOptions: COVER_OPTIONS,
@@ -170,6 +173,12 @@
 			if (!this.initialized) this.initData()
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			async initData() {
 				await this.$store.dispatch('accounting/initialize')
 			},
@@ -273,7 +282,7 @@
 <style lang="scss" scoped>
 	.ledgers-page {
 		height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -287,7 +296,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -302,23 +311,23 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: #FFF5EE;
+		background: var(--input-bg, #FFF5EE);
 		transition: all 0.2s;
 	}
 	.nav-back:active {
-		background: #F0E4DA;
+		background: var(--border, #F0E4DA);
 		transform: scale(0.95);
 	}
 	.back-icon {
 		font-size: 48rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		line-height: 1;
 		margin-top: -4rpx;
 	}
 	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.nav-placeholder {
 		width: 72rpx;
@@ -344,30 +353,38 @@
 		margin-bottom: 24rpx;
 	}
 	.state-icon-warning {
-		background-color: #E8734A;
-		mask: url(/static/icons/alert-triangle.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/alert-triangle.svg) center/contain no-repeat;
+		background-color: var(--primary, #E8734A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.state-icon-empty {
-		background-color: #E8734A;
-		mask: url(/static/icons/book.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/book.svg) center/contain no-repeat;
+		background-color: var(--primary, #E8734A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.state-text {
 		font-size: 28rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		text-align: center;
 	}
 	.state-hint {
 		font-size: 24rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		margin-top: 16rpx;
 	}
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
 		border: 4rpx solid rgba(232, 115, 74, 0.2);
-		border-top-color: #E8734A;
+		border-top-color: var(--primary, #E8734A);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 		margin-bottom: 24rpx;
@@ -379,7 +396,7 @@
 		padding: 16rpx 40rpx;
 		border-radius: 24rpx;
 		border: 2rpx solid rgba(232, 115, 74, 0.3);
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-size: 28rpx;
 		background: rgba(255, 255, 255, 0.6);
 		margin-top: 32rpx;
@@ -392,7 +409,7 @@
 	}
 	.summary-card {
 		flex: 1;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 24rpx;
 		padding: 24rpx;
 		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04);
@@ -400,7 +417,7 @@
 	.summary-label {
 		display: block;
 		font-size: 22rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		font-weight: 500;
 		margin-bottom: 8rpx;
 	}
@@ -408,7 +425,7 @@
 		display: block;
 		font-size: 36rpx;
 		font-weight: 700;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		letter-spacing: -1rpx;
 		margin-bottom: 4rpx;
 	}
@@ -418,7 +435,7 @@
 	.summary-sub {
 		display: block;
 		font-size: 22rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 
 	.section-header {
@@ -430,11 +447,11 @@
 	.section-title {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.section-count {
 		font-size: 26rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 
 	.ledger-list {
@@ -445,7 +462,7 @@
 
 	.ledger-card {
 		position: relative;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 24rpx;
 		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04);
 		padding: 24rpx;
@@ -496,14 +513,14 @@
 	.ledger-name {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.ledger-badge {
 		font-size: 20rpx;
 		padding: 2rpx 12rpx;
 		border-radius: 20rpx;
-		background: #FDE6D4;
-		color: #C95A33;
+		background: rgba(232, 115, 74, 0.1);
+		color: var(--primary-dark, #C95A33);
 		font-weight: 500;
 		flex-shrink: 0;
 	}
@@ -512,18 +529,18 @@
 		align-items: center;
 		gap: 24rpx;
 		font-size: 26rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-bottom: 16rpx;
 	}
 	.ledger-amount {
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.ledger-amount.income {
 		color: #4CAF50;
 	}
 	.meta-divider {
-		color: #E8D5C8;
+		color: var(--border, #F0E4DA);
 	}
 
 	.ledger-progress {
@@ -537,17 +554,17 @@
 	}
 	.progress-label {
 		font-size: 22rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.progress-value {
 		font-size: 22rpx;
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 500;
 	}
 	.progress-track {
 		width: 100%;
 		height: 12rpx;
-		background: #F5EDE6;
+		background: var(--border, #F0E4DA);
 		border-radius: 6rpx;
 		overflow: hidden;
 	}
@@ -560,16 +577,20 @@
 	.ledger-arrow {
 		width: 36rpx;
 		height: 36rpx;
-		background-color: #A98B78;
-		mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat;
+		background-color: var(--text-tertiary, #A98B78);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 		margin-top: 8rpx;
 		flex-shrink: 0;
 	}
 
 	.add-ledger-card {
 		background: transparent;
-		border: 2rpx dashed #E8D5C8;
+		border: 2rpx dashed var(--border, #F0E4DA);
 		border-radius: 24rpx;
 		display: flex;
 		flex-direction: column;
@@ -581,18 +602,22 @@
 	}
 	.add-ledger-card:active {
 		border-color: #F2956E;
-		background: #FDE6D4;
+		background: rgba(232, 115, 74, 0.1);
 	}
 	.add-icon-large {
 		width: 56rpx;
 		height: 56rpx;
-		background-color: #A98B78;
-		mask: url(/static/icons/plus.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/plus.svg) center/contain no-repeat;
+		background-color: var(--text-tertiary, #A98B78);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.add-text {
 		font-size: 28rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		font-weight: 500;
 	}
 
@@ -615,7 +640,7 @@
 		border-radius: 0 24rpx 24rpx 0;
 	}
 	.swipe-delete-text {
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 		font-size: 28rpx;
 		font-weight: 500;
 	}

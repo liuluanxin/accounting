@@ -32,6 +32,9 @@ export default {
     error: null,
     initialized: false,
 
+    // 首页账本视图模式：'all' 表示总帐本（显示所有账本数据），其他值为具体账本ID
+    homeLedgerMode: 'all',
+
     // 页面 UI 状态
     homeYear: new Date().getFullYear(),
     homeMonth: new Date().getMonth() + 1,
@@ -96,6 +99,7 @@ export default {
     SET_HOME_MONTH(state, { year, month }) { state.homeYear = year; state.homeMonth = month },
     SET_CAL_MONTH(state, { year, month }) { state.calYear = year; state.calMonth = month },
     SET_CAL_DAY(state, day) { state.calDay = day },
+    SET_HOME_VIEW_MODE(state, mode) { state.homeLedgerMode = mode },
 
     /** 从 API 响应更新完整数据 */
     SET_DATA(state, payload) {
@@ -200,11 +204,13 @@ export default {
     },
 
     /** 创建交易 */
-    async addTransaction({ commit, state }, { amount, type, category, accountId, date, note }) {
+    async addTransaction({ commit, state }, { amount, type, category, accountId, date, note, ledgerId }) {
+      const currentLedger = state.data.ledgers.find(l => l.current)
       const txData = {
         amount, type: type || state.recordType,
         category: category || state.recordCat,
         accountId: accountId || state.recordAccountId,
+        ledgerId: ledgerId || (currentLedger ? currentLedger.id : null),
         date: date || state.recordDate || todayStr(),
         note
       }
@@ -277,6 +283,12 @@ export default {
       const res = await AccountingService.switchLedger(id)
       if (res.success) commit('SWITCH_LEDGER', id)
       return res
+    },
+
+    /** 设置首页账本视图模式（'all' 表示总帐本，或具体账本ID） */
+    setHomeViewMode({ commit }, mode) {
+      commit('SET_HOME_VIEW_MODE', mode)
+      return success(null, '已切换')
     },
 
     /** 创建账本 */

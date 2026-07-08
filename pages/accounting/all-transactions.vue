@@ -59,8 +59,10 @@
 <script>
 import { mapState } from 'vuex'
 import { formatMoney, CAT_ICONS } from '@/common/accounting-utils.js'
+import themeMixin from '@/common/theme-mixin.js'
 
 export default {
+	mixins: [themeMixin],
 	components: {},
 	data() {
 		return {
@@ -203,47 +205,47 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.bills-page { min-height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; }
+	.bills-page { min-height: 100vh; width: 100%; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; }
 	.bills-scroll { flex: 1; width: 100%; padding: 0 40rpx 200rpx; box-sizing: border-box; }
 
-	.summary-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); padding: 40rpx; margin-bottom: 40rpx; margin-top: 16rpx; }
+	.summary-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); padding: 40rpx; margin-bottom: 40rpx; margin-top: 16rpx; }
 	.summary-row { display: flex; gap: 48rpx; margin-bottom: 48rpx; }
 	.summary-item { flex: 1; }
-	.summary-label { font-size: 28rpx; color: #A98B78; display: block; margin-bottom: 8rpx; }
+	.summary-label { font-size: 28rpx; color: var(--text-tertiary, #A98B78); display: block; margin-bottom: 8rpx; }
 	.summary-amount { font-size: 48rpx; font-weight: 700; line-height: 1.25; }
-	.summary-amount.expense { color: #E8734A; }
-	.summary-amount.income { color: #4CAF50; }
-	.weekly-bar { display: flex; align-items: flex-end; gap: 12rpx; height: 100rpx; padding-top: 32rpx; border-top: 2rpx solid #F0E4DA; }
+	.summary-amount.expense { color: var(--primary, #E8734A); }
+	.summary-amount.income { color: var(--income, #4CAF50); }
+	.weekly-bar { display: flex; align-items: flex-end; gap: 12rpx; height: 100rpx; padding-top: 32rpx; border-top: 2rpx solid var(--border, #F0E4DA); }
 	.weekly-bar.has-data { height: 180rpx; }
 	.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; height: 100%; justify-content: flex-end; }
-	.bar-fill { width: 100%; border-radius: 6rpx; transition: height 0.5s ease; min-height: 8rpx; background: #FBBE9E; }
-	.bar-fill.current { background: #E8734A; }
-	.bar-label { font-size: 22rpx; color: #A98B78; }
-	.bar-label.current { color: #3D2316; font-weight: 500; }
+	.bar-fill { width: 100%; border-radius: 6rpx; transition: height 0.5s ease; min-height: 8rpx; background: rgba(232, 115, 74, 0.3); }
+	.bar-fill.current { background: var(--primary, #E8734A); }
+	.bar-label { font-size: 22rpx; color: var(--text-tertiary, #A98B78); }
+	.bar-label.current { color: var(--text-primary, #3D2316); font-weight: 500; }
 
 	.empty { display: flex; flex-direction: column; align-items: center; gap: 16rpx; padding: 160rpx 0; }
 	.empty-icon { font-size: 80rpx; opacity: 0.4; }
-	.empty-text { font-size: 28rpx; color: #A98B78; }
+	.empty-text { font-size: 28rpx; color: var(--text-tertiary, #A98B78); }
 
 	.date-group { margin-bottom: 40rpx; }
 	.group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24rpx; }
-	.group-date { font-size: 30rpx; font-weight: 600; color: #3D2316; }
+	.group-date { font-size: 30rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
 	.group-total { font-size: 28rpx; font-weight: 600; }
-	.group-total.expense { color: #E8734A; }
-	.group-total.income { color: #4CAF50; }
+	.group-total.expense { color: var(--primary, #E8734A); }
+	.group-total.income { color: var(--income, #4CAF50); }
 
-	.tx-card { background: #FFFFFF; border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
-	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 32rpx; border-bottom: 2rpx solid #F0E4DA; }
+	.tx-card { background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
+	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 32rpx; border-bottom: 2rpx solid var(--border, #F0E4DA); }
 	.tx-item:last-child { border-bottom: none; }
-	.tx-item:active { background: #F5EDE6; }
-	.tx-icon { width: 72rpx; height: 72rpx; border-radius: 16rpx; background: #FDE6D4; display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
+	.tx-item:active { background: var(--border, #F5EDE6); }
+	.tx-icon { width: 72rpx; height: 72rpx; border-radius: 16rpx; background: rgba(232, 115, 74, 0.1); display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
 	.tx-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
-	.tx-title { font-size: 30rpx; font-weight: 500; color: #3D2316; }
-	.tx-category { font-size: 24rpx; color: #A98B78; }
+	.tx-title { font-size: 30rpx; font-weight: 500; color: var(--text-primary, #3D2316); }
+	.tx-category { font-size: 24rpx; color: var(--text-tertiary, #A98B78); }
 	.tx-amount { font-size: 30rpx; font-weight: 600; white-space: nowrap; }
-	.tx-amount.income { color: #4CAF50; }
-	.tx-amount.expense { color: #E53935; }
+	.tx-amount.income { color: var(--income, #4CAF50); }
+	.tx-amount.expense { color: var(--primary, #E53935); }
 
 	.load-more { display: flex; justify-content: center; align-items: center; padding: 40rpx 0; }
-	.load-more-text { font-size: 24rpx; color: #A98B78; }
+	.load-more-text { font-size: 24rpx; color: var(--text-tertiary, #A98B78); }
 </style>

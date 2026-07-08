@@ -105,6 +105,17 @@ function getLocalDB() {
       db.currentLedger = 'l1'
       saveLocalDB(db)
     }
+    // 数据迁移：确保交易都有 ledgerId
+    if (db.transactions && db.transactions.length > 0) {
+      let needSave = false
+      db.transactions.forEach(tx => {
+        if (!tx.ledgerId) {
+          tx.ledgerId = db.currentLedger
+          needSave = true
+        }
+      })
+      if (needSave) saveLocalDB(db)
+    }
     return db
   } catch (e) {
     return createEmptyDB()
@@ -146,8 +157,9 @@ async function localAdapter(options) {
     switch (`${method}:${url}`) {
       // === 交易相关 ===
       case 'GET:/api/transactions': {
-        const { year, month, date } = data || {}
+        const { year, month, date, ledgerId } = data || {}
         let list = [...db.transactions]
+        if (ledgerId) list = list.filter(t => t.ledgerId === ledgerId)
         if (date) list = list.filter(t => t.date === date)
         else if (year && month) {
           const p = `${year}-${String(month).padStart(2, '0')}`
@@ -176,6 +188,7 @@ async function localAdapter(options) {
           amount: parsed.amount,
           category: data.category,
           accountId: data.accountId,
+          ledgerId: data.ledgerId || db.currentLedger,
           date: data.date || todayStr(),
           time: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'),
           note: (data.note || '').trim() || data.category,

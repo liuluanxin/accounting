@@ -4,28 +4,28 @@
 		<view class="custom-nav-bar">
 			<view class="home-header">
 				<view class="ledger-switch-btn" @click="showLedgerSwitch">
-					<view class="icon-book-open"></view>
-					<text>{{ currentLedgerName || '日常账本' }}</text>
-					<view class="icon-arrow-down-small"></view>
+					<view class="icon-book-open" :style="getIconStyle('book-open')"></view>
+					<text>{{ displayLedgerName || '总帐本' }}</text>
+					<view class="icon-arrow-down-small" :style="getIconStyle('arrow-down')"></view>
 				</view>
 				<view class="bell-btn" @click="showNotifications">
-					<view class="icon-bell"></view>
+					<view class="icon-bell" :style="getIconStyle('bell')"></view>
 					<view class="dot"></view>
 				</view>
 			</view>
 			<view class="period-selector" v-if="!loading && !error">
 				<view class="month-nav">
 					<view class="month-arrow" @click="prevMonth">
-						<view class="icon-arrow-left-month"></view>
+						<view class="icon-arrow-left-month" :style="getIconStyle('arrow-left')"></view>
 					</view>
 					<text class="month-label">{{ periodLabel }}</text>
 					<view class="month-arrow" @click="nextMonth">
-						<view class="icon-arrow-right-month"></view>
+						<view class="icon-arrow-right-month" :style="getIconStyle('arrow-right')"></view>
 					</view>
 				</view>
 				<view class="period-cycle">
 					<view class="period-cycle-btn" @click="toggleViewMode">
-						<view class="icon-refresh"></view>
+						<view class="icon-refresh" :style="getIconStyle('refresh-cw')"></view>
 						<text>{{ viewModeText }}</text>
 					</view>
 				</view>
@@ -66,10 +66,10 @@
 				<view class="budget-card" @click="goBudgetPage">
 					<view class="budget-card-header">
 						<view class="budget-card-title-row">
-							<view class="icon-pie-chart"></view>
+							<view class="icon-pie-chart" :style="getIconStyle('pie-chart')"></view>
 							<text class="budget-card-title">{{ budgetTitle }}</text>
 							<view class="budget-card-arrow">
-								<view class="icon-arrow-right-budget"></view>
+								<view class="icon-arrow-right-budget" :style="getIconStyle('arrow-right')"></view>
 							</view>
 						</view>
 					</view>
@@ -96,7 +96,7 @@
 						</view>
 					</view>
 					<view class="budget-tip">
-						<view class="icon-help-circle"></view>
+						<view class="icon-help-circle" :style="getIconStyle('help-circle')"></view>
 						<text>{{ budgetTipText }}</text>
 					</view>
 				</view>
@@ -124,7 +124,7 @@
 								<view class="tx-date-right">
 									<text class="tx-date-summary">收 ¥{{ formatMoney(group.income) }} 支 ¥{{ formatMoney(group.expense) }}</text>
 									<view class="tx-collapse-arrow" :class="{ collapsed: collapsedDates[group.date] }">
-										<view class="icon-arrow-down-date"></view>
+										<view class="icon-arrow-down-date" :style="getIconStyle('arrow-down')"></view>
 									</view>
 								</view>
 							</view>
@@ -133,10 +133,14 @@
 								<view class="tx-info">
 									<text class="tx-title">{{ tx.note || getCategoryName(tx.category) }}</text>
 									<text class="tx-time">{{ tx.time || '' }}</text>
+									<text v-if="tx.note && tx.note !== getCategoryName(tx.category)" class="tx-note">📝 {{ tx.note }}</text>
 								</view>
-								<text class="tx-amount" :class="tx.type === 'income' ? 'income' : 'expense'">
-									{{ tx.type === 'income' ? '+' : '-' }}¥{{ formatMoney(tx.amount || 0) }}
-								</text>
+								<view class="tx-right">
+									<text class="tx-amount" :class="tx.type === 'income' ? 'income' : 'expense'">
+										{{ tx.type === 'income' ? '+' : '-' }}¥{{ formatMoney(tx.amount || 0) }}
+									</text>
+									<text v-if="getAccountName(tx.accountId)" class="tx-account">{{ getAccountIcon(tx.accountId) }} {{ getAccountName(tx.accountId) }}</text>
+								</view>
 							</view>
 						</view>
 					</template>
@@ -151,12 +155,19 @@
 			<view class="ledger-dropdown" @click.stop>
 				<view class="ledger-dropdown-arrow"></view>
 				<view class="ledger-dropdown-list">
+					<view class="ledger-dropdown-item ledger-all-item"
+						:class="{ current: isAllLedgersMode }"
+						@click="selectAllLedgers">
+						<text class="ledger-dropdown-name">📚 总帐本</text>
+						<text v-if="isAllLedgersMode" class="ledger-check">✓</text>
+					</view>
+					<view class="ledger-dropdown-divider"></view>
 					<view v-for="ledger in data.ledgers" :key="ledger.id"
 						class="ledger-dropdown-item"
-						:class="{ current: ledger.current }"
+						:class="{ current: !isAllLedgersMode && currentLedgerId === ledger.id }"
 						@click="selectLedger(ledger.id)">
 						<text class="ledger-dropdown-name">{{ ledger.name }}</text>
-						<text v-if="ledger.current" class="ledger-check">✓</text>
+						<text v-if="!isAllLedgersMode && currentLedgerId === ledger.id" class="ledger-check">✓</text>
 					</view>
 				</view>
 				<view class="ledger-dropdown-divider"></view>
@@ -167,7 +178,7 @@
 		</view>
 
 		<view class="fab-btn" @click="goRecord">
-			<view class="fab-icon"></view>
+			<view class="fab-icon" :style="getIconStyle('fab-add')"></view>
 		</view>
 
 		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
@@ -179,6 +190,8 @@
 	import { formatMoney, todayStr, CAT_ICONS } from '@/common/accounting-utils.js'
 	import Logger from '@/common/logger.js'
 	import TabBar from '@/components/TabBar.vue'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	function getWeekNumber(d) {
 		const date = new Date(d.valueOf())
@@ -198,6 +211,7 @@
 	}
 
 	export default {
+		mixins: [themeMixin],
 		components: { TabBar },
 		data() {
 			const now = new Date()
@@ -207,11 +221,24 @@
 				homeViewMode: 'month',
 				homeWeek: getWeekNumber(now),
 				collapsedDates: {},
-				showLedgerModal: false
+				showLedgerModal: false,
+				iconMap: ICONS
 			}
 		},
 		computed: {
-			...mapState('accounting', ['data', 'loading', 'error', 'initialized', 'homeLoading']),
+			...mapState('accounting', ['data', 'loading', 'error', 'initialized', 'homeLoading', 'homeLedgerMode']),
+			isAllLedgersMode() {
+				return this.homeLedgerMode === 'all'
+			},
+			currentLedgerId() {
+				const l = this.data.ledgers.find(l => l.current)
+				return l ? l.id : null
+			},
+			displayLedgerName() {
+				if (this.isAllLedgersMode) return '总帐本'
+				const l = this.data.ledgers.find(l => l.current)
+				return l ? l.name : ''
+			},
 			viewModeText() {
 				const map = { week: '按周显示', month: '按月显示', year: '按年显示' }
 				return map[this.homeViewMode] || '按月显示'
@@ -236,9 +263,17 @@
 				if (this.homeViewMode === 'year') return '今年预算'
 				return '本月预算'
 			},
+			// 按账本过滤后的交易
+			ledgerFilteredTxs() {
+				const txs = this.data.transactions || []
+				if (this.isAllLedgersMode) return txs
+				const currentL = this.data.ledgers.find(l => l.current)
+				if (!currentL) return txs
+				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
+			},
 			monthTxs() {
 				const p = this.homeYear + '-' + String(this.homeMonth).padStart(2, '0')
-				return this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0)
+				return this.ledgerFilteredTxs.filter(t => t.date && t.date.indexOf(p) === 0)
 			},
 			viewTxs() {
 				if (this.homeViewMode === 'week') {
@@ -246,14 +281,14 @@
 					const end = new Date(start)
 					end.setDate(end.getDate() + 6)
 					end.setHours(23, 59, 59, 999)
-					return this.data.transactions.filter(t => {
+					return this.ledgerFilteredTxs.filter(t => {
 						if (!t.date) return false
 						const d = new Date(t.date)
 						return d >= start && d <= end
 					})
 				} else if (this.homeViewMode === 'year') {
 					const prefix = String(this.homeYear)
-					return this.data.transactions.filter(t => t.date && t.date.startsWith(prefix))
+					return this.ledgerFilteredTxs.filter(t => t.date && t.date.startsWith(prefix))
 				}
 				return this.monthTxs
 			},
@@ -309,16 +344,19 @@
 					txs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
 					return { date, label: date === ts ? '今天' : date === ys ? '昨天' : date, txs, income: inc, expense: exp }
 				})
-			},
-			currentLedgerName() {
-				const l = this.data.ledgers.find(l => l.current)
-				return l ? l.name : ''
 			}
 		},
 		onLoad() {
 			if (!this.initialized) this.initData()
 		},
 		methods: {
+			getIconStyle(iconName) {
+				const iconUri = ICONS[iconName] || ''
+				return {
+					'mask-image': 'url(' + iconUri + ')',
+					'-webkit-mask-image': 'url(' + iconUri + ')'
+				}
+			},
 			formatMoney,
 			toggleGroup(date) {
 				this.collapsedDates = { ...this.collapsedDates, [date]: !this.collapsedDates[date] }
@@ -329,6 +367,10 @@
 			getAccountName(id) {
 				const a = this.data.accounts.find(a => a.id === id)
 				return a ? a.name : ''
+			},
+			getAccountIcon(id) {
+				const a = this.data.accounts.find(a => a.id === id)
+				return a ? (a.icon || '💳') : ''
 			},
 			getCategoryName(cat) {
 				if (!cat) return '其他'
@@ -383,15 +425,20 @@
 			},
 			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
 			async showLedgerSwitch() {
-				if (this.data.ledgers.length === 0) { uni.showToast({ title: '暂无账本', icon: 'none' }); return }
 				this.showLedgerModal = true
 			},
 			closeLedgerModal() {
 				this.showLedgerModal = false
 			},
+			selectAllLedgers() {
+				this.showLedgerModal = false
+				this.$store.dispatch('accounting/setHomeViewMode', 'all')
+				uni.showToast({ title: '已切换到总帐本', icon: 'none' })
+			},
 			async selectLedger(id) {
 				this.showLedgerModal = false
 				await this.$store.dispatch('accounting/switchLedger', id)
+				this.$store.dispatch('accounting/setHomeViewMode', id)
 				uni.showToast({ title: '账本已切换', icon: 'none' })
 			},
 			createNewLedger() {
@@ -471,111 +518,114 @@
 </script>
 
 <style lang="scss" scoped>
-	.home-page { height: 100vh; width: 100%; background: #FFF9F5; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; position: relative; }
-	.custom-nav-bar { position: sticky; top: 0; z-index: 10; background: #FFF9F5; padding-bottom: 16rpx; flex-shrink: 0; }
-	.home-header { padding: calc(var(--status-bar-height) + 24rpx) 40rpx 0; background: #FFF9F5; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }
-	.ledger-switch-btn { display: flex; align-items: center; gap: 12rpx; color: #3D2316; font-weight: 600; font-size: 32rpx; }
-	.bell-btn { width: 80rpx; height: 80rpx; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04); display: flex; align-items: center; justify-content: center; color: #7A5C4A; position: relative; flex-shrink: 0; }
-	.bell-btn .dot { position: absolute; top: 16rpx; right: 18rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #E8734A; border: 4rpx solid #FFFFFF; }
+	.home-page { height: 100vh; width: 100%; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; position: relative; }
+	.custom-nav-bar { position: sticky; top: 0; z-index: 10; background: var(--bg, #FFF9F5); padding-bottom: 16rpx; flex-shrink: 0; }
+	.home-header { padding: calc(var(--status-bar-height) + 24rpx) 40rpx 0; background: var(--bg, #FFF9F5); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }
+	.ledger-switch-btn { display: flex; align-items: center; gap: 12rpx; color: var(--text-primary, #3D2316); font-weight: 600; font-size: 32rpx; }
+	.bell-btn { width: 80rpx; height: 80rpx; border-radius: 50%; background: var(--card-bg, #FFFFFF); box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04); display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #7A5C4A); position: relative; flex-shrink: 0; }
+	.bell-btn .dot { position: absolute; top: 16rpx; right: 18rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--primary, #E8734A); border: 4rpx solid var(--card-bg, #FFFFFF); }
 	.home-scroll { flex: 1; width: 100%; padding: 8rpx 20rpx 0; box-sizing: border-box; }
 
 	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: #7A5C4A; text-align: center; }
-	.state-hint { font-size: 24rpx; color: #A98B78; margin-top: 16rpx; }
-	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(232, 115, 74, 0.2); border-top-color: #E8734A; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
+	.state-text { font-size: 28rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
+	.state-hint { font-size: 24rpx; color: var(--text-tertiary, #A98B78); margin-top: 16rpx; }
+	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(232, 115, 74, 0.2); border-top-color: var(--primary, #E8734A); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
 	@keyframes spin { to { transform: rotate(360deg); } }
 
 	.period-selector { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 0; }
 	.month-nav { display: flex; align-items: center; gap: 24rpx; }
-	.month-arrow { width: 64rpx; height: 64rpx; border-radius: 50%; border: 1px solid #F0E4DA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #7A5C4A; }
-	.month-arrow:active { background: #F5EDE6; }
-	.month-label { font-size: 32rpx; font-weight: 600; color: #3D2316; min-width: 180rpx; text-align: center; }
+	.month-arrow { width: 64rpx; height: 64rpx; border-radius: 50%; border: 1px solid var(--border, #F0E4DA); background: var(--card-bg, #FFFFFF); display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #7A5C4A); }
+	.month-arrow:active { background: var(--border, #F5EDE6); }
+	.month-label { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); min-width: 180rpx; text-align: center; }
 	.period-cycle { display: flex; align-items: center; }
-	.period-cycle-btn { display: flex; align-items: center; gap: 8rpx; padding: 16rpx 24rpx; background: #FFFFFF; border: 1px solid #F0E4DA; border-radius: 40rpx; color: #7A5C4A; font-size: 24rpx; font-weight: 500; }
-	.period-cycle-btn:active { border-color: #E8734A; color: #E8734A; }
+	.period-cycle-btn { display: flex; align-items: center; gap: 8rpx; padding: 16rpx 24rpx; background: var(--card-bg, #FFFFFF); border: 1px solid var(--border, #F0E4DA); border-radius: 40rpx; color: var(--text-secondary, #7A5C4A); font-size: 24rpx; font-weight: 500; }
+	.period-cycle-btn:active { border-color: var(--primary, #E8734A); color: var(--primary, #E8734A); }
 
-	.balance-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; position: relative; margin-bottom: 40rpx; }
-	.balance-card .gradient-strip { height: 20rpx; background: linear-gradient(135deg, #E8734A, #F2956E); }
+	.balance-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; position: relative; margin-bottom: 40rpx; }
+	.balance-card .gradient-strip { height: 20rpx; background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-shadow, rgba(232, 115, 74, 0.3))); }
 	.balance-card .card-body { padding: 25rpx 48rpx; }
-	.balance-card .balance-label { font-size: 28rpx; color: #A98B78; margin-bottom: 8rpx; }
-	.balance-card .balance-amount { font-size: 72rpx; font-weight: 700; color: #E8734A; line-height: 1.25; margin-bottom: 40rpx; }
+	.balance-card .balance-label { font-size: 28rpx; color: var(--text-tertiary, #A98B78); margin-bottom: 8rpx; }
+	.balance-card .balance-amount { font-size: 72rpx; font-weight: 700; color: var(--primary, #E8734A); line-height: 1.25; margin-bottom: 40rpx; }
 	.balance-card .summary-row { display: flex; gap: 48rpx; }
 	.balance-card .summary-item { flex: 1; display: flex; flex-direction: column; }
-	.balance-card .summary-item .label { font-size: 22rpx; color: #A98B78; margin-bottom: 4rpx; }
+	.balance-card .summary-item .label { font-size: 22rpx; color: var(--text-tertiary, #A98B78); margin-bottom: 4rpx; }
 	.balance-card .summary-item .amount { font-size: 30rpx; font-weight: 600; }
-	.balance-card .summary-item .amount.income { color: #4CAF50; }
-	.balance-card .summary-item .amount.expense { color: #E8734A; }
+	.balance-card .summary-item .amount.income { color: var(--income, #4CAF50); }
+	.balance-card .summary-item .amount.expense { color: var(--primary, #E8734A); }
 
-	.budget-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 40rpx; }
+	.budget-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 40rpx; }
 	.budget-card-header { margin-bottom: 24rpx; }
-	.budget-card-title-row { display: flex; align-items: center; gap: 16rpx; color: #3D2316; }
+	.budget-card-title-row { display: flex; align-items: center; gap: 16rpx; color: var(--text-primary, #3D2316); }
 	.budget-card-title { font-size: 32rpx; font-weight: 600; flex: 1; }
-	.budget-card-arrow { color: #A98B78; }
+	.budget-card-arrow { color: var(--text-tertiary, #A98B78); }
 	.budget-progress-row { display: flex; align-items: center; gap: 24rpx; margin-bottom: 32rpx; }
-	.budget-progress-bar { flex: 1; height: 16rpx; background: #F5EDE6; border-radius: 40rpx; overflow: hidden; }
-	.budget-progress-fill { height: 100%; background: linear-gradient(90deg, #F2956E, #E8734A); border-radius: 40rpx; }
-	.budget-progress-label { font-size: 24rpx; font-weight: 500; color: #E8734A; white-space: nowrap; }
-	.budget-stats-grid { display: flex; align-items: center; justify-content: space-between; background: #FFF9F5; border-radius: 24rpx; padding: 32rpx 24rpx; margin-bottom: 24rpx; }
+	.budget-progress-bar { flex: 1; height: 16rpx; background: var(--border, #F5EDE6); border-radius: 40rpx; overflow: hidden; }
+	.budget-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-shadow, rgba(242, 149, 110, 0.5)), var(--primary, #E8734A)); border-radius: 40rpx; }
+	.budget-progress-label { font-size: 24rpx; font-weight: 500; color: var(--primary, #E8734A); white-space: nowrap; }
+	.budget-stats-grid { display: flex; align-items: center; justify-content: space-between; background: var(--bg, #FFF9F5); border-radius: 24rpx; padding: 32rpx 24rpx; margin-bottom: 24rpx; }
 	.budget-stat { text-align: center; flex: 1; }
-	.budget-stat-label { display: block; font-size: 22rpx; color: #A98B78; margin-bottom: 8rpx; }
-	.budget-stat-value { display: block; font-size: 32rpx; font-weight: 700; color: #3D2316; }
-	.budget-stat-value.remaining { color: #4CAF50; }
-	.budget-stat-value.daily { color: #3D2316; }
-	.budget-stat-value.today-avail { color: #E8734A; }
-	.budget-stat-divider { width: 1px; height: 64rpx; background: #F0E4DA; flex-shrink: 0; }
-	.budget-tip { display: flex; align-items: flex-start; gap: 16rpx; padding: 24rpx; background: #FFF0E8; border-radius: 24rpx; font-size: 24rpx; color: #7A5C4A; line-height: 1.5; }
+	.budget-stat-label { display: block; font-size: 22rpx; color: var(--text-tertiary, #A98B78); margin-bottom: 8rpx; }
+	.budget-stat-value { display: block; font-size: 32rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
+	.budget-stat-value.remaining { color: var(--expense, #4CAF50); }
+	.budget-stat-value.daily { color: var(--text-primary, #3D2316); }
+	.budget-stat-value.today-avail { color: var(--primary, #E8734A); }
+	.budget-stat-divider { width: 1px; height: 64rpx; background: var(--border, #F0E4DA); flex-shrink: 0; }
+	.budget-tip { display: flex; align-items: flex-start; gap: 16rpx; padding: 24rpx; background: rgba(232, 115, 74, 0.08); border-radius: 24rpx; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); line-height: 1.5; }
 
-	.recent-card { margin: 0; background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
-	.recent-card .card-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 40rpx; border-bottom: 1px solid #F0E4DA; }
-	.recent-card .card-title { font-size: 32rpx; font-weight: 600; color: #3D2316; }
-	.recent-card .card-link { font-size: 24rpx; color: #A98B78; }
+	.recent-card { margin: 0; background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); overflow: hidden; }
+	.recent-card .card-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 40rpx; border-bottom: 1px solid var(--border, #F0E4DA); }
+	.recent-card .card-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+	.recent-card .card-link { font-size: 24rpx; color: var(--text-tertiary, #A98B78); }
 
-	.tx-group:not(:last-child) { border-bottom: 1px solid #F0E4DA; }
+	.tx-group:not(:last-child) { border-bottom: 1px solid var(--border, #F0E4DA); }
 	.tx-date-header { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 40rpx 12rpx; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
-	.tx-date-label { font-size: 26rpx; font-weight: 600; color: #7A5C4A; }
+	.tx-date-label { font-size: 26rpx; font-weight: 600; color: var(--text-secondary, #7A5C4A); }
 	.tx-date-right { display: flex; align-items: center; gap: 12rpx; }
-	.tx-date-summary { font-size: 22rpx; color: #A98B78; }
+	.tx-date-summary { font-size: 22rpx; color: var(--text-tertiary, #A98B78); }
 	.tx-collapse-arrow { width: 36rpx; height: 36rpx; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; flex-shrink: 0; }
 	.tx-collapse-arrow.collapsed { transform: rotate(-90deg); }
-	.icon-arrow-down-date { width: 28rpx; height: 28rpx; background-color: #A98B78; mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; }
+	.icon-arrow-down-date { width: 28rpx; height: 28rpx; background-color: var(--text-tertiary, #A98B78); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
 
 	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 24rpx 40rpx; }
 	.tx-item:last-child { padding-bottom: 32rpx; }
-	.tx-item:active { background: #F5EDE6; }
-	.tx-item .tx-emoji { width: 80rpx; height: 80rpx; border-radius: 24rpx; background: #F5EDE6; display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
-	.tx-item .tx-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-	.tx-item .tx-title { font-size: 32rpx; font-weight: 500; color: #3D2316; }
-	.tx-item .tx-time { font-size: 24rpx; color: #A98B78; }
+	.tx-item:active { background: var(--border, #F5EDE6); }
+	.tx-item .tx-emoji { width: 80rpx; height: 80rpx; border-radius: 24rpx; background: var(--border, #F5EDE6); display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
+	.tx-item .tx-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; min-width: 0; }
+	.tx-item .tx-title { font-size: 32rpx; font-weight: 500; color: var(--text-primary, #3D2316); }
+	.tx-item .tx-time { font-size: 24rpx; color: var(--text-tertiary, #A98B78); }
+	.tx-item .tx-note { font-size: 24rpx; color: var(--text-secondary, #8B6F5C); background: rgba(232, 115, 74, 0.06); padding: 6rpx 12rpx; border-radius: 8rpx; margin-top: 6rpx; line-height: 1.4; }
+	.tx-item .tx-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4rpx; flex-shrink: 0; }
 	.tx-item .tx-amount { font-size: 32rpx; font-weight: 600; white-space: nowrap; }
-	.tx-item .tx-amount.income { color: #4CAF50; }
-	.tx-item .tx-amount.expense { color: #3D2316; }
+	.tx-item .tx-amount.income { color: var(--income, #4CAF50); }
+	.tx-item .tx-amount.expense { color: var(--text-primary, #3D2316); }
+	.tx-item .tx-account { font-size: 22rpx; color: var(--text-tertiary, #A98B78); white-space: nowrap; }
 
 	/* 账本切换下拉菜单 */
 	.ledger-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: transparent; z-index: 100; }
-	.ledger-dropdown { position: absolute; top: calc(var(--status-bar-height) + 90rpx); left: 40rpx; min-width: 280rpx; background: #FFFFFF; border-radius: 24rpx; box-shadow: 0 8rpx 32rpx rgba(61,35,22,0.12); }
-	.ledger-dropdown-arrow { position: absolute; top: -12rpx; left: 48rpx; width: 0; height: 0; border-left: 14rpx solid transparent; border-right: 14rpx solid transparent; border-bottom: 14rpx solid #FFFFFF; filter: drop-shadow(0 -4rpx 4rpx rgba(61,35,22,0.04)); }
+	.ledger-dropdown { position: absolute; top: calc(var(--status-bar-height) + 90rpx); left: 40rpx; min-width: 280rpx; background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 8rpx 32rpx rgba(61,35,22,0.12); }
+	.ledger-dropdown-arrow { position: absolute; top: -12rpx; left: 48rpx; width: 0; height: 0; border-left: 14rpx solid transparent; border-right: 14rpx solid transparent; border-bottom: 14rpx solid var(--card-bg, #FFFFFF); filter: drop-shadow(0 -4rpx 4rpx rgba(61,35,22,0.04)); }
 	.ledger-dropdown-list { padding: 8rpx 0; }
 	.ledger-dropdown-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 36rpx; cursor: pointer; transition: background 0.15s; min-width: 200rpx; }
-	.ledger-dropdown-item:active { background: #FFF5EE; }
-	.ledger-dropdown-item.current { background: #FFF5EE; }
-	.ledger-dropdown-name { font-size: 28rpx; color: #3D2316; white-space: nowrap; }
-	.ledger-dropdown-divider { height: 1px; margin: 4rpx 36rpx; border-top: 1rpx dashed #E0D0C4; }
+	.ledger-dropdown-item:active { background: rgba(232, 115, 74, 0.06); }
+	.ledger-dropdown-item.current { background: rgba(232, 115, 74, 0.06); }
+	.ledger-dropdown-name { font-size: 28rpx; color: var(--text-primary, #3D2316); white-space: nowrap; }
+	.ledger-dropdown-divider { height: 1px; margin: 4rpx 36rpx; border-top: 1rpx dashed var(--border, #E0D0C4); }
 	.ledger-new-item { border-radius: 0 0 24rpx 24rpx; }
-	.ledger-new-text { font-size: 28rpx; color: #E8734A; font-weight: 500; }
+	.ledger-new-text { font-size: 28rpx; color: var(--primary, #E8734A); font-weight: 500; }
 
-	.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: #E8734A; box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.35); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid #FFFFFF; }
+	.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-dark, #D65D35)); box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(232, 115, 74, 0.35)); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid var(--card-bg, #FFFFFF); }
 	.fab-btn:active { transform: scale(0.95); }
-	.fab-icon { width: 44rpx; height: 44rpx; background-color: #FFFFFF; mask: url(/static/icons/fab-add.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/fab-add.svg) center/contain no-repeat; }
+	.fab-icon { width: 44rpx; height: 44rpx; background-color: var(--card-bg, #FFFFFF); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
 
 	.icon-base { mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-book-open { width: 36rpx; height: 36rpx; background-color: currentColor; mask: url(/static/icons/book-open.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/book-open.svg) center/contain no-repeat; }
-	.icon-arrow-down-small { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-down.svg) center/contain no-repeat; }
-	.icon-bell { width: 40rpx; height: 40rpx; background-color: currentColor; mask: url(/static/icons/bell.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/bell.svg) center/contain no-repeat; }
-	.icon-arrow-left-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat; }
-	.icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
-	.icon-refresh { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/refresh-cw.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/refresh-cw.svg) center/contain no-repeat; }
-	.icon-pie-chart { width: 36rpx; height: 36rpx; background-color: currentColor; mask: url(/static/icons/pie-chart.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/pie-chart.svg) center/contain no-repeat; }
-	.icon-arrow-right-budget { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/arrow-right.svg) center/contain no-repeat; }
-	.icon-help-circle { width: 28rpx; height: 28rpx; background-color: currentColor; mask: url(/static/icons/help-circle.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/help-circle.svg) center/contain no-repeat; flex-shrink: 0; }
+	.icon-book-open { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-arrow-down-small { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-bell { width: 40rpx; height: 40rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-arrow-left-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-refresh { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-pie-chart { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-arrow-right-budget { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
+	.icon-help-circle { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; flex-shrink: 0; }
 </style>

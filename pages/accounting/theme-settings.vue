@@ -46,8 +46,10 @@
 
 <script>
 import { getAllThemes, getCurrentTheme, setTheme } from '@/common/theme-manager.js'
+import themeMixin from '@/common/theme-mixin.js'
 
 export default {
+	mixins: [themeMixin],
 	data() {
 		return {
 			themes: [],
@@ -73,16 +75,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.theme-settings-page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+.theme-settings-page { height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; overflow-x: hidden; }
 
 /* 自定义导航栏 - 标题居中 */
-.nav-bar { display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; flex-shrink: 0; }
+.nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; background: var(--bg, #FFF9F5); width: 100%; box-sizing: border-box; }
 .nav-back { width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 56rpx; color: var(--text-primary, #3D2316); }
 .back-icon { font-weight: 300; }
 .nav-title { flex: 1; text-align: center; font-size: 34rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
 .nav-placeholder { width: 64rpx; }
 
-.scroll { flex: 1; padding: 0 32rpx 80rpx; }
+.scroll { flex: 1; padding: calc(var(--status-bar-height) + 120rpx) 32rpx 80rpx; width: 100%; box-sizing: border-box; }
 
 .section-desc { padding: 8rpx 0 24rpx; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
 

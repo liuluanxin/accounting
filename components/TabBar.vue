@@ -2,7 +2,7 @@
 	<view class="tab-bar-container">
 		<view class="fab-wrapper" v-if="showFab">
 			<view class="fab-btn" @click="handleFabClick">
-				<view class="fab-icon"></view>
+				<view class="fab-icon" :style="{ 'mask-image': 'url(' + fabIcon + ')', '-webkit-mask-image': 'url(' + fabIcon + ')' }"></view>
 			</view>
 		</view>
 		<nav class="tab-bar" role="tablist">
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+	import ICONS from '@/common/icon-base64.js'
 	export default {
 		name: 'TabBar',
 		props: {
@@ -40,12 +41,18 @@
 				]
 			}
 		},
+		data() {
+			return {
+				fabIcon: ICONS['fab-add'] || ''
+			}
+		},
 		methods: {
 			getIconStyle(tabId) {
-				const iconPath = '/static/icons/tab-' + tabId + '.svg'
+				const iconKey = 'tab-' + tabId
+				const iconUri = ICONS[iconKey] || ''
 				return {
-					'mask-image': 'url(' + iconPath + ')',
-					'-webkit-mask-image': 'url(' + iconPath + ')'
+					'mask-image': 'url(' + iconUri + ')',
+					'-webkit-mask-image': 'url(' + iconUri + ')'
 				}
 			},
 			handleTabClick(tabId) {
@@ -104,8 +111,6 @@
 		width: 22px;
 		height: 22px;
 		background-color: #FFFFFF;
-		mask: url(/static/icons/fab-add.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/fab-add.svg) center/contain no-repeat;
 	}
 
 	.tab-bar {

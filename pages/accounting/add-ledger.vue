@@ -40,7 +40,7 @@
 						:key="idx"
 						class="cover-item"
 						:class="{ 'cover-selected': selectedCover === cover.icon }"
-						:style="selectedCover === cover.icon ? { outlineColor: '#E8734A' } : {}"
+						:style="selectedCover === cover.icon ? { outlineColor: 'var(--primary, #E8734A)' } : {}"
 						@click="selectedCover = cover.icon"
 					>
 						<view class="cover-preview" :style="{ background: cover.gradient }">
@@ -88,6 +88,8 @@
 <script>
 	import { mapState } from 'vuex'
 	import Logger from '@/common/logger.js'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	const COVER_OPTIONS = [
 		{ icon: '📒', gradient: 'linear-gradient(135deg, #E8734A, #C95A33)', name: '珊瑚暖色' },
@@ -115,6 +117,7 @@
 	]
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return {
 				ledgerName: '',
@@ -133,6 +136,12 @@
 			}
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			goBack() {
 				uni.navigateBack()
 			},
@@ -188,7 +197,7 @@
 <style lang="scss" scoped>
 	.add-ledger-page {
 		height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -202,7 +211,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -217,23 +226,23 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: #FFF5EE;
+		background: var(--input-bg, #FFF5EE);
 		transition: all 0.2s;
 	}
 	.nav-back:active {
-		background: #F0E4DA;
+		background: var(--border, #F0E4DA);
 		transform: scale(0.95);
 	}
 	.back-icon {
 		font-size: 48rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		line-height: 1;
 		margin-top: -4rpx;
 	}
 	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.nav-placeholder {
 		width: 72rpx;
@@ -260,7 +269,7 @@
 	.label-text {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.label-required {
 		color: #FF6B6B;
@@ -269,22 +278,22 @@
 
 	/* ===== 输入框 ===== */
 	.input-wrapper {
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 16rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		padding: 0 24rpx;
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 	}
 	.form-input {
 		height: 92rpx;
 		font-size: 30rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.input-placeholder {
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		font-size: 28rpx;
 	}
 
@@ -301,8 +310,8 @@
 		gap: 8rpx;
 		padding: 16rpx 8rpx;
 		border-radius: 20rpx;
-		background: #FFFFFF;
-		border: 2rpx solid #F0E4DA;
+		background: var(--card-bg, #FFFFFF);
+		border: 2rpx solid var(--border, #F0E4DA);
 		transition: all 0.25s;
 		position: relative;
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
@@ -311,7 +320,7 @@
 		transform: scale(0.95);
 	}
 	.cover-selected {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 		background: rgba(232, 115, 74, 0.06);
 		box-shadow: 0 0 0 2rpx rgba(232, 115, 74, 0.2), 0 4rpx 16rpx rgba(232, 115, 74, 0.15);
 	}
@@ -329,7 +338,7 @@
 	}
 	.cover-name {
 		font-size: 22rpx;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 	}
 	.cover-check {
 		position: absolute;
@@ -338,7 +347,7 @@
 		width: 36rpx;
 		height: 36rpx;
 		border-radius: 50%;
-		background: #E8734A;
+		background: var(--primary, #E8734A);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -346,7 +355,7 @@
 	}
 	.check-mark {
 		font-size: 20rpx;
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 		font-weight: 700;
 	}
 
@@ -362,9 +371,9 @@
 		gap: 6rpx;
 		padding: 16rpx 28rpx;
 		margin-right: 16rpx;
-		background: #FFFFFF;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 20rpx;
-		border: 2rpx solid #F0E4DA;
+		border: 2rpx solid var(--border, #F0E4DA);
 		min-width: 100rpx;
 		transition: all 0.2s;
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
@@ -374,8 +383,8 @@
 	}
 	.cat-active {
 		background: rgba(232, 115, 74, 0.08);
-		border-color: #E8734A;
-		color: #E8734A;
+		border-color: var(--primary, #E8734A);
+		color: var(--primary, #E8734A);
 		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.15);
 	}
 	.cat-emoji {
@@ -394,13 +403,13 @@
 		right: 0;
 		padding: 20rpx 28rpx;
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		background: linear-gradient(to top, #FFF9F5 60%, transparent);
+		background: linear-gradient(to top, var(--bg, #FFF9F5) 60%, transparent);
 		z-index: 100;
 		box-sizing: border-box;
 	}
 	.btn-save {
 		height: 96rpx;
-		background: linear-gradient(135deg, #E8734A, #D65D35);
+		background: linear-gradient(135deg, var(--primary, #E8734A), #D65D35);
 		border-radius: 48rpx;
 		display: flex;
 		align-items: center;
@@ -422,7 +431,7 @@
 	.btn-save-text {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 	}
 
 	/* ===== 响应式 ===== */

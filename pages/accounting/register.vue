@@ -2,7 +2,7 @@
 	<view class="register-page">
 		<view class="page-header">
 			<view class="header-back" @click="goBack">
-				<view class="back-icon"></view>
+				<view class="back-icon" :style="getIconStyle('arrow-left')"></view>
 			</view>
 			<text class="header-title">创建账号</text>
 			<view class="header-spacer"></view>
@@ -15,7 +15,7 @@
 					<view class="field-group">
 						<view class="field-label">手机号码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.phone && touched.phone }">
-							<view class="input-icon" style="mask: url(/static/icons/phone.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/phone.svg) center/contain no-repeat;"></view>
+							<view class="input-icon" :style="getIconStyle('phone')"></view>
 							<view class="country-code">
 								<text class="code-text">+86</text>
 							</view>
@@ -36,7 +36,7 @@
 					<view class="field-group">
 						<view class="field-label">用户名</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.username && touched.username }">
-							<view class="input-icon" style="mask: url(/static/icons/user.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/user.svg) center/contain no-repeat;"></view>
+							<view class="input-icon" :style="getIconStyle('user')"></view>
 							<input
 								class="input-field"
 								type="text"
@@ -63,9 +63,9 @@
 								@input="validateField('code')"
 								@blur="touched.code = true; validateField('code')"
 							/>
-							<view 
-								class="code-btn" 
-								:class="{ 'code-sent': countdown > 0 }" 
+							<view
+								class="code-btn"
+								:class="{ 'code-sent': countdown > 0 }"
 								@click="sendCode"
 							>
 								<text v-if="countdown > 0">{{ countdown }}s</text>
@@ -79,7 +79,7 @@
 					<view class="field-group">
 						<view class="field-label">设置密码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.password && touched.password }">
-							<view class="input-icon" style="mask: url(/static/icons/lock.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;"></view>
+							<view class="input-icon" :style="getIconStyle('lock')"></view>
 							<input
 								class="input-field"
 								:type="showPassword ? 'text' : 'password'"
@@ -90,8 +90,8 @@
 								@blur="touched.password = true; validateField('password')"
 							/>
 							<view class="toggle-pwd" @click="showPassword = !showPassword">
-								<view v-if="showPassword" class="eye-icon" style="mask: url(/static/icons/eye-off.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/eye-off.svg) center/contain no-repeat;"></view>
-								<view v-else class="eye-icon" style="mask: url(/static/icons/eye-open.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/eye-open.svg) center/contain no-repeat;"></view>
+								<view v-if="showPassword" class="eye-icon" :style="getIconStyle('eye-off')"></view>
+								<view v-else class="eye-icon" :style="getIconStyle('eye-open')"></view>
 							</view>
 						</view>
 						<text v-if="errors.password && touched.password" class="error-msg">{{ errors.password }}</text>
@@ -107,7 +107,7 @@
 					<view class="field-group">
 						<view class="field-label">确认密码</view>
 						<view class="input-wrapper" :class="{ 'input-error': errors.confirmPassword && touched.confirmPassword }">
-							<view class="input-icon" style="mask: url(/static/icons/lock.svg) center/contain no-repeat; -webkit-mask: url(/static/icons/lock.svg) center/contain no-repeat;"></view>
+							<view class="input-icon" :style="getIconStyle('lock')"></view>
 							<input
 								class="input-field"
 								:type="showConfirmPwd ? 'text' : 'password'"
@@ -162,8 +162,11 @@
 <script>
 	import Logger from '@/common/logger.js'
 	import { rules, validate } from '@/common/validator.js'
+	import themeMixin from '@/common/theme-mixin.js'
+	import ICONS from '@/common/icon-base64.js'
 
 	export default {
+		mixins: [themeMixin],
 		data() {
 			return {
 				form: { phone: '', username: '', code: '', password: '', confirmPassword: '' },
@@ -203,6 +206,12 @@
 			if (this.countdownTimer) clearInterval(this.countdownTimer)
 		},
 		methods: {
+			getIconStyle(name) {
+				return {
+					'mask-image': 'url(' + ICONS[name] + ')',
+					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
+				}
+			},
 			strengthClass(index) {
 				const level = this.passwordStrength
 				if (index >= level) return 'strength-empty'
@@ -288,7 +297,7 @@
 <style lang="scss" scoped>
 	.register-page {
 		min-height: 100vh;
-		background: #FFF9F5;
+		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 	}
@@ -307,24 +316,28 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04);
 		transition: background 0.2s;
 	}
 	.header-back:active {
-		background: #F5EDE6;
+		background: var(--border, #F0E4DA);
 	}
 	.back-icon {
 		width: 40rpx;
 		height: 40rpx;
-		background-color: #3D2316;
-		mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
-		-webkit-mask: url(/static/icons/arrow-left.svg) center/contain no-repeat;
+		background-color: var(--text-primary, #3D2316);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.header-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 	.header-spacer {
 		width: 72rpx;
@@ -339,7 +352,7 @@
 	}
 
 	.register-form-card {
-		background: #fff;
+		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		padding: 40rpx;
 		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
@@ -352,7 +365,7 @@
 		display: block;
 		font-size: 26rpx;
 		font-weight: 500;
-		color: #7A5C4A;
+		color: var(--text-secondary, #7A5C4A);
 		margin-bottom: 12rpx;
 	}
 
@@ -360,20 +373,26 @@
 		display: flex;
 		align-items: center;
 		border-radius: 24rpx;
-		background: #FFF5EE;
-		border: 2rpx solid #F0E4DA;
+		background: var(--input-bg, #FFF5EE);
+		border: 2rpx solid var(--border, #F0E4DA);
 		padding: 0 32rpx;
 		transition: border-color 0.2s;
 		box-sizing: border-box;
 	}
 	.input-wrapper:focus-within {
-		border-color: #E8734A;
+		border-color: var(--primary, #E8734A);
 	}
 	.input-icon {
 		width: 40rpx;
 		height: 40rpx;
 		background-color: currentColor;
 		flex-shrink: 0;
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 	.input-wrapper.input-error {
 		border-color: #E53935 !important;
@@ -382,7 +401,7 @@
 		flex: 1;
 		height: 96rpx;
 		font-size: 30rpx;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
 		outline: none;
@@ -393,13 +412,13 @@
 
 	.country-code {
 		padding-right: 24rpx;
-		border-right: 2rpx solid #F0E4DA;
+		border-right: 2rpx solid var(--border, #F0E4DA);
 		margin-right: 24rpx;
 	}
 	.code-text {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: #3D2316;
+		color: var(--text-primary, #3D2316);
 	}
 
 	.code-wrapper {
@@ -414,15 +433,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #FDE6D4;
-		color: #E8734A;
+		background: rgba(232, 115, 74, 0.1);
+		color: var(--primary, #E8734A);
 		font-size: 28rpx;
 		font-weight: 500;
 		border-radius: 0 24rpx 24rpx 0;
 		transition: all 0.2s;
 	}
 	.code-btn:active {
-		background: #FBBE9E;
+		background: rgba(232, 115, 74, 0.3);
 	}
 	.code-sent {
 		opacity: 0.5;
@@ -440,6 +459,12 @@
 		height: 44rpx;
 		background-color: currentColor;
 		flex-shrink: 0;
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
 	}
 
 	.error-msg {
@@ -463,13 +488,13 @@
 		border-radius: 3rpx;
 		transition: all 0.3s;
 	}
-	.strength-empty { background: #F0E4DA; }
+	.strength-empty { background: var(--border, #F0E4DA); }
 	.strength-weak { background: #E53935; }
 	.strength-medium { background: #FF9800; }
 	.strength-strong { background: #4CAF50; }
 	.strength-label {
 		font-size: 20rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		margin-left: 8rpx;
 		min-width: 40rpx;
 	}
@@ -484,7 +509,7 @@
 		width: 32rpx;
 		height: 32rpx;
 		border-radius: 6rpx;
-		border: 2rpx solid #E8D5C8;
+		border: 2rpx solid var(--border, #F0E4DA);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -493,21 +518,21 @@
 		margin-top: 4rpx;
 	}
 	.checkbox.checked {
-		background: #E8734A;
-		border-color: #E8734A;
+		background: var(--primary, #E8734A);
+		border-color: var(--primary, #E8734A);
 	}
 	.check-icon {
 		font-size: 22rpx;
-		color: #fff;
+		color: var(--card-bg, #FFFFFF);
 		font-weight: 600;
 	}
 	.agreement-text {
 		font-size: 24rpx;
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 		line-height: 1.6;
 	}
 	.link-text {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 500;
 	}
 
@@ -517,8 +542,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #E8734A;
-		color: #fff;
+		background: var(--primary, #E8734A);
+		color: var(--card-bg, #FFFFFF);
 		font-size: 32rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
@@ -526,7 +551,7 @@
 		transition: background 0.2s;
 	}
 	.btn-primary:active {
-		background: #C95A33;
+		background: var(--primary-dark, #C95A33);
 	}
 	.btn-disabled {
 		opacity: 0.4 !important;
@@ -539,10 +564,10 @@
 		font-size: 28rpx;
 	}
 	.login-hint {
-		color: #A98B78;
+		color: var(--text-tertiary, #A98B78);
 	}
 	.login-link {
-		color: #E8734A;
+		color: var(--primary, #E8734A);
 		font-weight: 600;
 		margin-left: 8rpx;
 	}

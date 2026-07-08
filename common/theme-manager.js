@@ -2,6 +2,7 @@
  * 主题管理工具
  * 支持 3 套主题：宇宙（默认）、暖阳、森林
  * 通过 CSS 变量动态切换
+ * 兼容 H5 / App / 小程序
  */
 
 const THEMES = {
@@ -94,19 +95,26 @@ export function getAllThemes() {
 	return Object.entries(THEMES).map(([key, val]) => ({ key, ...val }))
 }
 
+/** 将 CSS 变量设置到元素上 */
+function setCSSVars(el, colors) {
+	if (!el) return
+	Object.entries(colors).forEach(([k, v]) => {
+		el.style.setProperty(k, v)
+	})
+}
+
 /** 应用主题到全局（写入 CSS 变量） */
 export function applyTheme(name) {
 	const theme = getTheme(name)
 	const colors = theme.colors
 	try {
-		// 1) H5: 直接写入 document.documentElement，所有子孙元素通过 CSS 继承生效
-		// #ifdef H5
-		if (typeof document !== 'undefined') {
-			const root = document.documentElement
-			Object.entries(colors).forEach(([k, v]) => root.style.setProperty(k, v))
+		// 方案1：设置到 document.documentElement（H5 和 App-Vue 均可）
+		if (typeof document !== 'undefined' && document.documentElement) {
+			setCSSVars(document.documentElement, colors)
 		}
-		// #endif
-		// 2) 通过页面 $vm 写入（兼容 app-plus 等无 document 的环境）
+
+		// 方案2：设置到当前所有页面实例的根元素
+		// 在 App 端，每个页面有独立的 WebView，需要逐页设置
 		const pages = getCurrentPages()
 		pages.forEach(p => {
 			let el = null
@@ -115,20 +123,34 @@ export function applyTheme(name) {
 			} else if (p.$el) {
 				el = p.$el
 			}
-			if (el && el.style) {
-				Object.entries(colors).forEach(([k, v]) => el.style.setProperty(k, v))
+			if (el) {
+				setCSSVars(el, colors)
+				// 递归设置所有子元素中使用了 CSS 变量的容器
+				const containers = el.querySelectorAll('[class*="-page"], [class*="-container"], .uni-page-body')
+				if (containers) {
+					containers.forEach(c => setCSSVars(c, colors))
+				}
 			}
 		})
-		// 3) 尝试通过 page-meta 或 page 根元素设置（通用兼容）
-		// #ifndef H5
-		if (typeof uni !== 'undefined' && uni.createSelectorQuery) {
-			uni.createSelectorQuery().select('page').node(node => {
-				if (node && node.style) {
-					Object.entries(colors).forEach(([k, v]) => node.style.setProperty(k, v))
-				}
-			}).exec()
+
+		// 方案3：通过 uni API 设置 page 节点样式（App 端关键方案）
+		// App 端每个页面的最外层是 <page> 节点，需要单独设置
+		if (typeof uni !== 'undefined') {
+			try {
+				// 使用 createSelectorQuery 获取 page 节点
+				const query = uni.createSelectorQuery()
+				query.select('page').context(res => {
+					if (res) {
+						// 通过 context 获取 page 节点的 DOM
+						if (res.$el && res.$el.style) {
+							setCSSVars(res.$el, colors)
+						}
+					}
+				}).exec()
+			} catch (e) {
+				// 忽略，某些平台不支持
+			}
 		}
-		// #endif
 	} catch (e) {
 		console.warn('applyTheme error', e)
 	}
@@ -146,4 +168,23 @@ export function setTheme(name) {
 	}
 }
 
-export default { getCurrentTheme, getTheme, getAllThemes, applyTheme, setTheme, THEMES }
+/** 为页面 mixin 提供 onShow 时自动应用主题的方法 */
+export function applyThemeToPage(pageInstance) {
+	const name = getCurrentTheme()
+	const theme = getTheme(name)
+	const colors = theme.colors
+	try {
+		// 设置到页面的根元素
+		if (pageInstance && pageInstance.$el) {
+			setCSSVars(pageInstance.$el, colors)
+		}
+		// 同时设置 documentElement 确保全局生效
+		if (typeof document !== 'undefined' && document.documentElement) {
+			setCSSVars(document.documentElement, colors)
+		}
+	} catch (e) {
+		// 忽略
+	}
+}
+
+export default { getCurrentTheme, getTheme, getAllThemes, applyTheme, setTheme, applyThemeToPage, THEMES }

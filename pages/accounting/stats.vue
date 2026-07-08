@@ -4,12 +4,11 @@
 			<view class="stats-header">
 				<text class="header-title">统计</text>
 			</view>
-		</view>
-
-		<view class="period-selector">
-			<view class="period-pill" :class="{ active: period === 'week' }" @click="period = 'week'">周</view>
-			<view class="period-pill" :class="{ active: period === 'month' }" @click="period = 'month'">月</view>
-			<view class="period-pill" :class="{ active: period === 'year' }" @click="period = 'year'">年</view>
+			<view class="period-selector">
+				<view class="period-pill" :class="{ active: period === 'week' }" @click="period = 'week'">周</view>
+				<view class="period-pill" :class="{ active: period === 'month' }" @click="period = 'month'">月</view>
+				<view class="period-pill" :class="{ active: period === 'year' }" @click="period = 'year'">年</view>
+			</view>
 		</view>
 
 		<scroll-view scroll-y class="stats-scroll">
@@ -20,10 +19,10 @@
 			</view>
 
 			<view class="stats-card donut-section">
-				<view class="donut-chart" :style="{ background: donutGradient }">
+				<view class="donut-chart" :class="{ empty: ranking.length === 0 }" :style="{ background: donutGradient }">
 					<view class="donut-center"></view>
 				</view>
-				<view class="donut-legend">
+				<view v-if="ranking.length > 0" class="donut-legend">
 					<view v-for="(item, i) in ranking.slice(0, 5)" :key="item.name" class="legend-item">
 						<view class="legend-dot" :style="{ background: donutColors[i] }"></view>
 						<text class="legend-text">{{ item.name }} {{ totalAmount > 0 ? (item.amount / totalAmount * 100).toFixed(0) : 0 }}%</text>
@@ -31,7 +30,7 @@
 				</view>
 			</view>
 
-			<view class="stats-card ranking-section">
+			<view v-if="ranking.length > 0" class="stats-card ranking-section">
 				<text class="section-title">支出排行</text>
 				<view v-for="(item, i) in ranking" :key="item.name" class="ranking-item">
 					<text class="rank-emoji">{{ getCategoryEmoji(item.name) }}</text>
@@ -68,8 +67,10 @@
 	import { mapState } from 'vuex'
 	import { formatMoney, CAT_ICONS } from '@/common/accounting-utils.js'
 	import TabBar from '@/components/TabBar.vue'
+	import themeMixin from '@/common/theme-mixin.js'
 
 	export default {
+		mixins: [themeMixin],
 		components: {
 			TabBar
 		},
@@ -83,13 +84,21 @@
 			}
 		},
 		computed: {
-			...mapState('accounting', ['data', 'initialized']),
+			...mapState('accounting', ['data', 'initialized', 'homeLedgerMode']),
+			filteredTransactions() {
+				const mode = this.homeLedgerMode
+				const txs = this.data.transactions || []
+				if (mode === 'all') return txs
+				const currentL = this.data.ledgers.find(l => l.current)
+				if (!currentL) return txs
+				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
+			},
 			currentMonthLabel() {
 				return this.month + '月'
 			},
 			monthTxs() {
 				const p = this.year + '-' + String(this.month).padStart(2, '0')
-				return this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0)
+				return this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0)
 			},
 			summary() {
 				let inc = 0, exp = 0
@@ -104,7 +113,7 @@
 					prevYear -= 1
 				}
 				const p = prevYear + '-' + String(prevMonth).padStart(2, '0')
-				const txs = this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
+				const txs = this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
 				return txs.reduce((sum, t) => sum + t.amount, 0)
 			},
 			changeText() {
@@ -140,7 +149,7 @@
 				for (let i = 0; i < 12; i++) {
 					const month = i + 1
 					const p = this.year + '-' + String(month).padStart(2, '0')
-					const txs = this.data.transactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
+					const txs = this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
 					const amount = txs.reduce((sum, t) => sum + t.amount, 0)
 					months.push({ label: month + '月', amount, year: this.year, isCurrent: month === this.month })
 				}
@@ -150,6 +159,9 @@
 		},
 		onLoad() {
 			if (!this.initialized) this.$store.dispatch('accounting/initialize')
+		},
+		onShow() {
+			this.$forceUpdate()
 		},
 		methods: {
 			formatMoney,
@@ -168,50 +180,52 @@
 </script>
 
 <style lang="scss" scoped>
-	.stats-page { height: 100vh; background: #FFF9F5; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
-	.stats-header { padding: calc(var(--status-bar-height) + 32rpx) 40rpx 16rpx; background: #FFF9F5; flex-shrink: 0; width: 100%; box-sizing: border-box; }
-	.header-title { font-size: 48rpx; font-weight: 700; color: #3D2316; }
+	.stats-page { height: 100vh; background: var(--bg, #FFF9F5); box-sizing: border-box; display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
+	.custom-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--bg, #FFF9F5); flex-shrink: 0; width: 100%; box-sizing: border-box; }
+	.stats-header { padding: calc(var(--status-bar-height) + 32rpx) 40rpx 16rpx; flex-shrink: 0; width: 100%; box-sizing: border-box; display: flex; justify-content: center; }
+	.header-title { font-size: 48rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
 
-	.period-selector { display: flex; gap: 16rpx; padding: 0 40rpx 24rpx; background: #FFF9F5; flex-shrink: 0; width: 100%; box-sizing: border-box; }
-	.period-pill { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 50rpx; background: #F5EDE6; color: #7A5C4A; font-size: 28rpx; font-weight: 500; border: 2rpx solid transparent; transition: all 0.2s; }
-	.period-pill.active { background: #E8734A; color: #FFFFFF; border-color: #E8734A; }
+	.period-selector { display: flex; gap: 16rpx; padding: 0 40rpx 24rpx; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+	.period-pill { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 50rpx; background: var(--border, #F5EDE6); color: var(--text-secondary, #7A5C4A); font-size: 28rpx; font-weight: 500; border: 2rpx solid transparent; transition: all 0.2s; }
+	.period-pill.active { background: var(--primary, #E8734A); color: #FFFFFF; border-color: var(--primary, #E8734A); }
 
-	.stats-scroll { flex: 1; width: 100%; padding: 0 40rpx 200rpx; box-sizing: border-box; }
+	.stats-scroll { flex: 1; width: 100%; padding: calc(var(--status-bar-height) + 200rpx) 40rpx 200rpx; box-sizing: border-box; }
 
-	.stats-card { background: #FFFFFF; border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 32rpx; }
+	.stats-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 32rpx; }
 
-	.monthly-overview .overview-label { font-size: 28rpx; color: #A98B78; display: block; margin-bottom: 8rpx; }
-	.monthly-overview .overview-amount { font-size: 64rpx; font-weight: 700; color: #3D2316; display: block; margin-bottom: 8rpx; letter-spacing: -1rpx; }
+	.monthly-overview .overview-label { font-size: 28rpx; color: var(--text-tertiary, #A98B78); display: block; margin-bottom: 8rpx; }
+	.monthly-overview .overview-amount { font-size: 64rpx; font-weight: 700; color: var(--text-primary, #3D2316); display: block; margin-bottom: 8rpx; letter-spacing: -1rpx; }
 	.monthly-overview .overview-change { font-size: 28rpx; }
-	.monthly-overview .overview-change.decrease { color: #4CAF50; }
-	.monthly-overview .overview-change.increase { color: #E8734A; }
+	.monthly-overview .overview-change.decrease { color: var(--expense, #4CAF50); }
+	.monthly-overview .overview-change.increase { color: var(--primary, #E8734A); }
 
 	.donut-section { display: flex; flex-direction: column; align-items: center; }
-	.donut-chart { width: 320rpx; height: 320rpx; border-radius: 50%; position: relative; margin-bottom: 40rpx; }
-	.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180rpx; height: 180rpx; border-radius: 50%; background: #FFFFFF; }
+	.donut-chart { width: 320rpx; height: 320rpx; border-radius: 50%; position: relative; margin-bottom: 40rpx; background: var(--border, #F5EDE6); }
+	.donut-chart.empty { background: var(--border, #F5EDE6) !important; border: 4rpx dashed var(--border, #E0D4C8); }
+	.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180rpx; height: 180rpx; border-radius: 50%; background: var(--card-bg, #FFFFFF); }
 	.donut-legend { display: flex; flex-wrap: wrap; gap: 24rpx 40rpx; justify-content: center; width: 100%; }
 	.legend-item { display: flex; align-items: center; gap: 12rpx; }
 	.legend-dot { width: 20rpx; height: 20rpx; border-radius: 50%; flex-shrink: 0; }
-	.legend-text { font-size: 24rpx; color: #7A5C4A; }
+	.legend-text { font-size: 24rpx; color: var(--text-secondary, #7A5C4A); }
 
-	.ranking-section .section-title { font-size: 32rpx; font-weight: 600; color: #3D2316; margin-bottom: 32rpx; display: block; }
+	.ranking-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); margin-bottom: 32rpx; display: block; }
 	.ranking-item { display: flex; align-items: center; gap: 24rpx; margin-bottom: 32rpx; }
 	.ranking-item:last-child { margin-bottom: 0; }
 	.rank-emoji { font-size: 40rpx; width: 56rpx; text-align: center; }
 	.ranking-info { flex: 1; min-width: 0; }
 	.ranking-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8rpx; }
-	.ranking-name { font-size: 30rpx; font-weight: 500; color: #3D2316; }
-	.ranking-amount { font-size: 28rpx; font-weight: 600; color: #3D2316; }
-	.progress-bar-track { height: 12rpx; background: #F5EDE6; border-radius: 6rpx; overflow: hidden; flex: 1; }
-	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: #E8734A; transition: width 0.6s ease; }
+	.ranking-name { font-size: 30rpx; font-weight: 500; color: var(--text-primary, #3D2316); }
+	.ranking-amount { font-size: 28rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+	.progress-bar-track { height: 12rpx; background: var(--border, #F5EDE6); border-radius: 6rpx; overflow: hidden; flex: 1; }
+	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: var(--primary, #E8734A); transition: width 0.6s ease; }
 
-	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: #3D2316; margin-bottom: 32rpx; display: block; }
+	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); margin-bottom: 32rpx; display: block; }
 	.bar-chart { display: flex; align-items: flex-end; gap: 8rpx; height: 260rpx; padding-top: 16rpx; }
-	.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 12rpx; height: 100%; justify-content: flex-end; }
-	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: #FBBE9E; }
-	.bar-fill.current { background: #E8734A; }
-	.bar-label { font-size: 22rpx; color: #A98B78; }
-	.bar-label.current { color: #3D2316; font-weight: 500; }
+	.bar-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12rpx; height: 100%; justify-content: flex-end; }
+	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: rgba(232, 115, 74, 0.3); }
+	.bar-fill.current { background: var(--primary, #E8734A); }
+	.bar-label { font-size: 22rpx; color: var(--text-tertiary, #A98B78); white-space: nowrap; }
+	.bar-label.current { color: var(--text-primary, #3D2316); font-weight: 500; }
 
 	
 </style>
