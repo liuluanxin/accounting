@@ -11,25 +11,21 @@
 		<scroll-view scroll-y class="form-scroll">
 			<view class="register-content">
 				<view class="register-form-card">
-					<!-- 手机号 -->
+					<!-- 邮箱 -->
 					<view class="field-group">
-						<view class="field-label">手机号码</view>
-						<view class="input-wrapper" :class="{ 'input-error': errors.phone && touched.phone }">
-							<view class="input-icon" :style="getIconStyle('phone')"></view>
-							<view class="country-code">
-								<text class="code-text">+86</text>
-							</view>
+						<view class="field-label">邮箱地址</view>
+						<view class="input-wrapper" :class="{ 'input-error': errors.email && touched.email }">
+							<view class="input-icon" :style="getIconStyle('user')"></view>
 							<input
 								class="input-field"
-								type="tel"
-								v-model="form.phone"
-								placeholder="请输入手机号码"
-								maxlength="11"
-								@input="validateField('phone')"
-								@blur="touched.phone = true; validateField('phone')"
+								type="text"
+								v-model="form.email"
+								placeholder="请输入邮箱地址"
+								@input="validateField('email')"
+								@blur="touched.email = true; validateField('email')"
 							/>
 						</view>
-					<text v-if="errors.phone && touched.phone" class="error-msg">{{ errors.phone }}</text>
+					<text v-if="errors.email && touched.email" class="error-msg">{{ errors.email }}</text>
 					</view>
 
 					<!-- 用户名 -->
@@ -164,14 +160,16 @@
 	import { rules, validate } from '@/common/validator.js'
 	import themeMixin from '@/common/theme-mixin.js'
 	import ICONS from '@/common/icon-base64.js'
+	import { apiRequest } from '@/services/api-client.js'
+	import ENDPOINTS from '@/services/api-endpoints.js'
 
 	export default {
 		mixins: [themeMixin],
 		data() {
 			return {
-				form: { phone: '', username: '', code: '', password: '', confirmPassword: '' },
-				errors: { phone: '', username: '', code: '', password: '', confirmPassword: '' },
-				touched: { phone: false, username: false, code: false, password: false, confirmPassword: false },
+				form: { email: '', username: '', code: '', password: '', confirmPassword: '' },
+				errors: { email: '', username: '', code: '', password: '', confirmPassword: '' },
+				touched: { email: false, username: false, code: false, password: false, confirmPassword: false },
 				showPassword: false,
 				showConfirmPwd: false,
 				submitting: false,
@@ -183,8 +181,8 @@
 		},
 		computed: {
 			formValid() {
-				return !this.errors.phone && !this.errors.username && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
-					&& this.form.phone && this.form.username && this.form.code && this.form.password && this.form.confirmPassword
+				return !this.errors.email && !this.errors.username && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
+					&& this.form.email && this.form.username && this.form.code && this.form.password && this.form.confirmPassword
 			},
 			passwordStrength() {
 				const p = this.form.password
@@ -221,7 +219,7 @@
 			},
 			validateField(field) {
 				const fieldRules = {
-					phone: [rules.required('请输入手机号'), rules.phone()],
+					email: [rules.required('请输入邮箱'), rules.email()],
 					username: [rules.required('请输入用户名'), rules.username()],
 					code: [rules.required('请输入验证码'), rules.minLength(6, '验证码为6位')],
 					password: [rules.required('请输入密码'), rules.minLength(6, '密码至少6位')],
@@ -236,16 +234,29 @@
 				const result = validate({ [field]: this.form[field] }, { [field]: fieldRules[field] })
 				this.errors[field] = result.valid ? '' : result.errors[field]
 			},
-			sendCode() {
+			async sendCode() {
 				if (this.countdown > 0) return
-				const phoneResult = validate({ phone: this.form.phone }, { phone: [rules.required('请输入手机号'), rules.phone()] })
-				if (!phoneResult.valid) {
-					this.errors.phone = phoneResult.errors.phone
-					this.touched.phone = true
+				const emailResult = validate({ email: this.form.email }, { email: [rules.required('请输入邮箱'), rules.email()] })
+				if (!emailResult.valid) {
+					this.errors.email = emailResult.errors.email
+					this.touched.email = true
 					return
 				}
-				this.errors.phone = ''
-				uni.showToast({ title: '验证码已发送', icon: 'none' })
+				this.errors.email = ''
+				
+				Logger.info('Register', '发送邮箱验证码', { email: this.form.email })
+				const res = await apiRequest({
+					url: ENDPOINTS.auth.sendEmailCode,
+					method: 'POST',
+					data: { email: this.form.email, scene: 'register' }
+				})
+				
+				if (!res.success) {
+					uni.showToast({ title: res.message || '发送失败', icon: 'none' })
+					return
+				}
+				
+				uni.showToast({ title: res.message || '验证码已发送', icon: 'none' })
 				this.countdown = 60
 				this.countdownTimer = setInterval(() => {
 					this.countdown--
@@ -260,25 +271,41 @@
 				if (!this.formValid || !this.agree || this.submitting || this.registered) return
 
 				this.submitting = true
-				Logger.info('Register', '用户注册', { phone: this.form.phone })
+				Logger.info('Register', '用户注册', { email: this.form.email })
 
 				try {
-				// 保存手机号、用户名和密码（密码明文存储，生产环境应加密）
-					uni.setStorageSync('registered_user', JSON.stringify({
-						phone: this.form.phone,
-						username: this.form.username,
-						password: this.form.password
-					}))
-					Logger.info('Register', '注册成功', { username: this.form.username })
+					const res = await apiRequest({
+						url: ENDPOINTS.auth.register,
+						method: 'POST',
+						data: {
+							email: this.form.email,
+							username: this.form.username,
+							code: this.form.code,
+							password: this.form.password
+						}
+					})
 
+					if (!res.success) {
+						uni.showToast({ title: res.message || '注册失败', icon: 'none' })
+						this.submitting = false
+						return
+					}
+
+					Logger.info('Register', '注册成功', { username: this.form.username })
 					this.registered = true
 					this.submitting = false
 
-					// 注册成功后自动登录，直接跳首页
+					if (res.data?.token) {
+						uni.setStorageSync('auth_token', res.data.token)
+					}
+					if (res.data?.user) {
+						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
+					}
+
 					const now = Date.now()
 					uni.setStorageSync('isLoggedIn', 'true')
 					uni.setStorageSync('loginTime', now)
-					uni.setStorageSync('login_phone', this.form.phone)
+					uni.setStorageSync('login_email', this.form.email)
 
 					setTimeout(() => {
 						uni.redirectTo({ url: '/pages/accounting/home' })
@@ -296,10 +323,13 @@
 
 <style lang="scss" scoped>
 	.register-page {
-		min-height: 100vh;
+		height: 100vh;
 		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
+		width: 100%;
+		box-sizing: border-box;
+		overflow-x: hidden;
 	}
 
 	.page-header {
@@ -308,6 +338,8 @@
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 24rpx) 40rpx 24rpx;
 		flex-shrink: 0;
+		width: 100%;
+		box-sizing: border-box;
 	}
 	.header-back {
 		width: 72rpx;

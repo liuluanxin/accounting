@@ -91,6 +91,15 @@ function getLocalDB() {
   try {
     const raw = uni.getStorageSync(LOCAL_STORAGE_KEY)
     let db = raw ? JSON.parse(raw) : createEmptyDB()
+    // 数据迁移：确保有 users 和 emailCodes 表
+    if (!db.users) {
+      db.users = []
+      saveLocalDB(db)
+    }
+    if (!db.emailCodes) {
+      db.emailCodes = {}
+      saveLocalDB(db)
+    }
     // 数据迁移：确保有默认账户
     if (!db.accounts || db.accounts.length === 0) {
       db.accounts = [
@@ -128,6 +137,8 @@ function saveLocalDB(db) {
 
 function createEmptyDB() {
   return {
+    users: [],
+    emailCodes: {},
     accounts: [
       { id: 'acc_default', name: '现金', type: 'cash', balance: 0, icon: '💵', color: '#4ADE80', desc: '', cardNumber: '', cardNumberHidden: true },
       { id: 'acc_bank', name: '银行卡', type: 'bank', balance: 0, icon: '💳', color: '#6C63FF', desc: '', cardNumber: '', cardNumberHidden: true }
@@ -155,6 +166,95 @@ async function localAdapter(options) {
     Logger.debug(MODULE, `[Local] ${method} ${url}`)
 
     switch (`${method}:${url}`) {
+      // === 认证相关 ===
+      case 'POST:/api/auth/send-email-code': {
+        const { email, scene = 'register' } = data || {}
+        if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+          return failure('请输入正确的邮箱地址', 'INVALID_EMAIL')
+        }
+        const code = String(Math.floor(100000 + Math.random() * 900000))
+        const key = `${scene}:${email}`
+        db.emailCodes[key] = {
+          code,
+          expireAt: Date.now() + 5 * 60 * 1000
+        }
+        saveLocalDB(db)
+        Logger.info(MODULE, '邮箱验证码已生成', { email, scene, code })
+        return success(null, '验证码已发送到您的邮箱（模拟：' + code + '）')
+      }
+
+      case 'POST:/api/auth/register': {
+        const { email, code, password, username } = data || {}
+        if (!email) return failure('邮箱不能为空', 'INVALID_EMAIL')
+        if (!code) return failure('验证码不能为空', 'INVALID_CODE')
+        if (!password || password.length < 6) return failure('密码至少6位', 'INVALID_PASSWORD')
+        if (!username || username.length < 2) return failure('用户名至少2位', 'INVALID_USERNAME')
+
+        const codeKey = `register:${email}`
+        const savedCode = db.emailCodes[codeKey]
+        if (!savedCode || savedCode.code !== code) {
+          return failure('验证码错误', 'CODE_MISMATCH')
+        }
+        if (savedCode.expireAt < Date.now()) {
+          return failure('验证码已过期', 'CODE_EXPIRED')
+        }
+
+        const exists = db.users.find(u => u.email === email)
+        if (exists) return failure('该邮箱已注册', 'EMAIL_EXISTS')
+
+        const user = {
+          id: 'user_' + genId(),
+          email,
+          username,
+          password,
+          createdAt: Date.now()
+        }
+        db.users.push(user)
+        delete db.emailCodes[codeKey]
+        saveLocalDB(db)
+
+        const token = 'token_' + genId() + '_' + genId()
+        return success({ token, user: { id: user.id, email, username } }, '注册成功')
+      }
+
+      case 'POST:/api/auth/login': {
+        const { email, password } = data || {}
+        if (!email) return failure('邮箱不能为空', 'INVALID_EMAIL')
+        if (!password) return failure('密码不能为空', 'INVALID_PASSWORD')
+
+        const user = db.users.find(u => u.email === email)
+        if (!user) return failure('该邮箱未注册', 'EMAIL_NOT_FOUND')
+        if (user.password !== password) return failure('密码错误', 'PASSWORD_MISMATCH')
+
+        const token = 'token_' + genId() + '_' + genId()
+        return success({ token, user: { id: user.id, email: user.email, username: user.username } }, '登录成功')
+      }
+
+      case 'POST:/api/auth/reset-password': {
+        const { email, code, password } = data || {}
+        if (!email) return failure('邮箱不能为空', 'INVALID_EMAIL')
+        if (!code) return failure('验证码不能为空', 'INVALID_CODE')
+        if (!password || password.length < 6) return failure('密码至少6位', 'INVALID_PASSWORD')
+
+        const codeKey = `reset:${email}`
+        const savedCode = db.emailCodes[codeKey]
+        if (!savedCode || savedCode.code !== code) {
+          return failure('验证码错误', 'CODE_MISMATCH')
+        }
+        if (savedCode.expireAt < Date.now()) {
+          return failure('验证码已过期', 'CODE_EXPIRED')
+        }
+
+        const user = db.users.find(u => u.email === email)
+        if (!user) return failure('该邮箱未注册', 'EMAIL_NOT_FOUND')
+
+        user.password = password
+        delete db.emailCodes[codeKey]
+        saveLocalDB(db)
+
+        return success(null, '密码重置成功')
+      }
+
       // === 交易相关 ===
       case 'GET:/api/transactions': {
         const { year, month, date, ledgerId } = data || {}

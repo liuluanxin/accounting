@@ -8,7 +8,7 @@
 					<view class="avatar">{{ avatarText }}</view>
 					<view class="user-detail">
 						<text class="user-name">{{ userName }}</text>
-						<text class="user-phone">{{ userPhone }}</text>
+						<text class="user-email">{{ userEmail }}</text>
 					</view>
 					<view class="badge">累计记账 {{ totalDays }} 天</view>
 				</view>
@@ -110,17 +110,24 @@
 		components: { TabBar },
 		computed: {
 			...mapState('accounting', ['data', 'initialized']),
-			userPhone() {
-				return uni.getStorageSync('login_phone') || '未设置'
+			loginUser() {
+				try {
+					const raw = uni.getStorageSync('login_user')
+					return raw ? JSON.parse(raw) : null
+				} catch (e) { return null }
+			},
+			userEmail() {
+				return this.loginUser?.email || uni.getStorageSync('login_email') || '未登录'
 			},
 			avatarText() {
-				const phone = this.userPhone
-				return phone && phone.length > 0 ? phone.charAt(0) : '?'
+				const name = this.userName
+				return name && name.length > 0 ? name.charAt(0).toUpperCase() : '?'
 			},
 			userName() {
-				const phone = this.userPhone
-				if (!phone || phone === '未设置') return '用户'
-				return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
+				if (this.loginUser?.username) return this.loginUser.username
+				const email = this.userEmail
+				if (!email || email === '未登录') return '用户'
+				return email.split('@')[0]
 			},
 			monthTxs() {
 				const now = new Date()
@@ -211,7 +218,8 @@
 						try {
 							uni.removeStorageSync('isLoggedIn')
 							uni.removeStorageSync('loginTime')
-							uni.removeStorageSync('login_phone')
+							uni.removeStorageSync('login_email')
+							uni.removeStorageSync('login_user')
 							uni.removeStorageSync('auth_token')
 						} catch (e) { /* ignore */ }
 						uni.showToast({ title: '已退出登录', icon: 'none' })
@@ -236,7 +244,7 @@
 	.user-card .avatar { width: 100rpx; height: 100rpx; min-width: 100rpx; border-radius: 50%; background: var(--primary, #E8734A); display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; color: var(--card-bg, #FFFFFF); border: 6rpx solid var(--card-bg, #FFFFFF); box-shadow: 0 4rpx 8rpx rgba(61, 35, 22, 0.04); }
 	.user-card .user-detail { flex: 1; min-width: 0; }
 	.user-card .user-name { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); line-height: 1.25; display: block; }
-	.user-card .user-phone { font-size: 26rpx; color: var(--text-tertiary, #A98B78); margin-top: 8rpx; display: block; }
+	.user-card .user-email { font-size: 26rpx; color: var(--text-tertiary, #A98B78); margin-top: 8rpx; display: block; }
 	.user-card .badge { padding: 8rpx 24rpx; background: rgba(232, 115, 74, 0.1); border-radius: 50rpx; font-size: 22rpx; color: var(--primary, #C95A33); font-weight: 500; white-space: nowrap; }
 
 	.summary-row { display: flex; gap: 24rpx; margin: 32rpx 0; }

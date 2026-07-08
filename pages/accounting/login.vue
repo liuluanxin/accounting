@@ -15,10 +15,10 @@
 
 				<view class="login-form-card">
 					<view class="form-group">
-						<view class="field-label">手机号 / 邮箱</view>
+						<view class="field-label">邮箱</view>
 						<view class="input-wrapper">
-							<text class="input-icon">👤</text>
-							<input class="input-field" type="text" v-model="phone" placeholder="请输入手机号或邮箱" />
+							<text class="input-icon">📧</text>
+							<input class="input-field" type="text" v-model="email" placeholder="请输入邮箱地址" />
 						</view>
 					</view>
 
@@ -58,9 +58,6 @@
 						<view class="social-btn" @click="socialLogin('微信')">
 							<text class="social-icon-wechat">💚</text>
 						</view>
-						<view class="social-btn" @click="socialLogin('手机号')">
-							<text class="social-icon-phone">📱</text>
-						</view>
 					</view>
 				</view>
 			</view>
@@ -72,12 +69,15 @@
 	import Logger from '@/common/logger.js'
 	import themeMixin from '@/common/theme-mixin.js'
 	import ICONS from '@/common/icon-base64.js'
+	import { apiRequest } from '@/services/api-client.js'
+	import ENDPOINTS from '@/services/api-endpoints.js'
+	import { rules, validate } from '@/common/validator.js'
 
 	export default {
 		mixins: [themeMixin],
 		data() {
 			return { 
-				phone: '', 
+				email: '', 
 				password: '', 
 				logining: false,
 				showPassword: false,
@@ -89,28 +89,24 @@
 				return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
 			},
 			async handleLogin() {
-				if (!this.phone.trim()) { uni.showToast({ title: '请输入手机号/邮箱', icon: 'none' }); return }
+				const emailTrim = this.email.trim()
+				if (!emailTrim) { uni.showToast({ title: '请输入邮箱', icon: 'none' }); return }
+				const emailResult = validate({ email: emailTrim }, { email: [rules.required('请输入邮箱'), rules.email()] })
+				if (!emailResult.valid) { uni.showToast({ title: emailResult.errors.email, icon: 'none' }); return }
 				if (!this.password.trim()) { uni.showToast({ title: '请输入密码', icon: 'none' }); return }
 
 				this.logining = true
-				Logger.info('Login', '用户登录', { phone: this.phone })
+				Logger.info('Login', '用户登录', { email: emailTrim })
 
 				try {
-					// 校验已注册用户
-					const raw = uni.getStorageSync('registered_user')
-					const registered = raw ? JSON.parse(raw) : null
-					if (!registered) {
-						uni.showToast({ title: '账号未注册，请先注册', icon: 'none' })
-						this.logining = false
-						return
-					}
-					if (registered.phone !== this.phone.trim()) {
-						uni.showToast({ title: '该手机号未注册', icon: 'none' })
-						this.logining = false
-						return
-					}
-					if (registered.password !== this.password) {
-						uni.showToast({ title: '密码错误', icon: 'none' })
+					const res = await apiRequest({
+						url: ENDPOINTS.auth.login,
+						method: 'POST',
+						data: { email: emailTrim, password: this.password }
+					})
+
+					if (!res.success) {
+						uni.showToast({ title: res.message || '登录失败', icon: 'none' })
 						this.logining = false
 						return
 					}
@@ -118,9 +114,15 @@
 					const now = Date.now()
 					uni.setStorageSync('isLoggedIn', 'true')
 					uni.setStorageSync('loginTime', now)
-					uni.setStorageSync('login_phone', this.phone)
+					uni.setStorageSync('login_email', emailTrim)
+					if (res.data?.token) {
+						uni.setStorageSync('auth_token', res.data.token)
+					}
+					if (res.data?.user) {
+						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
+					}
 					if (this.rememberMe) {
-						uni.setStorageSync('remember_phone', this.phone)
+						uni.setStorageSync('remember_email', emailTrim)
 					}
 					uni.showToast({ title: '登录成功 ✨', icon: 'none' })
 					setTimeout(() => uni.redirectTo({ url: '/pages/accounting/home' }), 300)
@@ -132,12 +134,7 @@
 				}
 			},
 			socialLogin(provider) {
-				const now = Date.now()
-				uni.setStorageSync('isLoggedIn', 'true')
-				uni.setStorageSync('loginTime', now)
-				uni.setStorageSync('login_phone', provider + '用户')
-				uni.showToast({ title: provider + '登录成功 ✨', icon: 'none' })
-				setTimeout(() => uni.redirectTo({ url: '/pages/accounting/home' }), 300)
+				uni.showToast({ title: '暂不支持' + provider + '登录', icon: 'none' })
 			},
 			showForgotPwd() { uni.navigateTo({ url: '/pages/accounting/forgot-pwd' }) },
 			showRegister() { uni.navigateTo({ url: '/pages/accounting/register' }) }
@@ -147,7 +144,7 @@
 
 <style lang="scss" scoped>
 	.login-page {
-		min-height: 100vh;
+		height: 100vh;
 		background: var(--bg, #FFF9F5);
 		width: 100%;
 		box-sizing: border-box;
@@ -274,7 +271,7 @@
 		border-radius: 50rpx;
 		background: var(--input-bg, #FFF5EE);
 		border: 2rpx solid var(--border, #E8D5C8);
-		padding: 20rpx 24rpx;
+		padding: 0rpx 24rpx;
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
@@ -287,6 +284,7 @@
 	}
 	.input-field {
 		flex: 1;
+		height: 70rpx;
 		font-size: 30rpx;
 		color: var(--text-primary, #3D2316);
 		background: transparent;

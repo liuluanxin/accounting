@@ -46,10 +46,12 @@ export const ENDPOINTS = {
     summary: `${BASE}/dashboard`,            // GET   月度汇总
   },
 
-  // 认证（未来扩展）
+  // 认证
   auth: {
-    login: `${BASE}/auth/login`,
-    register: `${BASE}/auth/register`,
+    sendEmailCode: `${BASE}/auth/send-email-code`,   // POST 发送邮箱验证码 { email, scene }
+    register: `${BASE}/auth/register`,               // POST 邮箱注册 { email, code, password, username }
+    login: `${BASE}/auth/login`,                     // POST 邮箱登录 { email, password }
+    resetPassword: `${BASE}/auth/reset-password`,     // POST 重置密码 { email, code, password }
     logout: `${BASE}/auth/logout`,
   }
 }

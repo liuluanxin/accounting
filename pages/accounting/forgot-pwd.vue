@@ -25,43 +25,41 @@
 						<view class="step-dot">
 							<text class="step-num">1</text>
 						</view>
-						<text class="step-label">输入手机号</text>
+						<text class="step-label">验证邮箱</text>
 					</view>
 					<view class="step-connector" :class="{ active: step >= 2 }"></view>
 					<view class="step-item" :class="{ active: step >= 2 }">
 						<view class="step-dot">
 							<text class="step-num">2</text>
 						</view>
-						<text class="step-label">验证码</text>
+						<text class="step-label">设置新密码</text>
 					</view>
 					<view class="step-connector" :class="{ active: step >= 3 }"></view>
 					<view class="step-item" :class="{ active: step >= 3 }">
 						<view class="step-dot">
 							<text class="step-num">3</text>
 						</view>
-						<text class="step-label">设置新密码</text>
+						<text class="step-label">完成</text>
 					</view>
 				</view>
 
 				<view class="forgot-form-card">
 					<template v-if="step === 1">
-						<text class="form-desc">请输入注册时使用的手机号码，我们将发送验证码帮助您重置密码。</text>
+						<text class="form-desc">请输入注册时使用的邮箱地址，我们将发送验证码帮助您重置密码。</text>
 
 						<view class="field-group">
-							<view class="field-label">手机号码</view>
-							<view class="input-wrapper" :class="{ 'input-error': errors.phone && touched.phone }">
-								<text class="prefix-text">+86</text>
-								<view class="divider-line"></view>
+							<view class="field-label">邮箱地址</view>
+							<view class="input-wrapper" :class="{ 'input-error': errors.email && touched.email }">
 								<input
 									class="input-field"
-									type="tel"
-									v-model="form.phone"
-									placeholder="请输入手机号码"
-									@input="validateField('phone')"
-									@blur="touched.phone = true; validateField('phone')"
+									type="text"
+									v-model="form.email"
+									placeholder="请输入邮箱地址"
+									@input="validateField('email')"
+									@blur="touched.email = true; validateField('email')"
 								/>
 							</view>
-							<text v-if="errors.phone && touched.phone" class="error-msg">{{ errors.phone }}</text>
+							<text v-if="errors.email && touched.email" class="error-msg">{{ errors.email }}</text>
 						</view>
 
 						<view class="field-group">
@@ -90,7 +88,7 @@
 							<text>下一步</text>
 						</view>
 
-						<text class="tip-text">没有收到验证码？<text class="tip-link">重新发送</text></text>
+						<text class="tip-text">没有收到验证码？<text class="tip-link" @click="sendCode">重新发送</text></text>
 					</template>
 
 					<template v-if="step === 2">
@@ -159,15 +157,17 @@
 	import { rules, validate } from '@/common/validator.js'
 	import themeMixin from '@/common/theme-mixin.js'
 	import ICONS from '@/common/icon-base64.js'
+	import { apiRequest } from '@/services/api-client.js'
+	import ENDPOINTS from '@/services/api-endpoints.js'
 
 	export default {
 		mixins: [themeMixin],
 		data() {
 			return {
 				step: 1,
-				form: { phone: '', code: '', password: '', confirmPassword: '' },
-				errors: { phone: '', code: '', password: '', confirmPassword: '' },
-				touched: { phone: false, code: false, password: false, confirmPassword: false },
+				form: { email: '', code: '', password: '', confirmPassword: '' },
+				errors: { email: '', code: '', password: '', confirmPassword: '' },
+				touched: { email: false, code: false, password: false, confirmPassword: false },
 				showPassword: false,
 				showConfirm: false,
 				countdown: 0,
@@ -178,8 +178,8 @@
 		},
 		computed: {
 			formValid() {
-				return !this.errors.phone && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
-					&& this.form.phone && this.form.code && this.form.password && this.form.confirmPassword
+				return !this.errors.email && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
+					&& this.form.email && this.form.code && this.form.password && this.form.confirmPassword
 			}
 		},
 		beforeDestroy() {
@@ -194,7 +194,7 @@
 			},
 			validateField(field) {
 				const fieldRules = {
-					phone: [rules.required('请输入手机号'), rules.phone()],
+					email: [rules.required('请输入邮箱'), rules.email()],
 					code: [rules.required('请输入验证码'), rules.minLength(6, '验证码为6位')],
 					password: [rules.required('请输入新密码'), rules.minLength(6, '密码至少6位')],
 					confirmPassword: [
@@ -205,18 +205,29 @@
 				const result = validate({ [field]: this.form[field] }, { [field]: fieldRules[field] })
 				this.errors[field] = result.valid ? '' : result.errors[field]
 			},
-			sendCode() {
+			async sendCode() {
 				if (this.countdown > 0) return
-				const phoneResult = validate({ phone: this.form.phone }, { phone: [rules.required('请输入手机号'), rules.phone()] })
-				if (!phoneResult.valid) {
-					this.errors.phone = phoneResult.errors.phone
-					this.touched.phone = true
+				const emailResult = validate({ email: this.form.email }, { email: [rules.required('请输入邮箱'), rules.email()] })
+				if (!emailResult.valid) {
+					this.errors.email = emailResult.errors.email
+					this.touched.email = true
 					return
 				}
-				this.errors.phone = ''
-				Logger.info('ForgotPwd', '发送验证码', { phone: this.form.phone })
-				uni.showToast({ title: '验证码已发送', icon: 'none' })
-
+				this.errors.email = ''
+				Logger.info('ForgotPwd', '发送邮箱验证码', { email: this.form.email })
+				
+				const res = await apiRequest({
+					url: ENDPOINTS.auth.sendEmailCode,
+					method: 'POST',
+					data: { email: this.form.email, scene: 'reset' }
+				})
+				
+				if (!res.success) {
+					uni.showToast({ title: res.message || '发送失败', icon: 'none' })
+					return
+				}
+				
+				uni.showToast({ title: res.message || '验证码已发送', icon: 'none' })
 				this.countdown = 60
 				this.countdownTimer = setInterval(() => {
 					this.countdown--
@@ -227,9 +238,9 @@
 				}, 1000)
 			},
 			goStep2() {
-				this.touched.phone = true; this.validateField('phone')
+				this.touched.email = true; this.validateField('email')
 				this.touched.code = true; this.validateField('code')
-				if (!this.errors.phone && !this.errors.code && this.form.phone && this.form.code) {
+				if (!this.errors.email && !this.errors.code && this.form.email && this.form.code) {
 					this.step = 2
 				}
 			},
@@ -238,11 +249,25 @@
 				if (!this.formValid || this.submitting || this.submitted) return
 
 				this.submitting = true
-				Logger.info('ForgotPwd', '提交密码重置', { phone: this.form.phone })
+				Logger.info('ForgotPwd', '提交密码重置', { email: this.form.email })
 
 				try {
-					await new Promise(r => setTimeout(r, 800))
-					uni.setStorageSync('password_reset', JSON.stringify({ phone: this.form.phone, time: Date.now() }))
+					const res = await apiRequest({
+						url: ENDPOINTS.auth.resetPassword,
+						method: 'POST',
+						data: {
+							email: this.form.email,
+							code: this.form.code,
+							password: this.form.password
+						}
+					})
+					
+					if (!res.success) {
+						uni.showToast({ title: res.message || '重置失败', icon: 'none' })
+						this.submitting = false
+						return
+					}
+					
 					Logger.info('ForgotPwd', '密码重置成功')
 					this.submitted = true
 					this.submitting = false
@@ -260,12 +285,13 @@
 
 <style lang="scss" scoped>
 	.forgot-page {
-		min-height: 100vh;
+		height: 100vh;
 		background: var(--bg, #FFF9F5);
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 		box-sizing: border-box;
+		overflow-x: hidden;
 	}
 
 	.page-header {
@@ -274,6 +300,8 @@
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 24rpx) 40rpx 24rpx;
 		flex-shrink: 0;
+		width: 100%;
+		box-sizing: border-box;
 	}
 	.header-back {
 		width: 80rpx;

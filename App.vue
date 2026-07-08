@@ -3,6 +3,7 @@
 	import { setupGlobalErrorHandler, vueErrorHandler } from '@/common/error-handler.js'
 	import { configureApi } from '@/services/api-client.js'
 	import { applyTheme, getCurrentTheme } from '@/common/theme-manager.js'
+	import { needVerify } from '@/common/privacy-lock.js'
 
 	export default {
 		onLaunch: function() {
