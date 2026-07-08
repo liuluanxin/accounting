@@ -12,14 +12,22 @@
 			Vue.config.errorHandler = vueErrorHandler
 			// #endif
 
-			// 初始化 API 配置（生产环境切换为 HTTP 模式）
+			// 初始化 API 配置
+			// H5开发环境用 localhost，App/小程序用实际服务器地址
+			// #ifdef H5
+			const apiBase = 'http://localhost:3000'
+			// #endif
+			// #ifndef H5
+			const apiBase = 'http://localhost:3000'  // 部署后改成实际服务器地址
+			// #endif
+
 			configureApi({
-				baseURL: '',
-				adapter: 'local',            // 默认本地适配器，生产环境改为 'http'
+				baseURL: apiBase,
+				adapter: 'http',
 				timeout: 15000
 			})
 
-			Logger.info('App', '宇宙记账启动 [API: local]')
+			Logger.info('App', '宇宙记账启动 [API: http]')
 
 			// 应用主题
 			applyTheme(getCurrentTheme())
