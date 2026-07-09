@@ -420,6 +420,38 @@ async function localAdapter(options) {
         })
       }
 
+      // === 图片识别（模拟OCR） ===
+      case 'POST:/api/ocr/recognize': {
+        // 模拟网络延迟
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 600))
+        const samples = [
+          { type: 'expense', amount: 35.50, category: '餐饮', note: '麦当劳午餐', merchant: '麦当劳' },
+          { type: 'expense', amount: 88.00, category: '餐饮', note: '星巴克咖啡', merchant: '星巴克' },
+          { type: 'expense', amount: 12.50, category: '交通', note: '地铁出行', merchant: '地铁' },
+          { type: 'expense', amount: 45.00, category: '交通', note: '打车回家', merchant: '滴滴出行' },
+          { type: 'expense', amount: 128.00, category: '购物', note: '超市购物', merchant: '沃尔玛' },
+          { type: 'expense', amount: 56.80, category: '购物', note: '便利店', merchant: '7-11' },
+          { type: 'expense', amount: 35.00, category: '娱乐', note: '电影票', merchant: '万达影城' },
+          { type: 'expense', amount: 15.00, category: '通讯', note: '话费充值', merchant: '中国移动' },
+          { type: 'expense', amount: 200.00, category: '医疗', note: '药店买药', merchant: '大药房' },
+          { type: 'expense', amount: 99.00, category: '服饰', note: '网购衣服', merchant: '淘宝' }
+        ]
+        const idx = Math.floor(Math.random() * samples.length)
+        const s = samples[idx]
+        const now = new Date()
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+        return success({
+          type: s.type,
+          amount: s.amount,
+          category: s.category,
+          note: s.note,
+          merchant: s.merchant,
+          date: dateStr,
+          confidence: 0.85 + Math.random() * 0.13,
+          rawText: `${s.merchant}\n合计: ¥${s.amount.toFixed(2)}\n日期: ${dateStr}`
+        }, '识别成功')
+      }
+
       default:
         return failure(`未知的本地 API: ${method} ${url}`, 'ENDPOINT_NOT_FOUND')
     }

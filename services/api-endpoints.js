@@ -31,6 +31,9 @@ export const ENDPOINTS = {
   // 分类
   categories: {
     list: `${BASE}/categories`,              // GET   分类列表
+    create: `${BASE}/categories`,            // POST  添加分类 { type, name }
+    update: `${BASE}/categories`,            // PUT   更新分类 { type, oldName, newName }
+    delete: `${BASE}/categories`,            // DELETE 删除分类 { type, name }
   },
 
   // 账本
@@ -53,6 +56,11 @@ export const ENDPOINTS = {
     login: `${BASE}/auth/login`,                     // POST 邮箱登录 { email, password }
     resetPassword: `${BASE}/auth/reset-password`,     // POST 重置密码 { email, code, password }
     logout: `${BASE}/auth/logout`,
+  },
+
+  // 图片识别
+  ocr: {
+    recognize: `${BASE}/ocr/recognize`,              // POST 识别小票/账单图片 { imagePath }
   }
 }
 

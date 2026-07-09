@@ -154,6 +154,54 @@ export default {
     UPDATE_BUDGET(state, { key, total }) {
       if (!state.data.budgets[key]) state.data.budgets[key] = {}
       state.data.budgets[key].total = total
+    },
+
+    ADD_CATEGORY(state, { type, category }) {
+      if (!state.data.categories[type]) state.data.categories[type] = []
+      const name = typeof category === 'string' ? category : category.name
+      const exists = state.data.categories[type].some(c => 
+        (typeof c === 'string' ? c : c.name) === name
+      )
+      if (!exists) {
+        state.data.categories[type].push(category)
+      }
+    },
+    DELETE_CATEGORY(state, { type, name }) {
+      if (!state.data.categories[type]) return
+      state.data.categories[type] = state.data.categories[type].filter(c => 
+        (typeof c === 'string' ? c : c.name) !== name
+      )
+    },
+    UPDATE_CATEGORY(state, { type, oldName, category }) {
+      if (!state.data.categories[type]) return
+      const newName = typeof category === 'string' ? category : category.name
+      const idx = state.data.categories[type].findIndex(c => 
+        (typeof c === 'string' ? c : c.name) === oldName
+      )
+      if (idx !== -1) {
+        if (typeof state.data.categories[type][idx] === 'string' && typeof category === 'string') {
+          state.data.categories[type][idx] = category
+        } else {
+          const oldItem = state.data.categories[type][idx]
+          if (typeof oldItem === 'string') {
+            state.data.categories[type][idx] = typeof category === 'string' 
+              ? { name: category, icon: '📝', color: 'linear-gradient(135deg, #E8734A 0%, #F2956E 100%)' }
+              : category
+          } else {
+            state.data.categories[type][idx] = { ...oldItem, ...(typeof category === 'string' ? { name: category } : category) }
+          }
+        }
+        state.data.transactions.forEach(t => {
+          if (t.type === type && t.category === oldName) {
+            t.category = newName
+          }
+        })
+      }
+    },
+    REORDER_CATEGORIES(state, { type, categories }) {
+      if (state.data.categories[type]) {
+        state.data.categories[type] = categories
+      }
     }
   },
   actions: {
@@ -328,6 +376,45 @@ export default {
         if (res.success) {
           commit('SET_DATA', { accounts: res.data.list })
           return success(res.data.list)
+        }
+        return failure(res.message)
+      } catch (err) {
+        return failure(err.message)
+      }
+    },
+
+    /** 添加分类 */
+    async addCategory({ commit }, { type, category }) {
+      const res = await AccountingService.addCategory({ type, category })
+      if (res.success) commit('ADD_CATEGORY', { type, category })
+      return res
+    },
+
+    /** 删除分类 */
+    async deleteCategory({ commit, state }, { type, name }) {
+      const usageCount = state.data.transactions.filter(t => t.type === type && t.category === name).length
+      if (usageCount > 0) {
+        return failure('该分类下有交易记录，无法删除')
+      }
+      const res = await AccountingService.deleteCategory({ type, name })
+      if (res.success) commit('DELETE_CATEGORY', { type, name })
+      return res
+    },
+
+    /** 更新分类 */
+    async updateCategory({ commit }, { type, oldName, category }) {
+      const res = await AccountingService.updateCategory({ type, oldName, category })
+      if (res.success) commit('UPDATE_CATEGORY', { type, oldName, category })
+      return res
+    },
+
+    /** 获取分类列表 */
+    async fetchCategories({ commit }) {
+      try {
+        const res = await AccountingService.getCategories()
+        if (res.success) {
+          commit('SET_DATA', { categories: res.data })
+          return success(res.data)
         }
         return failure(res.message)
       } catch (err) {

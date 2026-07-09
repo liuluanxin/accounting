@@ -23,11 +23,11 @@
 
 			configureApi({
 				baseURL: apiBase,
-				adapter: 'http',
+				adapter: 'local',
 				timeout: 15000
 			})
 
-			Logger.info('App', '宇宙记账启动 [API: http]')
+			Logger.info('App', '宇宙记账启动 [API: local]')
 
 			// 应用主题
 			applyTheme(getCurrentTheme())

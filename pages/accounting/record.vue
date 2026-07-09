@@ -5,7 +5,9 @@
 				<view class="back-icon" :style="getIconStyle('arrow-left')"></view>
 			</view>
 			<text class="header-title">记一笔</text>
-			<view style="width:72rpx;"></view>
+			<view class="camera-btn" @click="goPhotoRecord">
+				<text class="camera-icon">📷</text>
+			</view>
 		</view>
 
 		<scroll-view scroll-y class="record-scroll">
@@ -410,7 +412,8 @@
 					success: (res) => { this.recordAccountId = this.accounts[res.tapIndex].id }
 				})
 			},
-			goBack() { uni.navigateBack() }
+			goBack() { uni.navigateBack() },
+			goPhotoRecord() { uni.navigateTo({ url: '/pages/accounting/photo-record' }) }
 		}
 	}
 </script>
@@ -422,6 +425,8 @@
 	.back-btn { width: 72rpx; height: 72rpx; border-radius: 50%; background: var(--border, #F5EDE6); display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #7A5C4A); flex-shrink: 0; }
 	.back-icon { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
 	.header-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+	.camera-btn { width: 72rpx; height: 72rpx; border-radius: 50%; background: var(--border, #F5EDE6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+	.camera-icon { font-size: 36rpx; }
 
 	.record-scroll { flex: 1; width: 100%; padding: 0 40rpx; overflow-y: auto; padding-bottom: 24rpx; box-sizing: border-box; }
 

@@ -124,6 +124,27 @@
 				"navigationBarTitleText": "智能助手",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/accounting/photo-record",
+			"style": {
+				"navigationBarTitleText": "拍照记账",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/import-data",
+			"style": {
+				"navigationBarTitleText": "数据导入",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/category-manage",
+			"style": {
+				"navigationBarTitleText": "分类管理",
+				"navigationStyle": "custom"
+			}
 		}
 ],
 	"globalStyle": {

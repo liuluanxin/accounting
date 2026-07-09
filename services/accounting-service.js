@@ -75,6 +75,24 @@ export default {
     return apiRequest({ url: ENDPOINTS.categories.list, method: 'GET' })
   },
 
+  /** 添加分类 */
+  async addCategory({ type, category }) {
+    Logger.info(MODULE, 'addCategory', { type, category })
+    return apiRequest({ url: ENDPOINTS.categories.create, method: 'POST', data: { type, category } })
+  },
+
+  /** 更新分类 */
+  async updateCategory({ type, oldName, category }) {
+    Logger.info(MODULE, 'updateCategory', { type, oldName, category })
+    return apiRequest({ url: ENDPOINTS.categories.update, method: 'PUT', data: { type, oldName, category } })
+  },
+
+  /** 删除分类 */
+  async deleteCategory({ type, name }) {
+    Logger.info(MODULE, 'deleteCategory', { type, name })
+    return apiRequest({ url: ENDPOINTS.categories.delete, method: 'DELETE', data: { type, name } })
+  },
+
   // ==================== 账本 ====================
 
   /** 获取账本列表 */
@@ -104,5 +122,13 @@ export default {
   /** 获取月度总览 */
   async getDashboardSummary(year, month) {
     return apiRequest({ url: ENDPOINTS.dashboard.summary, method: 'GET', data: { year, month } })
+  },
+
+  // ==================== 图片识别 ====================
+
+  /** 识别小票/账单图片 */
+  async recognizeReceipt(imagePath) {
+    Logger.info(MODULE, 'recognizeReceipt', { imagePath })
+    return apiRequest({ url: ENDPOINTS.ocr.recognize, method: 'POST', data: { imagePath } })
   }
 }

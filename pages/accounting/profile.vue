@@ -50,7 +50,7 @@
 					<text class="menu-text">记账提醒</text>
 					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
-				<view class="menu-item" @click="showCategoryManage">
+				<view class="menu-item" @click="goCategoryManage">
 					<text class="menu-icon">🏷️</text>
 					<text class="menu-text">分类管理</text>
 					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
@@ -58,6 +58,11 @@
 				<view class="menu-item" @click="exportData">
 					<text class="menu-icon">📤</text>
 					<text class="menu-text">数据导出</text>
+					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
+				</view>
+				<view class="menu-item" @click="goImportPage">
+					<text class="menu-icon">📥</text>
+					<text class="menu-text">数据导入</text>
 					<view class="menu-arrow" :style="getIconStyle('arrow-right')"></view>
 				</view>
 			</view>
@@ -160,17 +165,14 @@
 			goLedgerPage() { uni.navigateTo({ url: '/pages/accounting/ledgers' }) },
 			goBudgetPage() { uni.navigateTo({ url: '/pages/accounting/budget' }) },
 			goThemeSettings() { uni.navigateTo({ url: '/pages/accounting/theme-settings' }) },
+			goImportPage() { uni.navigateTo({ url: '/pages/accounting/import-data' }) },
 			showMonthlyReport() {
 				uni.showModal({ title: '📊 月度报告', content: '本月收入：¥' + this.formatMoney(this.summary.income) + '\n本月支出：¥' + this.formatMoney(this.summary.expense) + '\n本月结余：¥' + this.formatMoney(this.summary.balance), showCancel: false })
 			},
 			showReminder() {
 				uni.showModal({ title: '🎯 记账提醒', content: '开启记账提醒，养成良好的记账习惯', showCancel: false })
 			},
-			showCategoryManage() {
-				const e = this.data.categories.expense.join('、')
-				const i = this.data.categories.income.join('、')
-				uni.showModal({ title: '🏷️ 分类管理', content: '支出：' + e + '\n\n收入：' + i + '\n\n共计 ' + (e.length + i.length) + ' 个分类', showCancel: false })
-			},
+			goCategoryManage() { uni.navigateTo({ url: '/pages/accounting/category-manage' }) },
 			showSecuritySettings() {
 				uni.showActionSheet({
 					itemList: ['隐私密码', '指纹解锁', '修改密码'],

@@ -83,12 +83,7 @@ export default {
 		goBack() { uni.navigateBack() },
 		goQuickRecord(mode) {
 			if (mode === 'photo') {
-				uni.showModal({
-					title: '📷 拍照记账',
-					content: '拍照功能开发中\n\n您可使用「记一笔」手动记录，或选择下方场景模板快速记账。',
-					showCancel: false,
-					confirmText: '知道了'
-				})
+				uni.navigateTo({ url: '/pages/accounting/photo-record' })
 			} else if (mode === 'voice') {
 				uni.showModal({
 					title: '🎙️ 语音记账',
