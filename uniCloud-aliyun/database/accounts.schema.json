@@ -1,0 +1,17 @@
+{
+  "bsonType": "object",
+  "required": ["userId", "id", "name"],
+  "properties": {
+    "userId": { "bsonType": "string", "description": "用户ID" },
+    "id": { "bsonType": "string", "description": "账户ID" },
+    "name": { "bsonType": "string", "description": "账户名称" },
+    "type": { "bsonType": "string", "description": "账户类型" },
+    "balance": { "bsonType": "number", "description": "余额" },
+    "icon": { "bsonType": "string", "description": "图标" },
+    "color": { "bsonType": "string", "description": "颜色" },
+    "desc": { "bsonType": "string", "description": "描述" },
+    "cardNumber": { "bsonType": "string", "description": "卡号" },
+    "cardNumberHidden": { "bsonType": "bool", "description": "隐藏卡号" },
+    "createdAt": { "bsonType": "timestamp", "description": "创建时间" }
+  }
+}

@@ -68,7 +68,10 @@
 <script>
 	import Logger from '@/common/logger.js'
 	import themeMixin from '@/common/theme-mixin.js'
+<<<<<<< Updated upstream
 	import ICONS from '@/common/icon-base64.js'
+=======
+>>>>>>> Stashed changes
 	import { apiRequest } from '@/services/api-client.js'
 	import ENDPOINTS from '@/services/api-endpoints.js'
 	import { rules, validate } from '@/common/validator.js'
@@ -117,6 +120,15 @@
 					uni.setStorageSync('login_email', emailTrim)
 					if (res.data?.token) {
 						uni.setStorageSync('auth_token', res.data.token)
+<<<<<<< Updated upstream
+					}
+					if (res.data?.user) {
+						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
+					}
+					if (this.rememberMe) {
+						uni.setStorageSync('remember_email', emailTrim)
+=======
+>>>>>>> Stashed changes
 					}
 					if (res.data?.user) {
 						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
@@ -124,8 +136,7 @@
 					if (this.rememberMe) {
 						uni.setStorageSync('remember_email', emailTrim)
 					}
-					uni.showToast({ title: '登录成功 ✨', icon: 'none' })
-					setTimeout(() => uni.redirectTo({ url: '/pages/accounting/home' }), 300)
+					uni.redirectTo({ url: '/pages/accounting/home' })
 				} catch (err) {
 					Logger.errorWithException('Login', '登录失败', err)
 					uni.showToast({ title: '登录失败，请重试', icon: 'none' })
@@ -271,7 +282,13 @@
 		border-radius: 50rpx;
 		background: var(--input-bg, #FFF5EE);
 		border: 2rpx solid var(--border, #E8D5C8);
+<<<<<<< Updated upstream
 		padding: 0rpx 24rpx;
+=======
+		padding: 16rpx 24rpx;
+		height: 88rpx;
+		box-sizing: border-box;
+>>>>>>> Stashed changes
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
@@ -284,8 +301,15 @@
 	}
 	.input-field {
 		flex: 1;
+<<<<<<< Updated upstream
 		height: 70rpx;
 		font-size: 30rpx;
+=======
+		padding: 0 0 0 12rpx;
+		margin: 0;
+		font-size: 30rpx;
+		line-height: 56rpx;
+>>>>>>> Stashed changes
 		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
@@ -296,8 +320,8 @@
 		color: #C8A896;
 	}
 	.toggle-pwd {
-		font-size: 32rpx;
-		padding: 12rpx;
+		font-size: 30rpx;
+		padding: 0;
 		cursor: pointer;
 		user-select: none;
 	}

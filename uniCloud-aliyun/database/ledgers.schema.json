@@ -1,0 +1,14 @@
+{
+  "bsonType": "object",
+  "required": ["userId", "id", "name"],
+  "properties": {
+    "userId": { "bsonType": "string", "description": "用户ID" },
+    "id": { "bsonType": "string", "description": "账本ID" },
+    "name": { "bsonType": "string", "description": "账本名称" },
+    "cover": { "bsonType": "string", "description": "封面" },
+    "category": { "bsonType": "string", "description": "分类" },
+    "color": { "bsonType": "string", "description": "颜色" },
+    "current": { "bsonType": "bool", "description": "是否当前账本" },
+    "createdAt": { "bsonType": "timestamp", "description": "创建时间" }
+  }
+}

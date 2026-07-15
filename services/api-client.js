@@ -26,9 +26,6 @@ export function configureApi(config) {
 }
 
 /** 获取当前 API 配置 */
-export function getApiConfig() {
-  return { ...apiConfig }
-}
 
 /**
  * 获取认证令牌
@@ -78,11 +75,80 @@ async function httpAdapter(options) {
 }
 
 /**
+ * 将 HTTP 方法+URL 映射为云函数 action 名称
+ */
+const URL_TO_ACTION = {
+  'POST:/api/auth/send-email-code': 'sendEmailCode',
+  'POST:/api/auth/register': 'register',
+  'POST:/api/auth/login': 'login',
+  'POST:/api/auth/reset-password': 'resetPassword',
+  'POST:/api/auth/logout': 'logout',
+  'GET:/api/transactions': 'getTransactions',
+  'POST:/api/transactions': 'createTransaction',
+  'DELETE:/api/transactions': 'deleteTransaction',
+  'GET:/api/accounts': 'getAccounts',
+  'POST:/api/accounts': 'createAccount',
+  'PUT:/api/accounts': 'updateAccount',
+  'DELETE:/api/accounts': 'deleteAccount',
+  'GET:/api/budgets': 'getBudget',
+  'POST:/api/budgets': 'saveBudget',
+  'GET:/api/categories': 'getCategories',
+  'GET:/api/ledgers': 'getLedgers',
+  'POST:/api/ledgers': 'createLedger',
+  'POST:/api/ledgers/switch': 'switchLedger',
+  'POST:/api/ledgers/delete': 'deleteLedger',
+  'GET:/api/dashboard': 'getDashboardSummary',
+  'POST:/api/ocr/recognize': 'ocrRecognize'
+}
+
+/**
+ * uniCloud 适配器（通过 uniCloud.callFunction 调用云函数）
+ * 当 apiConfig.adapter === 'unicloud' 时使用
+ */
+async function uniCloudAdapter(options) {
+  const { url, method, data } = options
+  const key = `${method}:${url}`
+  const action = URL_TO_ACTION[key]
+
+  Logger.debug(MODULE, `[uniCloud] ${method} ${url} -> action: ${action}`)
+
+  if (!action) {
+    Logger.warn(MODULE, `未知的 uniCloud 端点: ${key}`)
+    return { success: false, message: `未知端点: ${key}`, code: 'ENDPOINT_NOT_FOUND', data: null }
+  }
+
+  // OCR 识别暂不支持云函数，降级为本地模拟
+  if (action === 'ocrRecognize') {
+    Logger.info(MODULE, 'OCR 降级到本地模拟')
+    return localAdapter({ url, method, data })
+  }
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      Logger.warn(MODULE, `云函数请求超时: ${url}`)
+      resolve({ success: false, message: '请求超时，请检查网络', code: 'TIMEOUT', data: null })
+    }, apiConfig.timeout)
+
+    uniCloud.callFunction({
+      name: 'api',
+      data: { action, data }
+    }).then(res => {
+      clearTimeout(timer)
+      resolve(res.result || { success: false, message: '云函数返回为空', code: 'EMPTY_RESULT', data: null })
+    }).catch(err => {
+      clearTimeout(timer)
+      Logger.warn(MODULE, `云函数请求失败: ${url}`, err)
+      resolve({ success: false, message: err.errMsg || '云函数请求失败', code: 'CLOUD_ERROR', data: null })
+    })
+  })
+}
+
+/**
  * 本地存储适配器（开发/演示模式，通过 localStorage 模拟 API）
  * 当 apiConfig.adapter === 'local' 时使用
  */
 import { genId, todayStr } from '@/common/accounting-utils.js'
-import { rules, validateOrThrow, validate, parseAmount } from '@/common/validator.js'
+import { rules, validate, parseAmount } from '@/common/validator.js'
 import { success, failure } from '@/common/api-response.js'
 
 const LOCAL_STORAGE_KEY = 'cosmic_accounting_local_db'
@@ -463,7 +529,7 @@ async function localAdapter(options) {
 
 /**
  * 统一 API 请求入口
- * 根据配置自动选择 HTTP 或本地适配器
+ * 根据配置自动选择 uniCloud、HTTP 或本地适配器
  */
 export async function apiRequest(options) {
   const { url, method = 'GET', data = null, params = null } = options
@@ -471,7 +537,17 @@ export async function apiRequest(options) {
   Logger.debug(MODULE, `API 请求: ${method} ${url}`)
 
   try {
-    const adapter = apiConfig.adapter === 'http' ? httpAdapter : localAdapter
+    let adapter
+    switch (apiConfig.adapter) {
+      case 'http':
+        adapter = httpAdapter
+        break
+      case 'unicloud':
+        adapter = uniCloudAdapter
+        break
+      default:
+        adapter = localAdapter
+    }
     const result = await adapter({ url, method, data, params })
     return result
   } catch (err) {
@@ -485,4 +561,4 @@ export async function apiRequest(options) {
   }
 }
 
-export default { apiRequest, configureApi, getApiConfig }
+export default { apiRequest, configureApi }

@@ -84,8 +84,10 @@
 							<text v-if="errors.code && touched.code" class="error-msg">{{ errors.code }}</text>
 						</view>
 
-						<view class="btn-primary next-btn" @click="goStep2">
-							<text>下一步</text>
+						<view class="forgot-btn-wrapper">
+							<view class="btn-primary" @click="goStep2">
+								<text>下一步</text>
+							</view>
 						</view>
 
 						<text class="tip-text">没有收到验证码？<text class="tip-link" @click="sendCode">重新发送</text></text>
@@ -141,7 +143,9 @@
 					</view>
 							<text class="success-title">密码重置成功</text>
 							<text class="success-desc">请使用新密码登录你的账户</text>
-							<view class="btn-primary" @click="goBack">返回登录</view>
+							<view class="forgot-btn-wrapper">
+								<view class="btn-primary" @click="goBack">返回登录</view>
+							</view>
 						</view>
 					</template>
 				</view>
@@ -485,9 +489,15 @@
 		border-radius: 24rpx;
 		background: var(--input-bg, #FFF5EE);
 		border: 2rpx solid var(--border, #F0E4DA);
+<<<<<<< Updated upstream
 		padding: 0 32rpx;
 		transition: border-color 0.2s;
+=======
+		padding: 16rpx 32rpx;
+		height: 88rpx;
+>>>>>>> Stashed changes
 		box-sizing: border-box;
+		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
 		border-color: var(--primary, #E8734A);
@@ -497,8 +507,13 @@
 	}
 	.input-field {
 		flex: 1;
-		height: 96rpx;
+		padding: 0 0 0 12rpx;
+		margin: 0;
 		font-size: 30rpx;
+<<<<<<< Updated upstream
+=======
+		line-height: 56rpx;
+>>>>>>> Stashed changes
 		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
@@ -507,6 +522,7 @@
 	.input-field::placeholder {
 		color: #C8A896;
 	}
+<<<<<<< Updated upstream
 	.prefix-text {
 		font-size: 30rpx;
 		font-weight: 500;
@@ -520,6 +536,8 @@
 		margin-right: 24rpx;
 	}
 
+=======
+>>>>>>> Stashed changes
 	.code-row {
 		display: flex;
 		gap: 24rpx;
@@ -565,7 +583,40 @@
 		padding-left: 8rpx;
 	}
 
-	.btn-primary {
+	.forgot-btn-wrapper {
+		text-align: center;
+	}
+	.forgot-btn-wrapper .btn-primary {
+		width: 86%;
+		max-width: 520rpx;
+		min-width: 200rpx;
+		margin: 0 auto;
+		height: 96rpx;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--primary, #E8734A);
+		color: var(--card-bg, #FFFFFF);
+		font-size: 40rpx;
+		font-weight: 600;
+		border-radius: 50rpx;
+		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		transition: background 0.2s;
+		cursor: pointer;
+		user-select: none;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+	}
+	.forgot-btn-wrapper .btn-primary:active {
+		background: var(--primary-dark, #C95A33);
+	}
+	.forgot-btn-wrapper .btn-disabled {
+		opacity: 0.4 !important;
+		pointer-events: none;
+	}
+	/* 按钮行（上一步+确认重置）不受居中约束影响 */
+	.btn-row .btn-primary {
 		width: 100%;
 		height: 104rpx;
 		display: flex;
@@ -579,10 +630,14 @@
 		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
 		transition: background 0.2s;
 	}
+<<<<<<< Updated upstream
 	.btn-primary:active {
+=======
+	.btn-row .btn-primary:active {
+>>>>>>> Stashed changes
 		background: var(--primary-dark, #C95A33);
 	}
-	.btn-disabled {
+	.btn-row .btn-disabled {
 		opacity: 0.4;
 		pointer-events: none;
 	}
@@ -677,7 +732,7 @@
 		.page-header { padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; }
 		.forgot-content { padding: 0 24rpx; }
 		.forgot-form-card { padding: 32rpx; }
-		.input-field { height: 88rpx; font-size: 28rpx; }
+		.input-field { font-size: 28rpx; }
 		.code-btn { padding: 0 28rpx; font-size: 26rpx; }
 		.step-connector { width: 48rpx; }
 	}

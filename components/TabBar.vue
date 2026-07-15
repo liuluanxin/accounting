@@ -2,12 +2,16 @@
 	<view class="tab-bar-container">
 		<view class="fab-wrapper" v-if="showFab">
 			<view class="fab-btn" @click="handleFabClick">
+<<<<<<< Updated upstream
 				<view class="fab-icon" :style="{ 'mask-image': 'url(' + fabIcon + ')', '-webkit-mask-image': 'url(' + fabIcon + ')' }"></view>
+=======
+				<view class="fab-icon" :style="getFabIconStyle"></view>
+>>>>>>> Stashed changes
 			</view>
 		</view>
 		<nav class="tab-bar" role="tablist">
-			<view v-for="tab in tabs" :key="tab.id"
-				class="tab-item"
+			<view v-for="tab in tabs" :key="tab.id" 
+				class="tab-item" 
 				:class="{ active: currentTab === tab.id }"
 				@click="handleTabClick(tab.id)"
 				role="tab">
@@ -19,7 +23,11 @@
 </template>
 
 <script>
+<<<<<<< Updated upstream
 	import ICONS from '@/common/icon-base64.js'
+=======
+	import { getIconStyle as makeIconStyle } from '@/common/icon-base64.js'
+>>>>>>> Stashed changes
 	export default {
 		name: 'TabBar',
 		props: {
@@ -43,17 +51,37 @@
 		},
 		data() {
 			return {
+<<<<<<< Updated upstream
 				fabIcon: ICONS['fab-add'] || ''
+=======
+			}
+		},
+		computed: {
+			getFabIconStyle() {
+				return makeIconStyle('fab-add', '#FFFFFF')
+			},
+			inactiveColor() {
+				return '#A98B78'
+			},
+			activeColor() {
+				return '#E8734A'
+>>>>>>> Stashed changes
 			}
 		},
 		methods: {
 			getIconStyle(tabId) {
+<<<<<<< Updated upstream
 				const iconKey = 'tab-' + tabId
 				const iconUri = ICONS[iconKey] || ''
 				return {
 					'mask-image': 'url(' + iconUri + ')',
 					'-webkit-mask-image': 'url(' + iconUri + ')'
 				}
+=======
+				const isActive = tabId === this.currentTab
+				const color = isActive ? this.activeColor : this.inactiveColor
+				return makeIconStyle('tab-' + tabId, color)
+>>>>>>> Stashed changes
 			},
 			handleTabClick(tabId) {
 				if (tabId !== this.currentTab) {
@@ -111,12 +139,15 @@
 		width: 22px;
 		height: 22px;
 		background-color: #FFFFFF;
+<<<<<<< Updated upstream
 		mask-size: contain;
 		-webkit-mask-size: contain;
 		mask-repeat: no-repeat;
 		-webkit-mask-repeat: no-repeat;
 		mask-position: center;
 		-webkit-mask-position: center;
+=======
+>>>>>>> Stashed changes
 	}
 
 	.tab-bar {
@@ -164,7 +195,10 @@
 	}
 
 	.tab-item.active .tab-icon-wrapper {
+<<<<<<< Updated upstream
 		background-color: var(--primary, #E8734A);
+=======
+>>>>>>> Stashed changes
 	}
 
 	.tab-label {

@@ -1,0 +1,10 @@
+{
+  "bsonType": "object",
+  "required": ["userId", "key", "total"],
+  "properties": {
+    "userId": { "bsonType": "string", "description": "用户ID" },
+    "key": { "bsonType": "string", "description": "预算键（年-月）" },
+    "total": { "bsonType": "number", "description": "预算总额" },
+    "createdAt": { "bsonType": "timestamp", "description": "创建时间" }
+  }
+}

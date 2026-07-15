@@ -26,7 +26,7 @@
 				<view class="amount-cursor" v-if="amountFocused"></view>
 				<input class="amount-hidden-input" ref="amountHiddenInput" type="digit"
 					:value="amount" @input="onHiddenInput" @blur="onHiddenBlur"
-					@focus="onHiddenFocus" :adjust-position="true" :cursor-spacing="20" />
+					:adjust-position="true" />
 			</view>
 
 			<view class="category-grid">
@@ -126,7 +126,11 @@
 	import { todayStr, CAT_ICONS } from '@/common/accounting-utils.js'
 	import Logger from '@/common/logger.js'
 	import themeMixin from '@/common/theme-mixin.js'
+<<<<<<< Updated upstream
 	import ICONS from '@/common/icon-base64.js'
+=======
+	import { getIconStyle } from '@/common/icon-base64.js'
+>>>>>>> Stashed changes
 
 	export default {
 		mixins: [themeMixin],
@@ -143,8 +147,6 @@
 				accounts: [],
 				categories: { expense: [], income: [] },
 				amountFocused: true,
-				noteFocused: false,
-				keyboardHeight: 0,
 				calcOperator: '',
 				calcPrevAmount: '',
 				showCalendar: false,
@@ -186,13 +188,11 @@
 			else {
 				this.$store.dispatch('accounting/initialize').then(() => this.loadFromStore())
 			}
-			uni.onKeyboardHeightChange(this.onKeyboardHeightChange)
-		},
-		onUnload() {
-			uni.offKeyboardHeightChange(this.onKeyboardHeightChange)
+
 		},
 		methods: {
 			getIconStyle(name) {
+<<<<<<< Updated upstream
 				const iconUri = ICONS[name] || ''
 				return {
 					'mask-image': 'url(' + iconUri + ')',
@@ -201,6 +201,11 @@
 			},
 			onKeyboardHeightChange(e) {
 				this.keyboardHeight = (e && e.height) || 0
+=======
+				// 使用 common/icon-base64 的 background-image 方式渲染图标
+				// 默认使用 text-primary 色
+				return getIconStyle(name, '#3D2316')
+>>>>>>> Stashed changes
 			},
 			loadFromStore() {
 				this.accounts = (this.data && this.data.accounts) || []
@@ -219,11 +224,9 @@
 				if (this.$refs.amountHiddenInput) this.$refs.amountHiddenInput.blur()
 			},
 			onNoteFocus() {
-				this.noteFocused = true
 				this.showKeypad = false
 			},
 			onNoteBlur() {
-				this.noteFocused = false
 				this.showKeypad = true
 			},
 			getCategoryName(cat) {
@@ -316,7 +319,6 @@
 				}
 				this.$forceUpdate()
 			},
-			onHiddenFocus() {},
 			async doSave() {
 				if (this.calcOperator && this.calcPrevAmount && this.amount) {
 					this.executeCalc()

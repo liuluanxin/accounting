@@ -1,0 +1,18 @@
+{
+  "bsonType": "object",
+  "required": ["userId", "id", "type", "amount", "category", "accountId", "date"],
+  "properties": {
+    "userId": { "bsonType": "string", "description": "用户ID" },
+    "id": { "bsonType": "string", "description": "交易ID" },
+    "type": { "bsonType": "string", "enum": ["expense", "income"], "description": "类型" },
+    "amount": { "bsonType": "number", "description": "金额" },
+    "category": { "bsonType": "string", "description": "分类" },
+    "accountId": { "bsonType": "string", "description": "账户ID" },
+    "ledgerId": { "bsonType": "string", "description": "账本ID" },
+    "date": { "bsonType": "string", "description": "日期" },
+    "time": { "bsonType": "string", "description": "时间" },
+    "note": { "bsonType": "string", "description": "备注" },
+    "tags": { "bsonType": "array", "description": "标签" },
+    "createdAt": { "bsonType": "timestamp", "description": "创建时间" }
+  }
+}

@@ -134,14 +134,16 @@
 					</view>
 
 					<!-- 注册按钮 -->
-					<view
-						class="btn-primary register-btn"
-						:class="{ 'btn-disabled': !formValid || !agree || submitting }"
-						@click="handleRegister"
-					>
-						<text v-if="submitting">⏳ 注册中...</text>
-						<text v-else-if="registered">✅ 注册成功！即将跳转...</text>
-						<text v-else>注册</text>
+					<view class="register-btn-wrapper">
+						<view
+							class="btn-primary"
+							:class="{ 'btn-disabled': !formValid || !agree || submitting }"
+							@click="handleRegister"
+						>
+							<text v-if="submitting">⏳ 注册中...</text>
+							<text v-else-if="registered">✅ 注册成功！即将跳转...</text>
+							<text v-else>注册</text>
+						</view>
 					</view>
 				</view>
 
@@ -256,6 +258,13 @@
 					return
 				}
 				
+<<<<<<< Updated upstream
+=======
+				// 开发模式：自动填入模拟验证码
+				if (res.data && res.data.mockCode) {
+					this.form.code = res.data.mockCode
+				}
+>>>>>>> Stashed changes
 				uni.showToast({ title: res.message || '验证码已发送', icon: 'none' })
 				this.countdown = 60
 				this.countdownTimer = setInterval(() => {
@@ -307,9 +316,7 @@
 					uni.setStorageSync('loginTime', now)
 					uni.setStorageSync('login_email', this.form.email)
 
-					setTimeout(() => {
-						uni.redirectTo({ url: '/pages/accounting/home' })
-					}, 1500)
+					uni.redirectTo({ url: '/pages/accounting/home' })
 				} catch (err) {
 					Logger.errorWithException('Register', '注册失败', err)
 					this.submitting = false
@@ -377,10 +384,17 @@
 
 	.form-scroll {
 		flex: 1;
+		width: 100%;
+		box-sizing: border-box;
+		flex-direction: column;
 	}
 
 	.register-content {
 		padding: 0 40rpx 80rpx;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+		align-self: stretch;
 	}
 
 	.register-form-card {
@@ -388,6 +402,9 @@
 		border-radius: 32rpx;
 		padding: 40rpx;
 		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.field-group {
@@ -407,9 +424,15 @@
 		border-radius: 24rpx;
 		background: var(--input-bg, #FFF5EE);
 		border: 2rpx solid var(--border, #F0E4DA);
+<<<<<<< Updated upstream
 		padding: 0 32rpx;
 		transition: border-color 0.2s;
+=======
+		padding: 16rpx 32rpx;
+		height: 88rpx;
+>>>>>>> Stashed changes
 		box-sizing: border-box;
+		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
 		border-color: var(--primary, #E8734A);
@@ -431,8 +454,13 @@
 	}
 	.input-field {
 		flex: 1;
-		height: 96rpx;
+		padding: 0 0 0 12rpx;
+		margin: 0;
 		font-size: 30rpx;
+<<<<<<< Updated upstream
+=======
+		line-height: 56rpx;
+>>>>>>> Stashed changes
 		color: var(--text-primary, #3D2316);
 		background: transparent;
 		border: none;
@@ -442,6 +470,7 @@
 		color: #C8A896;
 	}
 
+<<<<<<< Updated upstream
 	.country-code {
 		padding-right: 24rpx;
 		border-right: 2rpx solid var(--border, #F0E4DA);
@@ -452,6 +481,9 @@
 		font-weight: 500;
 		color: var(--text-primary, #3D2316);
 	}
+=======
+
+>>>>>>> Stashed changes
 
 	.code-wrapper {
 		padding-right: 0;
@@ -590,6 +622,40 @@
 		pointer-events: none;
 	}
 
+	.register-btn-wrapper {
+		text-align: center;
+	}
+
+	.register-btn-wrapper .btn-primary {
+		width: 86%;
+		max-width: 520rpx;
+		min-width: 200rpx;
+		margin: 0 auto;
+		height: 96rpx;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--primary, #E8734A);
+		color: var(--card-bg, #FFFFFF);
+		font-size: 40rpx;
+		font-weight: 600;
+		border-radius: 50rpx;
+		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		transition: background 0.2s;
+		cursor: pointer;
+		user-select: none;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+	}
+	.register-btn-wrapper .btn-primary:active {
+		background: var(--primary-dark, #C95A33);
+	}
+	.register-btn-wrapper .btn-disabled {
+		opacity: 0.4 !important;
+		pointer-events: none;
+	}
+
 	.login-link-area {
 		text-align: center;
 		margin-top: 48rpx;
@@ -614,7 +680,8 @@
 		.page-header { padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; }
 		.register-content { padding: 0 24rpx 80rpx; }
 		.register-form-card { padding: 28rpx; }
-		.input-field { height: 88rpx; font-size: 28rpx; }
+		.input-field { font-size: 28rpx; }
 		.code-btn { padding: 0 24rpx; font-size: 26rpx; }
+		.btn-primary { height: 92rpx; font-size: 30rpx; }
 	}
 </style>

@@ -12,6 +12,7 @@
 			Vue.config.errorHandler = vueErrorHandler
 			// #endif
 
+<<<<<<< Updated upstream
 			// 初始化 API 配置
 			// H5开发环境用 localhost，App/小程序用实际服务器地址
 			// #ifdef H5
@@ -26,8 +27,16 @@
 				adapter: 'local',
 				timeout: 15000
 			})
+=======
+		// 初始化 API 配置（使用 uniCloud 云函数，调用已部署的云端服务）
+		configureApi({
+			baseURL: 'https://unicloud',
+			adapter: 'unicloud',
+			timeout: 15000
+		})
+>>>>>>> Stashed changes
 
-			Logger.info('App', '宇宙记账启动 [API: local]')
+		Logger.info('App', '宇宙记账启动 [API: uniCloud]')
 
 			// 应用主题
 			applyTheme(getCurrentTheme())

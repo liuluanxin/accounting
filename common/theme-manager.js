@@ -114,7 +114,10 @@ export function applyTheme(name) {
 		}
 
 		// 方案2：设置到当前所有页面实例的根元素
+<<<<<<< Updated upstream
 		// 在 App 端，每个页面有独立的 WebView，需要逐页设置
+=======
+>>>>>>> Stashed changes
 		const pages = getCurrentPages()
 		pages.forEach(p => {
 			let el = null
@@ -125,13 +128,17 @@ export function applyTheme(name) {
 			}
 			if (el) {
 				setCSSVars(el, colors)
+<<<<<<< Updated upstream
 				// 递归设置所有子元素中使用了 CSS 变量的容器
+=======
+>>>>>>> Stashed changes
 				const containers = el.querySelectorAll('[class*="-page"], [class*="-container"], .uni-page-body')
 				if (containers) {
 					containers.forEach(c => setCSSVars(c, colors))
 				}
 			}
 		})
+<<<<<<< Updated upstream
 
 		// 方案3：通过 uni API 设置 page 节点样式（App 端关键方案）
 		// App 端每个页面的最外层是 <page> 节点，需要单独设置
@@ -151,6 +158,8 @@ export function applyTheme(name) {
 				// 忽略，某些平台不支持
 			}
 		}
+=======
+>>>>>>> Stashed changes
 	} catch (e) {
 		console.warn('applyTheme error', e)
 	}
@@ -174,6 +183,7 @@ export function applyThemeToPage(pageInstance) {
 	const theme = getTheme(name)
 	const colors = theme.colors
 	try {
+<<<<<<< Updated upstream
 		// 设置到页面的根元素
 		if (pageInstance && pageInstance.$el) {
 			setCSSVars(pageInstance.$el, colors)
@@ -182,6 +192,25 @@ export function applyThemeToPage(pageInstance) {
 		if (typeof document !== 'undefined' && document.documentElement) {
 			setCSSVars(document.documentElement, colors)
 		}
+=======
+		// 设置到 document.documentElement（当前 WebView 全局生效）
+		if (typeof document !== 'undefined' && document.documentElement) {
+			setCSSVars(document.documentElement, colors)
+		}
+		// 设置到页面的根元素
+		if (pageInstance) {
+			if (pageInstance.$el) {
+				setCSSVars(pageInstance.$el, colors)
+			} else {
+				// $el 可能还未挂载（onLoad 时），延迟重试
+				setTimeout(() => {
+					if (pageInstance.$el) {
+						setCSSVars(pageInstance.$el, colors)
+					}
+				}, 100)
+			}
+		}
+>>>>>>> Stashed changes
 	} catch (e) {
 		// 忽略
 	}
