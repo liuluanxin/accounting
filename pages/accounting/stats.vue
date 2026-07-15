@@ -104,7 +104,7 @@
 				customStart: sevenDaysAgoStr,
 				customEnd: todayStr,
 				todayStr: todayStr,
-				donutColors: ['#E8734A', '#F2956E', '#FF9800', '#FBBE9E', '#A98B78']
+				donutColors: ['#5B9BE0', '#7C8DF0', '#A57EE0', '#D48AC8', '#8A9BB8']
 			}
 		},
 		computed: {
@@ -349,30 +349,30 @@
 </script>
 
 <style lang="scss" scoped>
-	.stats-page { height: 100vh; background: var(--bg, #FFF9F5); box-sizing: border-box; display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
-	.custom-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--bg, #FFF9F5); flex-shrink: 0; width: 100%; box-sizing: border-box; }
+	.stats-page { height: 100vh; background: transparent; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
+	.custom-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: transparent; flex-shrink: 0; width: 100%; box-sizing: border-box; }
 	.stats-header { padding: calc(var(--status-bar-height) + 32rpx) 40rpx 24rpx; flex-shrink: 0; width: 100%; box-sizing: border-box; display: flex; justify-content: center; }
-	.header-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+	.header-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
 
 	.period-selector { display: flex; gap: 16rpx; padding: 0 40rpx 20rpx; width: 100%; box-sizing: border-box; }
-	.period-pill { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 50rpx; background: var(--border, #F5EDE6); color: var(--text-secondary, #7A5C4A); font-size: 28rpx; font-weight: 500; border: 2rpx solid transparent; transition: all 0.2s; }
-	.period-pill.active { background: var(--primary, #E8734A); color: #FFFFFF; border-color: var(--primary, #E8734A); }
+	.period-pill { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 50rpx; background: var(--border, #F5EDE6); color: var(--text-secondary, #5A6B8A); font-size: 28rpx; font-weight: 500; border: 2rpx solid transparent; transition: all 0.2s; }
+	.period-pill.active { background: var(--primary, #5B9BE0); color: #FFFFFF; border-color: var(--primary, #5B9BE0); }
 
 	.custom-date-range { display: flex; align-items: center; justify-content: center; gap: 24rpx; padding: 0 40rpx 24rpx; width: 100%; box-sizing: border-box; }
 	.date-picker { background: var(--border, #F5EDE6); border-radius: 16rpx; padding: 12rpx 20rpx; display: flex; flex-direction: column; align-items: center; min-width: 200rpx; }
-	.date-label { font-size: 22rpx; color: var(--text-tertiary, #A98B78); margin-bottom: 4rpx; }
-	.date-value { font-size: 26rpx; color: var(--text-primary, #3D2316); font-weight: 500; }
-	.date-separator { font-size: 26rpx; color: var(--text-tertiary, #A98B78); }
+	.date-label { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); margin-bottom: 4rpx; }
+	.date-value { font-size: 26rpx; color: var(--text-primary, #1A2744); font-weight: 500; }
+	.date-separator { font-size: 26rpx; color: var(--text-tertiary, #8A9BB8); }
 
 	.stats-scroll { flex: 1; width: 100%; padding: calc(var(--status-bar-height) + 140rpx) 0 200rpx; box-sizing: border-box; }
 
-	.stats-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 40rpx; margin-bottom: 32rpx; }
+	.stats-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); padding: 40rpx; margin-bottom: 32rpx; }
 
-	.monthly-overview .overview-label { font-size: 28rpx; color: var(--text-tertiary, #A98B78); display: block; margin-bottom: 8rpx; }
-	.monthly-overview .overview-amount { font-size: 64rpx; font-weight: 700; color: var(--text-primary, #3D2316); display: block; margin-bottom: 8rpx; letter-spacing: -1rpx; }
+	.monthly-overview .overview-label { font-size: 28rpx; color: var(--text-tertiary, #8A9BB8); display: block; margin-bottom: 8rpx; }
+	.monthly-overview .overview-amount { font-size: 64rpx; font-weight: 700; color: var(--text-primary, #1A2744); display: block; margin-bottom: 8rpx; letter-spacing: -1rpx; }
 	.monthly-overview .overview-change { font-size: 28rpx; }
 	.monthly-overview .overview-change.decrease { color: var(--expense, #4CAF50); }
-	.monthly-overview .overview-change.increase { color: var(--primary, #E8734A); }
+	.monthly-overview .overview-change.increase { color: var(--income, #34C759); }
 
 	.donut-section { display: flex; flex-direction: column; align-items: center; }
 	.donut-chart { width: 320rpx; height: 320rpx; border-radius: 50%; position: relative; margin-bottom: 40rpx; background: var(--border, #F5EDE6); }
@@ -381,26 +381,26 @@
 	.donut-legend { display: flex; flex-wrap: wrap; gap: 24rpx 40rpx; justify-content: center; width: 100%; }
 	.legend-item { display: flex; align-items: center; gap: 12rpx; }
 	.legend-dot { width: 20rpx; height: 20rpx; border-radius: 50%; flex-shrink: 0; }
-	.legend-text { font-size: 24rpx; color: var(--text-secondary, #7A5C4A); }
+	.legend-text { font-size: 24rpx; color: var(--text-secondary, #5A6B8A); }
 
-	.ranking-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); margin-bottom: 32rpx; display: block; }
+	.ranking-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); margin-bottom: 32rpx; display: block; }
 	.ranking-item { display: flex; align-items: center; gap: 24rpx; margin-bottom: 32rpx; }
 	.ranking-item:last-child { margin-bottom: 0; }
 	.rank-emoji { font-size: 40rpx; width: 56rpx; text-align: center; }
 	.ranking-info { flex: 1; min-width: 0; }
 	.ranking-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8rpx; }
-	.ranking-name { font-size: 30rpx; font-weight: 500; color: var(--text-primary, #3D2316); }
-	.ranking-amount { font-size: 28rpx; font-weight: 600; color: var(--text-primary, #3D2316); }
+	.ranking-name { font-size: 30rpx; font-weight: 500; color: var(--text-primary, #1A2744); }
+	.ranking-amount { font-size: 28rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
 	.progress-bar-track { height: 12rpx; background: var(--border, #F5EDE6); border-radius: 6rpx; overflow: hidden; flex: 1; }
-	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: var(--primary, #E8734A); transition: width 0.6s ease; }
+	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: var(--primary, #5B9BE0); transition: width 0.6s ease; }
 
-	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #3D2316); margin-bottom: 32rpx; display: block; }
+	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); margin-bottom: 32rpx; display: block; }
 	.bar-chart { display: flex; align-items: flex-end; gap: 8rpx; height: 260rpx; padding-top: 16rpx; }
 	.bar-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12rpx; height: 100%; justify-content: flex-end; }
-	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: rgba(232, 115, 74, 0.3); }
-	.bar-fill.current { background: var(--primary, #E8734A); }
-	.bar-label { font-size: 22rpx; color: var(--text-tertiary, #A98B78); white-space: nowrap; }
-	.bar-label.current { color: var(--text-primary, #3D2316); font-weight: 500; }
+	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: rgba(91, 155, 224, 0.3); }
+	.bar-fill.current { background: var(--primary, #5B9BE0); }
+	.bar-label { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); white-space: nowrap; }
+	.bar-label.current { color: var(--text-primary, #1A2744); font-weight: 500; }
 
 	
 </style>

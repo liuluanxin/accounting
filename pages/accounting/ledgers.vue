@@ -282,7 +282,7 @@
 <style lang="scss" scoped>
 	.ledgers-page {
 		height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -296,7 +296,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: var(--bg, #FFF9F5);
+		background: var(--bg, #EFF5FF);
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -353,7 +353,7 @@
 		margin-bottom: 24rpx;
 	}
 	.state-icon-warning {
-		background-color: var(--primary, #E8734A);
+		background-color: var(--primary, #5B9BE0);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -362,7 +362,7 @@
 		-webkit-mask-position: center;
 	}
 	.state-icon-empty {
-		background-color: var(--primary, #E8734A);
+		background-color: var(--primary, #5B9BE0);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -383,8 +383,8 @@
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
-		border: 4rpx solid rgba(232, 115, 74, 0.2);
-		border-top-color: var(--primary, #E8734A);
+		border: 4rpx solid rgba(91, 155, 224, 0.2);
+		border-top-color: var(--primary, #5B9BE0);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 		margin-bottom: 24rpx;
@@ -395,8 +395,8 @@
 	.btn-secondary {
 		padding: 16rpx 40rpx;
 		border-radius: 24rpx;
-		border: 2rpx solid rgba(232, 115, 74, 0.3);
-		color: var(--primary, #E8734A);
+		border: 2rpx solid rgba(91, 155, 224, 0.3);
+		color: var(--primary, #5B9BE0);
 		font-size: 28rpx;
 		background: rgba(255, 255, 255, 0.6);
 		margin-top: 32rpx;
@@ -519,8 +519,8 @@
 		font-size: 20rpx;
 		padding: 2rpx 12rpx;
 		border-radius: 20rpx;
-		background: rgba(232, 115, 74, 0.1);
-		color: var(--primary-dark, #C95A33);
+		background: rgba(91, 155, 224, 0.1);
+		color: var(--primary-dark, #4A7FC0);
 		font-weight: 500;
 		flex-shrink: 0;
 	}
@@ -558,7 +558,7 @@
 	}
 	.progress-value {
 		font-size: 22rpx;
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		font-weight: 500;
 	}
 	.progress-track {
@@ -601,8 +601,8 @@
 		transition: border-color 0.2s, background 0.2s;
 	}
 	.add-ledger-card:active {
-		border-color: #F2956E;
-		background: rgba(232, 115, 74, 0.1);
+		border-color: var(--primary, #5B9BE0);
+		background: rgba(91, 155, 224, 0.1);
 	}
 	.add-icon-large {
 		width: 56rpx;

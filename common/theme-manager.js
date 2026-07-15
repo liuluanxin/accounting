@@ -8,24 +8,29 @@
 const THEMES = {
 	cosmic: {
 		name: '宇宙',
-		desc: '默认配色，冷色调，星空感',
-		preview: 'linear-gradient(135deg, #B5E8D5 0%, #A8D4E8 50%, #C5B8E8 100%)',
+		desc: '默认配色，宇宙蓝梦幻风',
+		preview: 'linear-gradient(170deg, #EAF4FF 0%, #F1ECFF 50%, #FFFFFF 100%)',
 		colors: {
-			'--primary': '#6BA8D9',
-			'--primary-dark': '#5A8FB8',
-			'--primary-shadow': 'rgba(107, 168, 217, 0.3)',
-			'--expense': '#7BC4A8',
-			'--income': '#E89B9B',
-			'--bg': '#F4F6FB',
-			'--card-bg': 'rgba(255, 255, 255, 0.85)',
-			'--text-primary': '#1F2A47',
-			'--text-secondary': '#5A6788',
-			'--text-tertiary': '#9098B0',
-			'--border': '#F4F0FA',
-			'--input-bg': '#EEF1F8',
-			'--hero-from': '#B5E8D5',
-			'--hero-via': '#A8D4E8',
-			'--hero-to': '#C5B8E8'
+			'--primary': '#5B9BE0',
+			'--primary-dark': '#4A7FC0',
+			'--primary-light': '#8BB8EA',
+			'--primary-shadow': 'rgba(91, 155, 224, 0.3)',
+			'--income': '#34C759',
+			'--expense': '#FF6B6B',
+			'--bg': '#EFF5FF',
+			'--card-bg-start': '#FFFFFF',
+			'--card-bg-via': '#F0F7FF',
+			'--card-bg-end': '#F5F0FF',
+			'--text-primary': '#1A2744',
+			'--text-secondary': '#5A6B8A',
+			'--text-tertiary': '#8A9BB8',
+			'--border': '#E8F0FE',
+			'--input-bg': '#F2F7FF',
+			'--hero-from': '#EAF4FF',
+			'--hero-via': '#F1ECFF',
+			'--hero-to': '#FFFFFF',
+			'--glass-border': 'rgba(255, 255, 255, 0.8)',
+			'--glass-shadow': 'rgba(91, 155, 224, 0.08)'
 		}
 	},
 	sunshine: {
@@ -37,9 +42,11 @@ const THEMES = {
 			'--primary-dark': '#E07F2A',
 			'--primary-shadow': 'rgba(255, 154, 71, 0.3)',
 			'--expense': '#FF6B6B',
-			'--income': '#4ECDC4',
+			'--income': '#34C759',
 			'--bg': '#FFF8F0',
-			'--card-bg': 'rgba(255, 255, 255, 0.92)',
+			'--card-bg-start': '#FFFFFF',
+			'--card-bg-via': '#FFF8F0',
+			'--card-bg-end': '#FFF5E8',
 			'--text-primary': '#3A2817',
 			'--text-secondary': '#7A5A3A',
 			'--text-tertiary': '#A89070',
@@ -47,7 +54,9 @@ const THEMES = {
 			'--input-bg': '#FFF2E8',
 			'--hero-from': '#FFE3B0',
 			'--hero-via': '#FFB97A',
-			'--hero-to': '#FF9A8B'
+			'--hero-to': '#FF9A8B',
+			'--glass-border': 'rgba(255, 255, 255, 0.8)',
+			'--glass-shadow': 'rgba(255, 154, 71, 0.08)'
 		}
 	},
 	forest: {
@@ -58,10 +67,12 @@ const THEMES = {
 			'--primary': '#4DB6AC',
 			'--primary-dark': '#388E7B',
 			'--primary-shadow': 'rgba(77, 182, 172, 0.3)',
-			'--expense': '#7BC4A8',
-			'--income': '#FF8A65',
+			'--expense': '#FF6B6B',
+			'--income': '#34C759',
 			'--bg': '#F1F8E9',
-			'--card-bg': 'rgba(255, 255, 255, 0.92)',
+			'--card-bg-start': '#FFFFFF',
+			'--card-bg-via': '#F1F8E9',
+			'--card-bg-end': '#E8F0E3',
 			'--text-primary': '#1B3A2D',
 			'--text-secondary': '#4A6B5A',
 			'--text-tertiary': '#7A8A7A',
@@ -69,7 +80,9 @@ const THEMES = {
 			'--input-bg': '#E8F0E3',
 			'--hero-from': '#C8E6C9',
 			'--hero-via': '#81C784',
-			'--hero-to': '#4DB6AC'
+			'--hero-to': '#4DB6AC',
+			'--glass-border': 'rgba(255, 255, 255, 0.8)',
+			'--glass-shadow': 'rgba(77, 182, 172, 0.08)'
 		}
 	}
 }
@@ -108,16 +121,9 @@ export function applyTheme(name) {
 	const theme = getTheme(name)
 	const colors = theme.colors
 	try {
-		// 方案1：设置到 document.documentElement（H5 和 App-Vue 均可）
 		if (typeof document !== 'undefined' && document.documentElement) {
 			setCSSVars(document.documentElement, colors)
 		}
-
-		// 方案2：设置到当前所有页面实例的根元素
-<<<<<<< Updated upstream
-		// 在 App 端，每个页面有独立的 WebView，需要逐页设置
-=======
->>>>>>> Stashed changes
 		const pages = getCurrentPages()
 		pages.forEach(p => {
 			let el = null
@@ -128,38 +134,12 @@ export function applyTheme(name) {
 			}
 			if (el) {
 				setCSSVars(el, colors)
-<<<<<<< Updated upstream
-				// 递归设置所有子元素中使用了 CSS 变量的容器
-=======
->>>>>>> Stashed changes
 				const containers = el.querySelectorAll('[class*="-page"], [class*="-container"], .uni-page-body')
 				if (containers) {
 					containers.forEach(c => setCSSVars(c, colors))
 				}
 			}
 		})
-<<<<<<< Updated upstream
-
-		// 方案3：通过 uni API 设置 page 节点样式（App 端关键方案）
-		// App 端每个页面的最外层是 <page> 节点，需要单独设置
-		if (typeof uni !== 'undefined') {
-			try {
-				// 使用 createSelectorQuery 获取 page 节点
-				const query = uni.createSelectorQuery()
-				query.select('page').context(res => {
-					if (res) {
-						// 通过 context 获取 page 节点的 DOM
-						if (res.$el && res.$el.style) {
-							setCSSVars(res.$el, colors)
-						}
-					}
-				}).exec()
-			} catch (e) {
-				// 忽略，某些平台不支持
-			}
-		}
-=======
->>>>>>> Stashed changes
 	} catch (e) {
 		console.warn('applyTheme error', e)
 	}
@@ -183,26 +163,13 @@ export function applyThemeToPage(pageInstance) {
 	const theme = getTheme(name)
 	const colors = theme.colors
 	try {
-<<<<<<< Updated upstream
-		// 设置到页面的根元素
-		if (pageInstance && pageInstance.$el) {
-			setCSSVars(pageInstance.$el, colors)
-		}
-		// 同时设置 documentElement 确保全局生效
 		if (typeof document !== 'undefined' && document.documentElement) {
 			setCSSVars(document.documentElement, colors)
 		}
-=======
-		// 设置到 document.documentElement（当前 WebView 全局生效）
-		if (typeof document !== 'undefined' && document.documentElement) {
-			setCSSVars(document.documentElement, colors)
-		}
-		// 设置到页面的根元素
 		if (pageInstance) {
 			if (pageInstance.$el) {
 				setCSSVars(pageInstance.$el, colors)
 			} else {
-				// $el 可能还未挂载（onLoad 时），延迟重试
 				setTimeout(() => {
 					if (pageInstance.$el) {
 						setCSSVars(pageInstance.$el, colors)
@@ -210,7 +177,6 @@ export function applyThemeToPage(pageInstance) {
 				}, 100)
 			}
 		}
->>>>>>> Stashed changes
 	} catch (e) {
 		// 忽略
 	}

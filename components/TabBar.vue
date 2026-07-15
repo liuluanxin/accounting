@@ -2,17 +2,13 @@
 	<view class="tab-bar-container">
 		<view class="fab-wrapper" v-if="showFab">
 			<view class="fab-btn" @click="handleFabClick">
-<<<<<<< Updated upstream
-				<view class="fab-icon" :style="{ 'mask-image': 'url(' + fabIcon + ')', '-webkit-mask-image': 'url(' + fabIcon + ')' }"></view>
-=======
 				<view class="fab-icon" :style="getFabIconStyle"></view>
->>>>>>> Stashed changes
 			</view>
 		</view>
 		<nav class="tab-bar" role="tablist">
 			<view v-for="tab in tabs" :key="tab.id" 
 				class="tab-item" 
-				:class="{ active: currentTab === tab.id }"
+				:class="{ active: currentTab === tab.id, center: tab.center }"
 				@click="handleTabClick(tab.id)"
 				role="tab">
 				<view class="tab-icon-wrapper" :style="getIconStyle(tab.id)"></view>
@@ -23,11 +19,7 @@
 </template>
 
 <script>
-<<<<<<< Updated upstream
-	import ICONS from '@/common/icon-base64.js'
-=======
 	import { getIconStyle as makeIconStyle } from '@/common/icon-base64.js'
->>>>>>> Stashed changes
 	export default {
 		name: 'TabBar',
 		props: {
@@ -43,17 +35,11 @@
 				type: Array,
 				default: () => [
 					{ id: 'home', label: '首页' },
-					{ id: 'calendar', label: '日历' },
 					{ id: 'stats', label: '统计' },
+					{ id: 'calendar', label: '日历', center: true },
+					{ id: 'assets', label: '资产' },
 					{ id: 'profile', label: '我的' }
 				]
-			}
-		},
-		data() {
-			return {
-<<<<<<< Updated upstream
-				fabIcon: ICONS['fab-add'] || ''
-=======
 			}
 		},
 		computed: {
@@ -61,27 +47,17 @@
 				return makeIconStyle('fab-add', '#FFFFFF')
 			},
 			inactiveColor() {
-				return '#A98B78'
+				return '#8A9BB8'
 			},
 			activeColor() {
-				return '#E8734A'
->>>>>>> Stashed changes
+				return '#5B9BE0'
 			}
 		},
 		methods: {
 			getIconStyle(tabId) {
-<<<<<<< Updated upstream
-				const iconKey = 'tab-' + tabId
-				const iconUri = ICONS[iconKey] || ''
-				return {
-					'mask-image': 'url(' + iconUri + ')',
-					'-webkit-mask-image': 'url(' + iconUri + ')'
-				}
-=======
 				const isActive = tabId === this.currentTab
 				const color = isActive ? this.activeColor : this.inactiveColor
 				return makeIconStyle('tab-' + tabId, color)
->>>>>>> Stashed changes
 			},
 			handleTabClick(tabId) {
 				if (tabId !== this.currentTab) {
@@ -122,8 +98,8 @@
 		width: 48px;
 		height: 48px;
 		border-radius: 9999px;
-		background: var(--primary, #E8734A);
-		box-shadow: 0 8px 24px var(--primary-shadow, rgba(61, 35, 22, 0.08));
+		background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-dark, #4A7FC0));
+		box-shadow: 0 8px 24px var(--primary-shadow, rgba(91, 155, 224, 0.08));
 		border: 3px solid #FFFFFF;
 		display: flex;
 		align-items: center;
@@ -138,16 +114,6 @@
 	.fab-icon {
 		width: 22px;
 		height: 22px;
-		background-color: #FFFFFF;
-<<<<<<< Updated upstream
-		mask-size: contain;
-		-webkit-mask-size: contain;
-		mask-repeat: no-repeat;
-		-webkit-mask-repeat: no-repeat;
-		mask-position: center;
-		-webkit-mask-position: center;
-=======
->>>>>>> Stashed changes
 	}
 
 	.tab-bar {
@@ -156,9 +122,10 @@
 		align-items: center;
 		justify-content: space-around;
 		height: 64px;
-		background: var(--card-bg, #FFFFFF);
+		background: linear-gradient(170deg, rgba(255,255,255,0.95), rgba(240,247,255,0.95), rgba(245,240,255,0.95));
 		border-radius: 20px;
-		box-shadow: 0 8px 24px rgba(61, 35, 22, 0.08);
+		box-shadow: 0 8px 24px rgba(91, 155, 224, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.8);
 	}
 
 	.tab-item {
@@ -170,12 +137,17 @@
 		text-decoration: none;
 		flex: 1;
 		height: 100%;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		transition: color 0.2s;
 	}
 
+	.tab-item.center {
+		position: relative;
+		margin-top: -16px;
+	}
+
 	.tab-item.active {
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 	}
 
 	.tab-item.active .tab-label {
@@ -185,7 +157,7 @@
 	.tab-icon-wrapper {
 		width: 24px;
 		height: 24px;
-		background-color: var(--text-tertiary, #A98B78);
+		background-color: currentColor;
 		mask-size: contain;
 		-webkit-mask-size: contain;
 		mask-repeat: no-repeat;
@@ -194,11 +166,9 @@
 		-webkit-mask-position: center;
 	}
 
-	.tab-item.active .tab-icon-wrapper {
-<<<<<<< Updated upstream
-		background-color: var(--primary, #E8734A);
-=======
->>>>>>> Stashed changes
+	.tab-item.center .tab-icon-wrapper {
+		width: 28px;
+		height: 28px;
 	}
 
 	.tab-label {

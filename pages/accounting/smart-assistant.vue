@@ -15,7 +15,7 @@
 			<!-- 三大入口 -->
 			<view class="quick-grid">
 				<view class="quick-card" @click="goQuickRecord('photo')">
-					<view class="quick-icon" style="background: rgba(232, 115, 74, 0.12); color: var(--primary, #E8734A);">📷</view>
+					<view class="quick-icon" style="background: rgba(91, 155, 224, 0.12); color: var(--primary, #5B9BE0);">📷</view>
 					<text class="quick-name">拍照记账</text>
 					<text class="quick-desc">拍小票自动识别</text>
 				</view>
@@ -129,19 +129,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+.page { min-height: 100vh; background: transparent; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
 .nav-back { position: fixed; top: calc(var(--status-bar-height) + 16rpx); left: 24rpx; width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 60rpx; color: var(--text-primary, #3D2316); z-index: 10; }
 .page-title { padding: calc(var(--status-bar-height) + 24rpx) 32rpx 16rpx; font-size: 36rpx; font-weight: 700; color: var(--text-primary, #3D2316); flex-shrink: 0; }
 .scroll { flex: 1; padding: 0 32rpx 80rpx; }
 
-.hero-card { background: linear-gradient(135deg, #FFE5D9 0%, #FFCDB2 50%, #E8A598 100%); border-radius: 24rpx; padding: 40rpx 32rpx; display: flex; align-items: center; gap: 24rpx; box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.25); }
+.hero-card { background: linear-gradient(135deg, var(--hero-from, #EAF4FF) 0%, var(--hero-via, #F1ECFF) 50%, var(--hero-to, #FFFFFF) 100%); border-radius: 24rpx; padding: 40rpx 32rpx; display: flex; align-items: center; gap: 24rpx; box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(91, 155, 224, 0.3)); }
 .hero-icon { font-size: 80rpx; }
 .hero-text { display: flex; flex-direction: column; gap: 6rpx; flex: 1; }
-.hero-title { font-size: 32rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
-.hero-subtitle { font-size: 22rpx; color: var(--text-secondary, #7A5C4A); }
+.hero-title { font-size: 32rpx; font-weight: 700; color: var(--text-primary, #1A2744); }
+.hero-subtitle { font-size: 22rpx; color: var(--text-secondary, #5A6B8A); }
 
 .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; margin: 24rpx 0 8rpx; }
-.quick-card { background: var(--card-bg, #FFFFFF); border-radius: 20rpx; padding: 28rpx 16rpx; display: flex; flex-direction: column; align-items: center; gap: 10rpx; box-shadow: 0 2rpx 12rpx rgba(61, 35, 22, 0.06); transition: all 0.2s; }
+.quick-card { background: var(--card-bg, #FFFFFF); border-radius: 20rpx; padding: 28rpx 16rpx; display: flex; flex-direction: column; align-items: center; gap: 10rpx; box-shadow: 0 2rpx 12rpx rgba(91, 155, 224, 0.06); transition: all 0.2s; }
 .quick-card:active { transform: scale(0.96); }
 .quick-icon { width: 80rpx; height: 80rpx; line-height: 80rpx; text-align: center; font-size: 44rpx; border-radius: 24rpx; }
 .quick-name { font-size: 26rpx; font-weight: 600; color: var(--text-primary, #3D2316); }

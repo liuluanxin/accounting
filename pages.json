@@ -151,10 +151,10 @@
 		"pageOrientation": "portrait",
 		"navigationBarTitleText": "宇宙记账",
 		"navigationBarTextStyle": "black",
-		"navigationBarBackgroundColor": "#F4F6FB",
-		"backgroundColor": "#F4F6FB",
-		"backgroundColorTop": "#F4F6FB",
-		"backgroundColorBottom": "#F4F6FB"
+		"navigationBarBackgroundColor": "#EFF5FF",
+		"backgroundColor": "#EFF5FF",
+		"backgroundColorTop": "#EAF4FF",
+		"backgroundColorBottom": "#F1ECFF"
 	},
 	"condition" : { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式(list 的索引项)

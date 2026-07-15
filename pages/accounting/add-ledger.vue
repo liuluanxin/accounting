@@ -40,7 +40,7 @@
 						:key="idx"
 						class="cover-item"
 						:class="{ 'cover-selected': selectedCover === cover.icon }"
-						:style="selectedCover === cover.icon ? { outlineColor: 'var(--primary, #E8734A)' } : {}"
+						:style="selectedCover === cover.icon ? { outlineColor: 'var(--primary, #5B9BE0)' } : {}"
 						@click="selectedCover = cover.icon"
 					>
 						<view class="cover-preview" :style="{ background: cover.gradient }">
@@ -197,7 +197,7 @@
 <style lang="scss" scoped>
 	.add-ledger-page {
 		height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -211,7 +211,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: calc(var(--status-bar-height) + 16rpx) 24rpx;
-		background: var(--bg, #FFF9F5);
+		background: var(--bg, #EFF5FF);
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -293,7 +293,7 @@
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: var(--primary, #E8734A);
+		border-color: var(--primary, #5B9BE0);
 	}
 	.form-input {
 		flex: 1;
@@ -334,9 +334,9 @@
 		transform: scale(0.95);
 	}
 	.cover-selected {
-		border-color: var(--primary, #E8734A);
-		background: rgba(232, 115, 74, 0.06);
-		box-shadow: 0 0 0 2rpx rgba(232, 115, 74, 0.2), 0 4rpx 16rpx rgba(232, 115, 74, 0.15);
+		border-color: var(--primary, #5B9BE0);
+		background: rgba(91, 155, 224, 0.06);
+		box-shadow: 0 0 0 2rpx rgba(91, 155, 224, 0.2), 0 4rpx 16rpx rgba(91, 155, 224, 0.15);
 	}
 	.cover-preview {
 		width: 80rpx;
@@ -361,11 +361,11 @@
 		width: 36rpx;
 		height: 36rpx;
 		border-radius: 50%;
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		box-shadow: 0 2rpx 6rpx rgba(232, 115, 74, 0.4);
+		box-shadow: 0 2rpx 6rpx rgba(91, 155, 224, 0.4);
 	}
 	.check-mark {
 		font-size: 20rpx;
@@ -396,10 +396,10 @@
 		transform: scale(0.95);
 	}
 	.cat-active {
-		background: rgba(232, 115, 74, 0.08);
-		border-color: var(--primary, #E8734A);
-		color: var(--primary, #E8734A);
-		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.15);
+		background: rgba(91, 155, 224, 0.08);
+		border-color: var(--primary, #5B9BE0);
+		color: var(--primary, #5B9BE0);
+		box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.15);
 	}
 	.cat-emoji {
 		font-size: 36rpx;
@@ -417,23 +417,23 @@
 		right: 0;
 		padding: 20rpx 28rpx;
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		background: linear-gradient(to top, var(--bg, #FFF9F5) 60%, transparent);
+		background: linear-gradient(to top, var(--bg, #EFF5FF) 60%, transparent);
 		z-index: 100;
 		box-sizing: border-box;
 	}
 	.btn-save {
 		height: 96rpx;
-		background: linear-gradient(135deg, var(--primary, #E8734A), #D65D35);
+		background: linear-gradient(135deg, var(--primary, #5B9BE0), #D65D35);
 		border-radius: 48rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.35);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.35);
 		transition: all 0.25s;
 	}
 	.btn-save:active {
 		transform: scale(0.98);
-		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.25);
+		box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.25);
 	}
 	.btn-disabled {
 		opacity: 0.5;

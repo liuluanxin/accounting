@@ -214,7 +214,7 @@
 					title: '退出登录',
 					content: '确定要退出登录吗？',
 					confirmText: '退出',
-					confirmColor: '#E8734A',
+					confirmColor: '#5B9BE0',
 					success: function(res) {
 						if (!res.confirm) return
 						try {
@@ -236,36 +236,36 @@
 </script>
 
 <style lang="scss" scoped>
-	.profile-page { position: relative; height: 100vh; width: 100%; background: var(--bg, #FFF9F5); box-sizing: border-box; overflow-x: hidden; }
-	.navbar-spacer { position: absolute; top: 0; left: 0; right: 0; height: 88rpx; background: var(--bg, #FFF9F5); z-index: 10; box-sizing: border-box; }
+	.profile-page { position: relative; height: 100vh; width: 100%; background: transparent; box-sizing: border-box; overflow-x: hidden; }
+	.navbar-spacer { position: absolute; top: 0; left: 0; right: 0; height: 88rpx; background: transparent; z-index: 10; box-sizing: border-box; }
 	.profile-scroll { position: absolute; top: 88rpx; bottom: 0; left: 0; right: 0; padding: 0 40rpx; padding-bottom: 180rpx; box-sizing: border-box; }
 
-	.user-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); overflow: hidden; margin-top: 32rpx; }
-	.user-card .gradient-header { height: 160rpx; background: linear-gradient(135deg, var(--primary-shadow, rgba(242, 149, 110, 0.5)), rgba(232, 115, 74, 0.2), rgba(232, 115, 74, 0.06)); }
+	.user-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06); overflow: hidden; margin-top: 32rpx; }
+	.user-card .gradient-header { height: 160rpx; background: linear-gradient(135deg, var(--primary-shadow, rgba(242, 149, 110, 0.5)), rgba(91, 155, 224, 0.2), rgba(91, 155, 224, 0.06)); }
 	.user-card .user-info { display: flex; align-items: center; gap: 32rpx; padding: 0 40rpx 40rpx; margin-top: -64rpx; position: relative; }
-	.user-card .avatar { width: 100rpx; height: 100rpx; min-width: 100rpx; border-radius: 50%; background: var(--primary, #E8734A); display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; color: var(--card-bg, #FFFFFF); border: 6rpx solid var(--card-bg, #FFFFFF); box-shadow: 0 4rpx 8rpx rgba(61, 35, 22, 0.04); }
+	.user-card .avatar { width: 100rpx; height: 100rpx; min-width: 100rpx; border-radius: 50%; background: var(--primary, #5B9BE0); display: flex; align-items: center; justify-content: center; font-size: 40rpx; font-weight: 700; color: var(--card-bg, #FFFFFF); border: 6rpx solid var(--card-bg, #FFFFFF); box-shadow: 0 4rpx 8rpx rgba(91, 155, 224, 0.04); }
 	.user-card .user-detail { flex: 1; min-width: 0; }
-	.user-card .user-name { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #3D2316); line-height: 1.25; display: block; }
-	.user-card .user-email { font-size: 26rpx; color: var(--text-tertiary, #A98B78); margin-top: 8rpx; display: block; }
-	.user-card .badge { padding: 8rpx 24rpx; background: rgba(232, 115, 74, 0.1); border-radius: 50rpx; font-size: 22rpx; color: var(--primary, #C95A33); font-weight: 500; white-space: nowrap; }
+	.user-card .user-name { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #1A2744); line-height: 1.25; display: block; }
+	.user-card .user-email { font-size: 26rpx; color: var(--text-tertiary, #8A9BB8); margin-top: 8rpx; display: block; }
+	.user-card .badge { padding: 8rpx 24rpx; background: rgba(91, 155, 224, 0.1); border-radius: 50rpx; font-size: 22rpx; color: var(--primary, #5B9BE0); font-weight: 500; white-space: nowrap; }
 
 	.summary-row { display: flex; gap: 24rpx; margin: 32rpx 0; }
-	.summary-item { flex: 1; background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); padding: 32rpx 24rpx; text-align: center; border-top: 4rpx solid transparent; }
-	.summary-item.income { border-top-color: var(--income, #4CAF50); }
-	.summary-item.expense { border-top-color: var(--primary, #E8734A); }
+	.summary-item { flex: 1; background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); padding: 32rpx 24rpx; text-align: center; border-top: 4rpx solid transparent; }
+	.summary-item.income { border-top-color: var(--income, #34C759); }
+	.summary-item.expense { border-top-color: var(--expense, #FF6B6B); }
 	.summary-item.balance { border-top-color: var(--primary-shadow, rgba(242, 149, 110, 0.8)); }
-	.summary-item .summary-label { font-size: 24rpx; color: var(--text-tertiary, #A98B78); display: block; margin-bottom: 16rpx; }
+	.summary-item .summary-label { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); display: block; margin-bottom: 16rpx; }
 	.summary-item .summary-value { font-size: 36rpx; font-weight: 700; }
-	.summary-item.income .summary-value { color: var(--income, #4CAF50); }
-	.summary-item.expense .summary-value { color: var(--primary, #E8734A); }
-	.summary-item.balance .summary-value { color: var(--text-primary, #F2956E); }
+	.summary-item.income .summary-value { color: var(--income, #34C759); }
+	.summary-item.expense .summary-value { color: var(--expense, #FF6B6B); }
+	.summary-item.balance .summary-value { color: var(--text-primary, #1A2744); }
 
-	.menu-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04); margin-bottom: 32rpx; overflow: hidden; }
-	.menu-card .menu-item { display: flex; align-items: center; padding: 32rpx 40rpx; border-bottom: 1px solid var(--border, #F0E4DA); }
+	.menu-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); margin-bottom: 32rpx; overflow: hidden; }
+	.menu-card .menu-item { display: flex; align-items: center; padding: 32rpx 40rpx; border-bottom: 1px solid var(--border, #E8F0FE); }
 	.menu-card .menu-item:last-child { border-bottom: none; }
 	.menu-card .menu-item:active { background: var(--border, #F5EDE6); }
 	.menu-card .menu-icon { font-size: 40rpx; margin-right: 24rpx; }
-	.menu-card .menu-text { flex: 1; font-size: 30rpx; color: var(--text-primary, #3D2316); }
+	.menu-card .menu-text { flex: 1; font-size: 30rpx; color: var(--text-primary, #1A2744); }
 	.menu-card .menu-arrow {
 		flex-shrink: 0;
 		width: 32rpx;
@@ -281,7 +281,7 @@
 
 	.logout-card .logout-item { justify-content: center; }
 	.logout-card .logout-item .menu-icon { margin-right: 16rpx; }
-	.logout-card .logout-text { color: var(--primary, #E8734A); }
+	.logout-card .logout-text { color: var(--primary, #5B9BE0); }
 
 	
 </style>

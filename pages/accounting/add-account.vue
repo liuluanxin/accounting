@@ -345,7 +345,7 @@ import themeMixin from '@/common/theme-mixin.js'
 <style lang="scss" scoped>
 	.add-account-page {
 		min-height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		display: flex;
 		flex-direction: column;
 	}
@@ -360,7 +360,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		border-bottom: 1px solid var(--border, #F0E4DA);
+		border-bottom: 1px solid var(--border, #E8F0FE);
 	}
 	.nav-back {
 		width: 72rpx;
@@ -369,17 +369,17 @@ import themeMixin from '@/common/theme-mixin.js'
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
-		background: var(--input-bg, #FFF5EE);
+		background: var(--input-bg, #F2F7FF);
 		transition: all 0.2s;
 	}
 	.nav-back:active {
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 		transform: scale(0.95);
 	}
 	.back-icon {
 		width: 36rpx;
 		height: 36rpx;
-		background-color: var(--text-primary, #3D2316);
+		background-color: var(--text-primary, #1A2744);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -390,7 +390,7 @@ import themeMixin from '@/common/theme-mixin.js'
 	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 	}
 	.nav-placeholder {
 		width: 72rpx;
@@ -415,7 +415,7 @@ import themeMixin from '@/common/theme-mixin.js'
 	.label-text {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 	}
 	.label-required {
 		color: #FF6B6B;
@@ -423,7 +423,7 @@ import themeMixin from '@/common/theme-mixin.js'
 	}
 	.label-hint {
 		font-size: 22rpx;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 		margin-left: 8rpx;
 	}
 
@@ -431,34 +431,27 @@ import themeMixin from '@/common/theme-mixin.js'
 	.input-wrapper {
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 16rpx;
-		border: 2rpx solid var(--border, #F0E4DA);
-<<<<<<< Updated upstream
-		padding: 0 24rpx;
-=======
+		border: 2rpx solid var(--border, #E8F0FE);
 		padding: 16rpx 24rpx;
 		height: 88rpx;
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
->>>>>>> Stashed changes
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: var(--primary, #E8734A);
+		border-color: var(--primary, #5B9BE0);
 	}
 	.form-input {
 		flex: 1;
 		padding: 0 0 0 12rpx;
 		margin: 0;
 		font-size: 30rpx;
-<<<<<<< Updated upstream
-=======
 		line-height: 56rpx;
->>>>>>> Stashed changes
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 	}
 	.input-placeholder {
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		font-size: 28rpx;
 	}
 	.card-input-wrapper {
@@ -479,14 +472,14 @@ import themeMixin from '@/common/theme-mixin.js'
 		transition: all 0.2s;
 	}
 	.card-toggle:active {
-		background: var(--input-bg, #FFF5EE);
+		background: var(--input-bg, #F2F7FF);
 	}
 	.toggle-icon {
 		width: 32rpx;
 		height: 32rpx;
 	}
 	.toggle-icon-open {
-		background-color: var(--text-secondary, #7A5C4A);
+		background-color: var(--text-secondary, #5A6B8A);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -495,7 +488,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		-webkit-mask-position: center;
 	}
 	.toggle-icon-off {
-		background-color: var(--text-secondary, #7A5C4A);
+		background-color: var(--text-secondary, #5A6B8A);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -521,7 +514,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		padding: 32rpx 28rpx;
 		border-radius: 20rpx;
 		border: 2rpx solid;
-		background: linear-gradient(135deg, var(--text-primary, #3D2316) 0%, #5A3D2E 100%);
+		background: linear-gradient(135deg, var(--text-primary, #1A2744) 0%, #5A3D2E 100%);
 		color: var(--card-bg, #FFFFFF);
 	}
 	.card-preview-top {
@@ -579,7 +572,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		margin-right: 16rpx;
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 20rpx;
-		border: 2rpx solid var(--border, #F0E4DA);
+		border: 2rpx solid var(--border, #E8F0FE);
 		min-width: 100rpx;
 		transition: all 0.2s;
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
@@ -588,10 +581,10 @@ import themeMixin from '@/common/theme-mixin.js'
 		transform: scale(0.95);
 	}
 	.type-active {
-		background: rgba(232, 115, 74, 0.1);
-		border-color: var(--primary, #E8734A);
-		color: var(--primary, #E8734A);
-		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.15);
+		background: rgba(91, 155, 224, 0.1);
+		border-color: var(--primary, #5B9BE0);
+		color: var(--primary, #5B9BE0);
+		box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.15);
 	}
 	.type-emoji {
 		font-size: 36rpx;
@@ -609,7 +602,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		background: var(--card-bg, #FFFFFF);
 		padding: 20rpx;
 		border-radius: 20rpx;
-		border: 2rpx solid var(--border, #F0E4DA);
+		border: 2rpx solid var(--border, #E8F0FE);
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 	}
 	.icon-item {
@@ -621,15 +614,15 @@ import themeMixin from '@/common/theme-mixin.js'
 		border-radius: 16rpx;
 		border: 2rpx solid transparent;
 		transition: all 0.2s;
-		background: var(--input-bg, #FFF5EE);
+		background: var(--input-bg, #F2F7FF);
 	}
 	.icon-item:active {
 		transform: scale(0.9);
 	}
 	.icon-selected {
-		border-color: var(--primary, #E8734A);
-		background: rgba(232, 115, 74, 0.1);
-		box-shadow: 0 0 0 2rpx rgba(232, 115, 74, 0.2);
+		border-color: var(--primary, #5B9BE0);
+		background: rgba(91, 155, 224, 0.1);
+		box-shadow: 0 0 0 2rpx rgba(91, 155, 224, 0.2);
 	}
 	.icon-emoji {
 		font-size: 36rpx;
@@ -643,7 +636,7 @@ import themeMixin from '@/common/theme-mixin.js'
 		background: var(--card-bg, #FFFFFF);
 		padding: 20rpx;
 		border-radius: 20rpx;
-		border: 2rpx solid var(--border, #F0E4DA);
+		border: 2rpx solid var(--border, #E8F0FE);
 		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 	}
 	.color-dot {
@@ -662,7 +655,7 @@ import themeMixin from '@/common/theme-mixin.js'
 	}
 	.color-selected {
 		transform: scale(1.15);
-		box-shadow: 0 0 0 4rpx rgba(232, 115, 74, 0.3), 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+		box-shadow: 0 0 0 4rpx rgba(91, 155, 224, 0.3), 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
 	}
 	.color-check {
 		font-size: 24rpx;
@@ -679,7 +672,7 @@ import themeMixin from '@/common/theme-mixin.js'
 	.balance-prefix {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		margin-right: 12rpx;
 	}
 	.balance-input {
@@ -694,22 +687,22 @@ import themeMixin from '@/common/theme-mixin.js'
 		right: 0;
 		padding: 20rpx 28rpx;
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		background: linear-gradient(to top, var(--bg, #FFF9F5) 60%, transparent);
+		background: linear-gradient(to top, var(--bg, #EFF5FF) 60%, transparent);
 		z-index: 100;
 	}
 	.btn-save {
 		height: 96rpx;
-		background: linear-gradient(135deg, var(--primary, #E8734A), #D4613A);
+		background: linear-gradient(135deg, var(--primary, #5B9BE0), #4A7FC0);
 		border-radius: 48rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.35);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.35);
 		transition: all 0.25s;
 	}
 	.btn-save:active {
 		transform: scale(0.98);
-		box-shadow: 0 4rpx 12rpx rgba(232, 115, 74, 0.25);
+		box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.25);
 	}
 	.btn-disabled {
 		opacity: 0.5;

@@ -140,15 +140,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page { min-height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 32rpx; box-sizing: border-box; }
+.page { min-height: 100vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 32rpx; box-sizing: border-box; }
 .verify-mode, .setup-mode { width: 100%; display: flex; flex-direction: column; align-items: center; }
 .lock-icon { font-size: 100rpx; margin-bottom: 32rpx; }
 .title { font-size: 40rpx; font-weight: 700; color: var(--text-primary, #3D2316); margin-bottom: 8rpx; }
 .subtitle { font-size: 26rpx; color: var(--text-secondary, #7A5C4A); margin-bottom: 64rpx; }
 
 .pin-display { display: flex; gap: 24rpx; margin-bottom: 64rpx; }
-.dot { width: 56rpx; height: 56rpx; border-radius: 50%; background: var(--input-bg, #FFF5EE); border: 2rpx solid var(--primary, #E8734A); transition: all 0.15s; }
-.dot.filled { background: var(--primary, #E8734A); transform: scale(1.05); }
+.dot { width: 56rpx; height: 56rpx; border-radius: 50%; background: var(--input-bg, #FFF5EE); border: 2rpx solid var(--primary, #5B9BE0); transition: all 0.15s; }
+.dot.filled { background: var(--primary, #5B9BE0); transform: scale(1.05); }
 .dot.error { background: #E89B9B; border-color: #E89B9B; transform: scale(0.92); }
 
 .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24rpx; width: 100%; max-width: 540rpx; }

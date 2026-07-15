@@ -75,22 +75,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.theme-settings-page { height: 100vh; background: var(--bg, #FFF9F5); display: flex; flex-direction: column; width: 100%; box-sizing: border-box; overflow-x: hidden; }
+.theme-settings-page { height: 100vh; background: transparent; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; overflow-x: hidden; }
 
 /* 自定义导航栏 - 标题居中 */
-.nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; background: var(--bg, #FFF9F5); width: 100%; box-sizing: border-box; }
-.nav-back { width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 56rpx; color: var(--text-primary, #3D2316); }
+.nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; background: transparent; width: 100%; box-sizing: border-box; }
+.nav-back { width: 64rpx; height: 64rpx; line-height: 64rpx; text-align: center; font-size: 56rpx; color: var(--text-primary, #1A2744); }
 .back-icon { font-weight: 300; }
-.nav-title { flex: 1; text-align: center; font-size: 34rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
+.nav-title { flex: 1; text-align: center; font-size: 34rpx; font-weight: 700; color: var(--text-primary, #1A2744); }
 .nav-placeholder { width: 64rpx; }
 
 .scroll { flex: 1; padding: calc(var(--status-bar-height) + 120rpx) 32rpx 80rpx; width: 100%; box-sizing: border-box; }
 
-.section-desc { padding: 8rpx 0 24rpx; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
+.section-desc { padding: 8rpx 0 24rpx; font-size: 24rpx; color: var(--text-secondary, #5A6B8A); text-align: center; }
 
 .theme-list { display: flex; flex-direction: column; gap: 24rpx; }
-.theme-card { background: var(--card-bg, #fff); border-radius: 24rpx; padding: 0; overflow: hidden; box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06); border: 3rpx solid transparent; transition: all 0.25s; }
-.theme-card.active { border-color: var(--primary, #E8734A); box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.18); }
+.theme-card { background: var(--card-bg, #fff); border-radius: 24rpx; padding: 0; overflow: hidden; box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06); border: 3rpx solid transparent; transition: all 0.25s; }
+.theme-card.active { border-color: var(--primary, #5B9BE0); box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.18); }
 
 .theme-preview { height: 200rpx; position: relative; overflow: hidden; }
 .preview-circle { position: absolute; border-radius: 50%; }
@@ -100,13 +100,13 @@ export default {
 
 .theme-info { padding: 24rpx 28rpx 28rpx; }
 .theme-name-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8rpx; }
-.theme-name { font-size: 32rpx; font-weight: 700; color: var(--text-primary, #3D2316); }
-.check-badge { width: 40rpx; height: 40rpx; line-height: 40rpx; text-align: center; border-radius: 50%; background: var(--primary, #E8734A); color: #fff; font-size: 24rpx; font-weight: 700; }
-.theme-desc { display: block; font-size: 24rpx; color: var(--text-secondary, #7A5C4A); margin-bottom: 16rpx; }
+.theme-name { font-size: 32rpx; font-weight: 700; color: var(--text-primary, #1A2744); }
+.check-badge { width: 40rpx; height: 40rpx; line-height: 40rpx; text-align: center; border-radius: 50%; background: var(--primary, #5B9BE0); color: #fff; font-size: 24rpx; font-weight: 700; }
+.theme-desc { display: block; font-size: 24rpx; color: var(--text-secondary, #5A6B8A); margin-bottom: 16rpx; }
 .color-chips { display: flex; gap: 12rpx; }
 .chip { width: 48rpx; height: 48rpx; border-radius: 50%; box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08); }
 
-.tip { display: flex; align-items: center; gap: 12rpx; padding: 20rpx 24rpx; background: var(--card-bg, #fff); border-radius: 16rpx; margin-top: 32rpx; border: 1px solid var(--border, #F0E4DA); }
+.tip { display: flex; align-items: center; gap: 12rpx; padding: 20rpx 24rpx; background: var(--card-bg, #fff); border-radius: 16rpx; margin-top: 32rpx; border: 1px solid var(--border, #E8F0FE); }
 .tip-icon { font-size: 32rpx; }
-.tip-text { font-size: 24rpx; color: var(--text-secondary, #7A5C4A); flex: 1; }
+.tip-text { font-size: 24rpx; color: var(--text-secondary, #5A6B8A); flex: 1; }
 </style>

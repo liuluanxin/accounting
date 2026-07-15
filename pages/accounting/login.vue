@@ -156,7 +156,7 @@
 <style lang="scss" scoped>
 	.login-page {
 		height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		width: 100%;
 		box-sizing: border-box;
 		overflow-x: hidden;
@@ -189,7 +189,7 @@
 		transform: translateX(-50%);
 		width: 640rpx;
 		height: 640rpx;
-		background: radial-gradient(circle at 40% 40%, rgba(232, 115, 74, 0.1) 0%, rgba(232, 115, 74, 0.3) 40%, transparent 70%);
+		background: radial-gradient(circle at 40% 40%, rgba(91, 155, 224, 0.1) 0%, rgba(91, 155, 224, 0.3) 40%, transparent 70%);
 		opacity: 0.6;
 	}
 	.blob-2 {
@@ -197,7 +197,7 @@
 		right: -120rpx;
 		width: 400rpx;
 		height: 400rpx;
-		background: radial-gradient(circle at 60% 30%, rgba(232, 115, 74, 0.3) 0%, transparent 60%);
+		background: radial-gradient(circle at 60% 30%, rgba(91, 155, 224, 0.3) 0%, transparent 60%);
 		opacity: 0.4;
 	}
 
@@ -223,7 +223,7 @@
 		border-radius: 32rpx;
 		overflow: hidden;
 		background: var(--card-bg, #FFFFFF);
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 		padding: 8rpx;
 		box-sizing: border-box;
 	}
@@ -237,20 +237,20 @@
 		display: block;
 		font-size: 48rpx;
 		font-weight: 700;
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		margin-bottom: 8rpx;
 	}
 	.app-subtitle {
 		display: block;
 		font-size: 26rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 
 	.login-form-card {
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		padding: 36rpx 32rpx;
-		box-shadow: 0 8rpx 24rpx rgba(61, 35, 22, 0.08);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.08);
 		margin-bottom: 40rpx;
 	}
 	/* 小屏手机：卡片内边距压缩 */
@@ -273,15 +273,15 @@
 		display: block;
 		font-size: 26rpx;
 		font-weight: 500;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 		margin-bottom: 12rpx;
 	}
 	.input-wrapper {
 		display: flex;
 		align-items: center;
 		border-radius: 50rpx;
-		background: var(--input-bg, #FFF5EE);
-		border: 2rpx solid var(--border, #E8D5C8);
+		background: var(--input-bg, #F2F7FF);
+		border: 2rpx solid var(--border, #E8F0FE);
 <<<<<<< Updated upstream
 		padding: 0rpx 24rpx;
 =======
@@ -292,12 +292,12 @@
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: var(--primary, #E8734A);
+		border-color: var(--primary, #5B9BE0);
 	}
 	.input-icon {
 		font-size: 32rpx;
 		margin-right: 16rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.input-field {
 		flex: 1;
@@ -310,7 +310,7 @@
 		font-size: 30rpx;
 		line-height: 56rpx;
 >>>>>>> Stashed changes
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		background: transparent;
 		border: none;
 		outline: none;
@@ -341,15 +341,15 @@
 		width: 36rpx;
 		height: 36rpx;
 		border-radius: 8rpx;
-		border: 2rpx solid var(--border, #E8D5C8);
+		border: 2rpx solid var(--border, #E8F0FE);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s;
 	}
 	.checkbox.checked {
-		background: var(--primary, #E8734A);
-		border-color: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
+		border-color: var(--primary, #5B9BE0);
 	}
 	.check-icon {
 		font-size: 24rpx;
@@ -358,11 +358,11 @@
 	}
 	.remember-text {
 		font-size: 26rpx;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 	}
 	.forgot-link {
 		font-size: 26rpx;
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		font-weight: 500;
 	}
 
@@ -376,12 +376,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 		color: #fff;
 		font-size: 40rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 		transition: background 0.2s;
 		cursor: pointer;
 		user-select: none;
@@ -389,17 +389,17 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 	.btn-primary:active {
-		background: var(--primary-dark, #C95A33);
+		background: var(--primary-dark, #4A7FC0);
 	}
 
 	.register-link {
 		text-align: center;
 		font-size: 28rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		margin-bottom: 64rpx;
 	}
 	.link-text {
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		font-weight: 600;
 	}
 
@@ -415,11 +415,11 @@
 	.divider-line {
 		flex: 1;
 		height: 2rpx;
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 	}
 	.divider-text {
 		font-size: 24rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.social-login {
 		display: flex;
@@ -437,18 +437,18 @@
 		cursor: pointer;
 		transition: all 0.2s;
 		-webkit-tap-highlight-color: transparent;
-		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
+		box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06);
 	}
 	.social-btn:active {
 		transform: scale(0.95);
-		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.1);
+		box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.1);
 	}
 	.social-icon-wechat {
 		font-size: 48rpx;
 	}
 	.social-icon-phone {
 		font-size: 48rpx;
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 	}
 
 	@media (min-width: 414px) {

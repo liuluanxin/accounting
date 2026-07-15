@@ -76,9 +76,9 @@
 
 <style lang="scss" scoped>
 	.acc-keyboard {
-		background: #EDEAF2;
+		background: #E8F0FE;
 		padding: 8rpx 16rpx calc(env(safe-area-inset-bottom, 12rpx));
-		border-top: 2rpx solid rgba(180, 160, 200, 0.15);
+		border-top: 2rpx solid rgba(180, 200, 230, 0.15);
 		user-select: none;
 		-webkit-user-select: none;
 	}

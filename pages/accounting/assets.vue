@@ -157,7 +157,7 @@
 <style lang="scss" scoped>
 	.accounts-page {
 		min-height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		font-family: 'Inter', 'PingFang SC', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 		display: flex;
 		flex-direction: column;
@@ -170,22 +170,22 @@
 		height: 88rpx;
 		padding: 0 40rpx;
 		position: relative;
-		background: var(--bg, #FFF9F5);
+		background: var(--bg, #EFF5FF);
 	}
 	.nav-back, .nav-add {
 		width: 72rpx;
 		height: 72rpx;
 		border-radius: 50%;
 		background: var(--card-bg, #FFFFFF);
-		box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04);
+		box-shadow: 0 2rpx 4rpx rgba(91, 155, 224, 0.04);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 	}
 	.nav-back:active { background: var(--border, #F5EDE6); }
-	.nav-add { color: var(--primary, #E8734A); }
-	.nav-add:active { background: rgba(232, 115, 74, 0.1); }
+	.nav-add { color: var(--primary, #5B9BE0); }
+	.nav-add:active { background: rgba(91, 155, 224, 0.1); }
 	.nav-icon { font-size: 36rpx; }
 	.nav-title {
 		position: absolute;
@@ -193,7 +193,7 @@
 		transform: translateX(-50%);
 		font-size: 34rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 	}
 
 	.accounts-scroll {
@@ -212,13 +212,13 @@
 		padding: 120rpx 40rpx;
 	}
 	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: var(--text-secondary, #7A5C4A); text-align: center; }
-	.state-hint { font-size: 24rpx; color: var(--text-tertiary, #A98B78); margin-top: 16rpx; }
+	.state-text { font-size: 28rpx; color: var(--text-secondary, #5A6B8A); text-align: center; }
+	.state-hint { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); margin-top: 16rpx; }
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
-		border: 4rpx solid rgba(232, 115, 74, 0.2);
-		border-top-color: var(--primary, #E8734A);
+		border: 4rpx solid rgba(91, 155, 224, 0.2);
+		border-top-color: var(--primary, #5B9BE0);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 		margin-bottom: 24rpx;
@@ -228,27 +228,27 @@
 	.total-assets-card {
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
-		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
+		box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06);
 		overflow: hidden;
 		margin-top: 32rpx;
 	}
 	.gradient-strip {
 		height: 12rpx;
-		background: linear-gradient(135deg, var(--primary, #E8734A), var(--primary-shadow, rgba(232, 115, 74, 0.3)));
+		background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-shadow, rgba(91, 155, 224, 0.3)));
 	}
 	.card-body {
 		padding: 40rpx 48rpx;
 	}
 	.assets-label {
 		font-size: 26rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		display: block;
 		margin-bottom: 16rpx;
 	}
 	.assets-amount {
 		font-size: 60rpx;
 		font-weight: 700;
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		display: block;
 		line-height: 1.25;
 		margin-bottom: 40rpx;
@@ -268,20 +268,20 @@
 	}
 	.stat-label {
 		font-size: 22rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.stat-value {
 		font-size: 26rpx;
 		font-weight: 600;
 	}
-	.stat-value.neutral { color: var(--text-secondary, #7A5C4A); }
+	.stat-value.neutral { color: var(--text-secondary, #5A6B8A); }
 	.stat-value.green { color: var(--expense, #4CAF50); }
-	.stat-value.coral { color: var(--primary, #E8734A); }
+	.stat-value.coral { color: var(--primary, #5B9BE0); }
 
 	.section-title {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		margin-top: 64rpx;
 		margin-bottom: 32rpx;
 		display: block;
@@ -290,7 +290,7 @@
 	.account-card {
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
-		box-shadow: 0 2rpx 4rpx rgba(61, 35, 22, 0.04);
+		box-shadow: 0 2rpx 4rpx rgba(91, 155, 224, 0.04);
 		padding: 32rpx 40rpx;
 		margin-bottom: 24rpx;
 		display: flex;
@@ -300,7 +300,7 @@
 		overflow: hidden;
 	}
 	.account-card:active {
-		box-shadow: 0 4rpx 12rpx rgba(61, 35, 22, 0.06);
+		box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.06);
 		transform: translateY(-2rpx);
 	}
 	.account-card::before {
@@ -312,7 +312,7 @@
 		width: 8rpx;
 		border-radius: 0 8rpx 8rpx 0;
 	}
-	.account-card.accent-coral::before { background: var(--primary, #E8734A); }
+	.account-card.accent-coral::before { background: var(--primary, #5B9BE0); }
 	.account-card.accent-blue::before { background: var(--primary, #42A5F5); }
 	.account-card.accent-green::before { background: var(--expense, #4CAF50); }
 
@@ -326,7 +326,7 @@
 		font-size: 40rpx;
 		flex-shrink: 0;
 	}
-	.account-icon.coral-bg { background: rgba(232, 115, 74, 0.1); color: var(--primary, #E8734A); }
+	.account-icon.coral-bg { background: rgba(91, 155, 224, 0.1); color: var(--primary, #5B9BE0); }
 	.account-icon.blue-bg { background: rgba(66, 165, 245, 0.1); color: var(--primary, #42A5F5); }
 	.account-icon.green-bg { background: rgba(76, 175, 80, 0.1); color: var(--expense, #4CAF50); }
 
@@ -337,7 +337,7 @@
 	.account-name {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		display: block;
 		margin-bottom: 4rpx;
 		white-space: nowrap;
@@ -347,14 +347,14 @@
 	.account-balance {
 		font-size: 40rpx;
 		font-weight: 700;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		display: block;
 		line-height: 1.25;
 		margin-bottom: 4rpx;
 	}
 	.account-summary {
 		font-size: 22rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		display: block;
 	}
 
@@ -376,8 +376,8 @@
 		margin-bottom: 24rpx;
 	}
 	.add-account-card:active {
-		border-color: var(--primary, #E8734A);
-		background: rgba(232, 115, 74, 0.1);
+		border-color: var(--primary, #5B9BE0);
+		background: rgba(91, 155, 224, 0.1);
 	}
 	.plus-icon {
 		width: 56rpx;
@@ -387,25 +387,25 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		font-size: 28rpx;
 	}
 	.add-account-card:active .plus-icon {
-		border-color: var(--primary, #E8734A);
-		color: var(--primary, #E8734A);
+		border-color: var(--primary, #5B9BE0);
+		color: var(--primary, #5B9BE0);
 	}
 	.add-label {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.add-account-card:active .add-label {
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 	}
 
-	.back-svg { width: 20px; height: 20px; background-color: var(--text-primary, #3D2316); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
-	.nav-add .plus-svg { width: 20px; height: 20px; background-color: var(--text-primary, #3D2316); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
-	.arrow-svg { width: 16px; height: 16px; background-color: var(--text-tertiary, #A98B78); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
-	.card-plus-svg { width: 24px; height: 24px; background-color: var(--primary, #E8734A); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.back-svg { width: 20px; height: 20px; background-color: var(--text-primary, #1A2744); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.nav-add .plus-svg { width: 20px; height: 20px; background-color: var(--text-primary, #1A2744); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.arrow-svg { width: 16px; height: 16px; background-color: var(--text-tertiary, #8A9BB8); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
+	.card-plus-svg { width: 24px; height: 24px; background-color: var(--primary, #5B9BE0); mask-size: contain; mask-repeat: no-repeat; mask-position: center; -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; }
 
 	</style>

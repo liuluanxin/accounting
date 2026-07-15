@@ -1,35 +1,35 @@
 /**
  * 宇宙记账 - 主题变量
  * 与 app_cross_platform.html :root 完全一致
- * 浅色背景 + 清新星云色彩体系
+ * 宇宙蓝梦幻风色彩体系
  */
 
-/* ===== 核心色值（与 HTML :root 保持一致） ===== */
-$html-bg: #F4F6FB;
-$html-primary: #6BA8D9;
-$html-primary-dark: #4A7FB5;
-$html-primary-light: #A8D4E8;
-$html-income: #E89B9B;
-$html-expense: #7BC4A8;
-$html-text-main: #1F2A47;
-$html-text-sub: #5A6788;
+/* ===== 核心色值（宇宙蓝梦幻风） ===== */
+$html-bg: #EFF5FF;
+$html-primary: #5B9BE0;
+$html-primary-dark: #4A7FC0;
+$html-primary-light: #8BB8EA;
+$html-income: #34C759;
+$html-expense: #FF6B6B;
+$html-text-main: #1A2744;
+$html-text-sub: #5A6B8A;
 
 /* ===== 浅色背景适配 ===== */
 $cosmic-bg-primary: $html-bg;
-$cosmic-bg-secondary: #ECEAF2;
-$cosmic-bg-card: rgba(255, 255, 255, 0.85);
-$cosmic-bg-card-hover: rgba(255, 255, 255, 0.95);
+$cosmic-bg-secondary: #E0EBF8;
+$cosmic-bg-card: rgba(255, 255, 255, 0.92);
+$cosmic-bg-card-hover: rgba(255, 255, 255, 0.96);
 
 $cosmic-primary: $html-primary;
 $cosmic-primary-dark: $html-primary-dark;
 $cosmic-primary-light: $html-primary-light;
 $cosmic-income: $html-income;
 $cosmic-expense: $html-expense;
-$cosmic-text: #1F2A47;
-$cosmic-text-secondary: #5A6788;
-$cosmic-text-muted: #8A98B8;
-$cosmic-border: rgba(180, 160, 200, 0.2);
-$cosmic-border-light: rgba(180, 160, 200, 0.12);
+$cosmic-text: #1A2744;
+$cosmic-text-secondary: #5A6B8A;
+$cosmic-text-muted: #8A9BB8;
+$cosmic-border: rgba(180, 200, 230, 0.25);
+$cosmic-border-light: rgba(180, 200, 230, 0.12);
 
 /* ===== UniApp 标准变量覆盖 ===== */
 $uni-color-primary: $cosmic-primary;
@@ -67,12 +67,12 @@ $uni-spacing-col-lg: 24rpx;
 
 /* ===== 宇宙记账专用变量 ===== */
 $nav-height: 120rpx;
-$card-radius: 24rpx;
-$glass-bg: rgba(255, 255, 255, 0.78);
-$glass-border: 1px solid rgba(180, 160, 200, 0.15);
-$glass-shadow: 0 8rpx 32rpx rgba(60, 50, 100, 0.1);
-$primary-gradient: linear-gradient(135deg, #6BA8D9, #4A7FB5);
-$income-gradient: linear-gradient(135deg, #E89B9B, #D47A7A);
-$expense-gradient: linear-gradient(135deg, #7BC4A8, #5AAA8E);
-$danger-gradient: linear-gradient(135deg, #E89B9B, #D07070);
-$budget-bar-gradient: linear-gradient(90deg, #E89B9B, #6BA8D9);
+$card-radius: 44rpx;
+$glass-bg: linear-gradient(170deg, #FFFFFF, #F0F7FF, #F5F0FF);
+$glass-border: 1px solid rgba(255, 255, 255, 0.8);
+$glass-shadow: 0 8rpx 32rpx rgba(91, 155, 224, 0.08);
+$primary-gradient: linear-gradient(135deg, #5B9BE0, #4A7FC0);
+$income-gradient: linear-gradient(135deg, #34C759, #28A745);
+$expense-gradient: linear-gradient(135deg, #FF6B6B, #E05555);
+$danger-gradient: linear-gradient(135deg, #FF6B6B, #E05555);
+$budget-bar-gradient: linear-gradient(90deg, #FF6B6B, #5B9BE0);

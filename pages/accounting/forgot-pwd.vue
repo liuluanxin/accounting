@@ -290,7 +290,7 @@
 <style lang="scss" scoped>
 	.forgot-page {
 		height: 100vh;
-		background: var(--bg, #FFF9F5);
+		background: transparent;
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -315,16 +315,16 @@
 		justify-content: center;
 		border-radius: 50%;
 		background: var(--card-bg, #FFFFFF);
-		box-shadow: 0 2rpx 8rpx rgba(61, 35, 22, 0.04);
+		box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04);
 		transition: background 0.2s;
 	}
 	.header-back:active {
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 	}
 	.back-icon {
 		width: 44rpx;
 		height: 44rpx;
-		background-color: var(--text-primary, #3D2316);
+		background-color: var(--text-primary, #1A2744);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -335,7 +335,7 @@
 	.header-title {
 		font-size: 36rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 	}
 	.header-spacer {
 		width: 80rpx;
@@ -366,7 +366,7 @@
 		width: 100%;
 		height: 100%;
 		border-radius: 50%;
-		background: linear-gradient(135deg, rgba(232, 115, 74, 0.1), rgba(232, 115, 74, 0.3));
+		background: linear-gradient(135deg, rgba(91, 155, 224, 0.1), rgba(91, 155, 224, 0.3));
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -374,7 +374,7 @@
 	.lock-icon {
 		width: 80rpx;
 		height: 80rpx;
-		background-color: var(--primary, #E8734A);
+		background-color: var(--primary, #5B9BE0);
 		mask-size: contain;
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -391,7 +391,7 @@
 		right: -8rpx;
 		width: 40rpx;
 		height: 40rpx;
-		background: rgba(232, 115, 74, 0.3);
+		background: rgba(91, 155, 224, 0.3);
 		opacity: 0.6;
 	}
 	.deco-2 {
@@ -399,7 +399,7 @@
 		left: -16rpx;
 		width: 32rpx;
 		height: 32rpx;
-		background: #F2956E;
+		background: #5B9BE0;
 		opacity: 0.4;
 	}
 
@@ -419,53 +419,53 @@
 		width: 48rpx;
 		height: 48rpx;
 		border-radius: 50%;
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.3s;
 	}
 	.step-item.active .step-dot {
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 	}
 	.step-num {
 		font-size: 24rpx;
 		font-weight: 600;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.step-item.active .step-num {
 		color: var(--card-bg, #FFFFFF);
 	}
 	.step-label {
 		font-size: 24rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 	}
 	.step-item.active .step-label {
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 	}
 	.step-connector {
 		width: 64rpx;
 		height: 4rpx;
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 		border-radius: 2rpx;
 		margin: 0 16rpx;
 		transition: all 0.3s;
 	}
 	.step-connector.active {
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 	}
 
 	.forgot-form-card {
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 32rpx;
 		padding: 48rpx;
-		box-shadow: 0 4rpx 16rpx rgba(61, 35, 22, 0.06);
+		box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06);
 	}
 
 	.form-desc {
 		display: block;
 		font-size: 28rpx;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 		line-height: 1.6;
 		margin-bottom: 40rpx;
 	}
@@ -478,7 +478,7 @@
 	.field-label {
 		display: block;
 		font-size: 26rpx;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 		margin-bottom: 12rpx;
 		font-weight: 500;
 	}
@@ -487,8 +487,8 @@
 		display: flex;
 		align-items: center;
 		border-radius: 24rpx;
-		background: var(--input-bg, #FFF5EE);
-		border: 2rpx solid var(--border, #F0E4DA);
+		background: var(--input-bg, #F2F7FF);
+		border: 2rpx solid var(--border, #E8F0FE);
 <<<<<<< Updated upstream
 		padding: 0 32rpx;
 		transition: border-color 0.2s;
@@ -500,7 +500,7 @@
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
-		border-color: var(--primary, #E8734A);
+		border-color: var(--primary, #5B9BE0);
 	}
 	.input-wrapper.input-error {
 		border-color: #E53935 !important;
@@ -510,11 +510,8 @@
 		padding: 0 0 0 12rpx;
 		margin: 0;
 		font-size: 30rpx;
-<<<<<<< Updated upstream
-=======
 		line-height: 56rpx;
->>>>>>> Stashed changes
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		background: transparent;
 		border: none;
 		outline: none;
@@ -522,22 +519,18 @@
 	.input-field::placeholder {
 		color: #C8A896;
 	}
-<<<<<<< Updated upstream
 	.prefix-text {
 		font-size: 30rpx;
 		font-weight: 500;
-		color: var(--text-secondary, #7A5C4A);
+		color: var(--text-secondary, #5A6B8A);
 		margin-right: 16rpx;
 	}
 	.divider-line {
 		width: 2rpx;
 		height: 40rpx;
-		background: var(--border, #F0E4DA);
+		background: var(--border, #E8F0FE);
 		margin-right: 24rpx;
 	}
-
-=======
->>>>>>> Stashed changes
 	.code-row {
 		display: flex;
 		gap: 24rpx;
@@ -553,15 +546,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(232, 115, 74, 0.1);
-		color: var(--primary, #E8734A);
+		background: rgba(91, 155, 224, 0.1);
+		color: var(--primary, #5B9BE0);
 		font-size: 28rpx;
 		font-weight: 500;
 		border-radius: 24rpx;
 		transition: all 0.2s;
 	}
 	.code-btn:active {
-		background: rgba(232, 115, 74, 0.3);
+		background: rgba(91, 155, 224, 0.3);
 	}
 	.code-sent {
 		opacity: 0.5;
@@ -596,12 +589,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 		color: var(--card-bg, #FFFFFF);
 		font-size: 40rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 		transition: background 0.2s;
 		cursor: pointer;
 		user-select: none;
@@ -609,7 +602,7 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 	.forgot-btn-wrapper .btn-primary:active {
-		background: var(--primary-dark, #C95A33);
+		background: var(--primary-dark, #4A7FC0);
 	}
 	.forgot-btn-wrapper .btn-disabled {
 		opacity: 0.4 !important;
@@ -622,12 +615,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 		color: var(--card-bg, #FFFFFF);
 		font-size: 32rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 		transition: background 0.2s;
 	}
 <<<<<<< Updated upstream
@@ -635,7 +628,7 @@
 =======
 	.btn-row .btn-primary:active {
 >>>>>>> Stashed changes
-		background: var(--primary-dark, #C95A33);
+		background: var(--primary-dark, #4A7FC0);
 	}
 	.btn-row .btn-disabled {
 		opacity: 0.4;
@@ -654,26 +647,26 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--border, #F0E4DA);
-		color: var(--text-secondary, #7A5C4A);
+		background: var(--border, #E8F0FE);
+		color: var(--text-secondary, #5A6B8A);
 		font-size: 30rpx;
 		font-weight: 500;
 		border-radius: 50rpx;
 		transition: background 0.2s;
 	}
-	.btn-secondary:active {
-		background: var(--border, #F0E4DA);
+	.btn-row .btn-secondary:active {
+		background: var(--border, #E8F0FE);
 	}
 
 	.tip-text {
 		display: block;
 		text-align: center;
 		font-size: 24rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		margin-top: 32rpx;
 	}
 	.tip-link {
-		color: var(--primary, #E8734A);
+		color: var(--primary, #5B9BE0);
 		font-weight: 500;
 		text-decoration: underline;
 	}
@@ -689,12 +682,12 @@
 		width: 120rpx;
 		height: 120rpx;
 		border-radius: 50%;
-		background: var(--primary, #E8734A);
+		background: var(--primary, #5B9BE0);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		margin-bottom: 32rpx;
-		box-shadow: 0 8rpx 24rpx rgba(232, 115, 74, 0.3);
+		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 	}
 	.success-icon {
 		width: 64rpx;
@@ -710,12 +703,12 @@
 	.success-title {
 		font-size: 36rpx;
 		font-weight: 600;
-		color: var(--text-primary, #3D2316);
+		color: var(--text-primary, #1A2744);
 		margin-bottom: 16rpx;
 	}
 	.success-desc {
 		font-size: 28rpx;
-		color: var(--text-tertiary, #A98B78);
+		color: var(--text-tertiary, #8A9BB8);
 		margin-bottom: 48rpx;
 	}
 
