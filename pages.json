@@ -1,4 +1,15 @@
 {
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^status-bar$": "@/components/StatusBar.vue",
+			"^top-bar$": "@/components/TopBar.vue",
+			"^lucide-icon$": "@/components/LucideIcon.vue",
+			"^cosmic-sheet$": "@/components/CosmicSheet.vue",
+			"^bill-keypad$": "@/components/BillKeypad.vue",
+			"^tab-bar$": "@/components/TabBar.vue"
+		}
+	},
 	"pages": [
 		{
 			"path": "pages/accounting/login",
@@ -101,7 +112,8 @@
 		{
 			"path": "pages/accounting/all-transactions",
 			"style": {
-				"navigationBarTitleText": "账单"
+				"navigationBarTitleText": "全部账单",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -112,9 +124,9 @@
 			}
 		},
 		{
-			"path": "pages/accounting/privacy-lock",
+			"path": "pages/accounting/photo-record",
 			"style": {
-				"navigationBarTitleText": "隐私密码",
+				"navigationBarTitleText": "拍照记账",
 				"navigationStyle": "custom"
 			}
 		},
@@ -122,13 +134,6 @@
 			"path": "pages/accounting/smart-assistant",
 			"style": {
 				"navigationBarTitleText": "智能助手",
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/accounting/photo-record",
-			"style": {
-				"navigationBarTitleText": "拍照记账",
 				"navigationStyle": "custom"
 			}
 		},
@@ -143,6 +148,13 @@
 			"path": "pages/accounting/category-manage",
 			"style": {
 				"navigationBarTitleText": "分类管理",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/accounting/customize",
+			"style": {
+				"navigationBarTitleText": "自定义首页",
 				"navigationStyle": "custom"
 			}
 		}

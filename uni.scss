@@ -1,78 +1,69 @@
-/**
- * 宇宙记账 - 主题变量
- * 与 app_cross_platform.html :root 完全一致
- * 宇宙蓝梦幻风色彩体系
- */
+/* ====================================
+   宇宙记账 - 全局 SCSS 变量
+   匹配 HTML 原型 CSS 变量体系
+   宇宙蓝梦幻风
+   ==================================== */
 
-/* ===== 核心色值（宇宙蓝梦幻风） ===== */
+/* 核心色值 */
 $html-bg: #EFF5FF;
 $html-primary: #5B9BE0;
 $html-primary-dark: #4A7FC0;
 $html-primary-light: #8BB8EA;
 $html-income: #34C759;
 $html-expense: #FF6B6B;
-$html-text-main: #1A2744;
-$html-text-sub: #5A6B8A;
+$html-warning: #FFB020;
+$html-text-main: #1F2329;
+$html-text-sub: #8A9099;
+$html-divider: #E3ECF7;
 
-/* ===== 浅色背景适配 ===== */
-$cosmic-bg-primary: $html-bg;
-$cosmic-bg-secondary: #E0EBF8;
-$cosmic-bg-card: rgba(255, 255, 255, 0.92);
-$cosmic-bg-card-hover: rgba(255, 255, 255, 0.96);
-
+/* 宇宙色系统 */
+$cosmic-bg: $html-bg;
+$cosmic-surface: #FFFFFF;
 $cosmic-primary: $html-primary;
 $cosmic-primary-dark: $html-primary-dark;
 $cosmic-primary-light: $html-primary-light;
 $cosmic-income: $html-income;
 $cosmic-expense: $html-expense;
-$cosmic-text: #1A2744;
-$cosmic-text-secondary: #5A6B8A;
-$cosmic-text-muted: #8A9BB8;
+$cosmic-warning: $html-warning;
+$cosmic-text: $html-text-main;
+$cosmic-text-secondary: $html-text-sub;
+$cosmic-text-muted: #A0A8B0;
 $cosmic-border: rgba(180, 200, 230, 0.25);
-$cosmic-border-light: rgba(180, 200, 230, 0.12);
+$cosmic-divider: $html-divider;
 
-/* ===== UniApp 标准变量覆盖 ===== */
+/* 渐变 */
+$primary-gradient: linear-gradient(135deg, #8FC9FF 0%, #5B9BE0 55%, #8B7FF0 100%);
+$hero-gradient: linear-gradient(135deg, #8FC9FF 0%, #5B9BE0 55%, #8B7FF0 100%);
+$bg-gradient: linear-gradient(170deg, #EAF4FF 0%, #F1ECFF 50%, #FFFFFF 100%);
+$glass-gradient: linear-gradient(180deg, #FFFFFF 0%, #EAF2FF 58%, #F1ECFF 100%);
+
+/* 尺寸 */
+$card-radius: 32rpx;
+$card-radius-lg: 44rpx;
+$btn-radius: 24rpx;
+$page-padding: 28rpx;
+$card-padding: 32rpx;
+$card-gap: 24rpx;
+$nav-height: 100rpx;
+$statusbar-height: 92rpx;
+
+/* 阴影 */
+$card-shadow: 0 6rpx 20rpx rgba(91, 140, 210, 0.12);
+$primary-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.35);
+
+/* UniApp 标准变量覆盖 */
 $uni-color-primary: $cosmic-primary;
 $uni-color-success: $cosmic-income;
-$uni-color-warning: #F0AD4E;
+$uni-color-warning: $cosmic-warning;
 $uni-color-error: $cosmic-expense;
-
 $uni-text-color: $cosmic-text;
-$uni-text-color-inverse: #fff;
 $uni-text-color-grey: $cosmic-text-secondary;
 $uni-text-color-placeholder: $cosmic-text-muted;
-$uni-text-color-disable: $cosmic-text-muted;
-
-$uni-bg-color: $cosmic-bg-primary;
-$uni-bg-color-grey: $cosmic-bg-secondary;
-$uni-bg-color-hover: $cosmic-bg-card-hover;
-$uni-bg-color-mask: rgba(0, 0, 0, 0.6);
-
+$uni-bg-color: $cosmic-bg;
 $uni-border-color: $cosmic-border;
-
 $uni-font-size-sm: 24rpx;
 $uni-font-size-base: 28rpx;
 $uni-font-size-lg: 32rpx;
-
 $uni-border-radius-sm: 8rpx;
 $uni-border-radius-base: 12rpx;
 $uni-border-radius-lg: 24rpx;
-
-$uni-spacing-row-sm: 10rpx;
-$uni-spacing-row-base: 20rpx;
-$uni-spacing-row-lg: 30rpx;
-$uni-spacing-col-sm: 8rpx;
-$uni-spacing-col-base: 16rpx;
-$uni-spacing-col-lg: 24rpx;
-
-/* ===== 宇宙记账专用变量 ===== */
-$nav-height: 120rpx;
-$card-radius: 44rpx;
-$glass-bg: linear-gradient(170deg, #FFFFFF, #F0F7FF, #F5F0FF);
-$glass-border: 1px solid rgba(255, 255, 255, 0.8);
-$glass-shadow: 0 8rpx 32rpx rgba(91, 155, 224, 0.08);
-$primary-gradient: linear-gradient(135deg, #5B9BE0, #4A7FC0);
-$income-gradient: linear-gradient(135deg, #34C759, #28A745);
-$expense-gradient: linear-gradient(135deg, #FF6B6B, #E05555);
-$danger-gradient: linear-gradient(135deg, #FF6B6B, #E05555);
-$budget-bar-gradient: linear-gradient(90deg, #FF6B6B, #5B9BE0);

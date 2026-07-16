@@ -1,286 +1,283 @@
 <template>
-	<view class="calendar-page">
-		<!-- 自定义导航栏 - 文字居中 -->
-		<view class="custom-nav-bar">
-			<text class="nav-title">记账助手</text>
-		</view>
+	<view class="cosmic-page calendar-page">
+		<status-bar />
+		<top-bar
+			variant="calendar"
+			:cal-year="calYear"
+			:cal-month="calMonth"
+			right-text="今天"
+			@step="onCalStep"
+			@open-month="onOpenMonth"
+			@right="gotoToday"
+		/>
 
-		<scroll-view scroll-y class="cal-scroll">
-			<view v-if="loading" class="state-container">
-				<view class="loading-spinner"></view>
-				<text class="state-text">加载中...</text>
+		<scroll-view scroll-y class="screen screen--pb">
+			<!-- 日历网格 -->
+			<view class="card cal-card">
+				<view class="cal-grid cal-header-row">
+					<text v-for="w in weekdays" :key="w" class="wd">{{ w }}</text>
+				</view>
+				<view class="cal-grid">
+					<view
+						v-for="(cell, i) in calendarCells"
+						:key="i"
+						class="cal-cell"
+						:class="cellClass(cell)"
+						@click="selectDay(cell)"
+					>
+						<template v-if="cell.day">
+							<text class="day-num">{{ cell.day }}</text>
+							<text v-if="cell.amountText" class="cam" :class="cell.amountClass">{{ cell.amountText }}</text>
+							<view v-if="cell.dot" class="dot" />
+						</template>
+					</view>
+				</view>
 			</view>
 
-			<view v-else-if="error" class="state-container">
-				<text class="state-icon">⚠️</text>
-				<text class="state-text">{{ error }}</text>
-				<view class="btn-secondary" @click="reload" style="margin-top: 32rpx;">重试</view>
-			</view>
-
-			<template v-else>
-				<view class="calendar-card">
-					<!-- 月份标签行：嵌入日历卡片内，箭头在最外两侧 -->
-					<view class="card-month-row">
-						<view class="card-month-arrow" @click="prevMonth">
-							<view class="icon-arrow-left-month" :style="getIconStyle('arrow-left')"></view>
-						</view>
-						<text class="card-month-text" @click="showMonthPicker">{{ calYear }}年{{ calMonth }}月</text>
-						<view class="card-month-arrow" @click="nextMonth">
-							<view class="icon-arrow-right-month" :style="getIconStyle('arrow-right')"></view>
-						</view>
+			<!-- 选中日账单 -->
+			<view class="card">
+				<view class="between" style="margin-bottom:12rpx">
+					<text class="day-title">{{ calMonth }}月{{ calSel }}日</text>
+					<text v-if="dayBills.length" class="day-summary">
+						支出 <text class="exp">¥{{ fmt(dayExpense) }}</text>
+						<text v-if="dayIncome"> · 收入 <text class="inc">¥{{ fmt(dayIncome) }}</text></text>
+					</text>
+					<text v-else class="muted">暂无账单</text>
+				</view>
+				<view v-if="dayBills.length === 0" class="empty">
+					<view class="ei">
+						<lucide-icon name="calendar" size="64rpx" />
 					</view>
-					<view class="weekday-header">
-						<text class="weekend">日</text>
-						<text>一</text>
-						<text>二</text>
-						<text>三</text>
-						<text>四</text>
-						<text>五</text>
-						<text class="weekend">六</text>
-					</view>
-					<view class="calendar-grid">
-						<view v-for="i in firstDay" :key="'e' + i" class="day-cell empty"></view>
-						<view v-for="d in daysInMonth" :key="d" class="day-cell"
-							:class="{ today: isToday(d), active: d === calDay }"
-							@click="selectDay(d)">
-							<text class="day-number">{{ d }}</text>
-							<view class="day-amounts">
-								<text v-if="dailyData[d] && dailyData[d].expense" class="day-expense">-¥{{ fmtShort(dailyData[d].expense) }}</text>
-								<text v-if="dailyData[d] && dailyData[d].income" class="day-income">+¥{{ fmtShort(dailyData[d].income) }}</text>
-							</view>
+					<text>这一天还没有账单</text>
+				</view>
+				<view v-else>
+					<view v-for="(item, j) in dayBills" :key="j" class="bill-item">
+						<view class="bic">{{ item.emoji }}</view>
+						<view>
+							<view class="bnm">{{ item.name }}</view>
+							<view class="bac">{{ item.account }}</view>
+						</view>
+						<view class="bam" :class="item.amount > 0 ? 'inc' : 'exp'">
+							{{ item.amount > 0 ? '+' : '' }}{{ fmt(item.amount) }}
 						</view>
 					</view>
 				</view>
+			</view>
 
-				<view class="day-detail-card">
-					<view class="day-detail-header">
-						<text class="day-detail-title">{{ calMonth }}月{{ calDay }}日 {{ getWeekday(calDay) }}</text>
-						<view class="day-detail-summary">
-							<text class="expense-val">支出 ¥{{ getDayExpense().toFixed(2) }}</text>
-							<text class="summary-divider">|</text>
-							<text class="income-val">收入 ¥{{ getDayIncome().toFixed(2) }}</text>
-						</view>
-					</view>
-
-					<view v-if="dayTxList.length === 0" class="empty-tx">当天没有账单记录</view>
-					<view v-else>
-						<view v-for="tx in dayTxList" :key="tx.id" class="transaction-item">
-							<view class="tx-emoji">{{ getCategoryEmoji(tx.category) }}</view>
-							<view class="tx-info">
-								<text class="tx-title">{{ tx.note || tx.category }}</text>
-								<text class="tx-category">{{ tx.category }}</text>
-							</view>
-							<text class="tx-amount" :class="tx.type">{{ tx.type === 'income' ? '+' : '-' }}¥{{ tx.amount.toFixed(2) }}</text>
-						</view>
-						<view class="goto-bills" @click="goToBills">查看账单详情</view>
-					</view>
-				</view>
-
-				<view style="height: 200rpx;"></view>
-			</template>
+			<view style="height:40rpx" />
 		</scroll-view>
 
-		<TabBar currentTab="calendar" :showFab="false" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
+		<tab-bar current-tab="calendar" />
 	</view>
 </template>
 
 <script>
-	import { mapState } from 'vuex'
-	import { WEEKDAYS, CAT_ICONS } from '@/common/accounting-utils.js'
-	import TabBar from '@/components/TabBar.vue'
-	import themeMixin from '@/common/theme-mixin.js'
-	import ICONS from '@/common/icon-base64.js'
+import { fmt } from '@/common/constants.js'
+import { applyThemeToPage } from '@/common/theme-manager.js'
+import { getCalMonthMap, getCalDayBills, getActiveLedgerId } from '@/common/app-data.js'
+import TabBar from '@/components/TabBar.vue'
 
-	export default {
-		mixins: [themeMixin],
-		components: { TabBar },
-		data() {
-			const now = new Date()
-			return {
-				calYear: now.getFullYear(),
-				calMonth: now.getMonth() + 1,
-				calDay: now.getDate(),
-				weekdays: WEEKDAYS,
-				today: now
+export default {
+	components: { TabBar },
+	data() {
+		const now = new Date()
+		return {
+			calYear: now.getFullYear(),
+			calMonth: now.getMonth() + 1,
+			calSel: now.getDate(),
+			ledgerId: getActiveLedgerId(),
+			weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+			todayYear: now.getFullYear(),
+			todayMonth: now.getMonth() + 1,
+			todayDay: now.getDate()
+		}
+	},
+	computed: {
+		monthMap() {
+			return getCalMonthMap(this.calYear, this.calMonth, this.ledgerId)
+		},
+		calendarCells() {
+			const year = this.calYear
+			const month = this.calMonth
+			const firstDay = new Date(year, month - 1, 1).getDay()
+			const daysInMonth = new Date(year, month, 0).getDate()
+			const cells = []
+			for (let i = 0; i < firstDay; i++) {
+				cells.push({ day: null })
 			}
-		},
-		computed: {
-			...mapState('accounting', ['data', 'loading', 'error', 'initialized', 'homeLedgerMode']),
-			firstDay() { return new Date(this.calYear, this.calMonth - 1, 1).getDay() },
-			daysInMonth() { return new Date(this.calYear, this.calMonth, 0).getDate() },
-			isCurrent() { return this.calYear === this.today.getFullYear() && this.calMonth === this.today.getMonth() + 1 },
-			currentDay() { return this.today.getDate() },
-			filteredTransactions() {
-				const mode = this.homeLedgerMode
-				const txs = this.data.transactions || []
-				if (mode === 'all') return txs
-				const currentL = this.data.ledgers.find(l => l.current)
-				if (!currentL) return txs
-				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
-			},
-			dailyData() {
-				const p = this.calYear + '-' + String(this.calMonth).padStart(2, '0')
-				const map = {}
-				this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0).forEach(t => {
-					const d = parseInt(t.date.split('-')[2], 10)
-					if (!map[d]) map[d] = { income: 0, expense: 0 }
-					if (t.type === 'income') map[d].income += t.amount
-					else map[d].expense += t.amount
-				})
-				return map
-			},
-			selectedDate() {
-				return this.calYear + '-' + String(this.calMonth).padStart(2, '0') + '-' + String(this.calDay).padStart(2, '0')
-			},
-			dayTxList() {
-				return this.filteredTransactions.filter(t => t.date === this.selectedDate).sort((a, b) => b.time.localeCompare(a.time))
-			}
-		},
-		onLoad() {
-			if (!this.initialized) this.$store.dispatch('accounting/initialize')
-		},
-		onShow() {
-			this.$forceUpdate()
-		},
-		methods: {
-			getIconStyle(name) {
-				const uri = ICONS[name] || ''
-				return { 'mask-image': 'url(' + uri + ')', '-webkit-mask-image': 'url(' + uri + ')' }
-			},
-			isToday(d) { return this.isCurrent && d === this.currentDay },
-			selectDay(d) { this.calDay = d },
-			prevMonth() {
-				if (this.calMonth === 1) { this.calMonth = 12; this.calYear-- } else this.calMonth--
-				this.calDay = 1
-			},
-			nextMonth() {
-				if (this.calMonth === 12) { this.calMonth = 1; this.calYear++ } else this.calMonth++
-				this.calDay = 1
-			},
-			getWeekday(d) {
-				const date = new Date(this.calYear, this.calMonth - 1, d)
-				const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-				return weekdays[date.getDay()]
-			},
-			getCategoryEmoji(cat) {
-				return CAT_ICONS[cat] || '📦'
-			},
-			getDayExpense() {
-				const d = this.dailyData[this.calDay]
-				return d ? d.expense : 0
-			},
-			getDayIncome() {
-				const d = this.dailyData[this.calDay]
-				return d ? d.income : 0
-			},
-			showMonthPicker() {
-				const items = []
-				for (let y = this.today.getFullYear() - 2; y <= this.today.getFullYear() + 1; y++) {
-					for (let m = 1; m <= 12; m++) {
-						items.push(y + '年' + m + '月')
+			for (let d = 1; d <= daysInMonth; d++) {
+				const entry = this.monthMap[d]
+				let amountText = ''
+				let amountClass = ''
+				if (entry && entry.m !== undefined) {
+					if (entry.m > 0) {
+						amountText = `+${entry.m}`
+						amountClass = 'inc'
+					} else if (entry.m < 0) {
+						amountText = `${entry.m}`
+						amountClass = 'exp'
+					} else {
+						amountText = '¥0'
+						amountClass = 'muted'
 					}
 				}
-				uni.showActionSheet({
-					itemList: items,
-					success: (res) => {
-						const idx = res.tapIndex
-						const year = this.today.getFullYear() - 2 + Math.floor(idx / 12)
-						const month = (idx % 12) + 1
-						this.calYear = year
-						this.calMonth = month
-						this.calDay = 1
-					}
+				cells.push({
+					day: d,
+					dot: entry && entry.dot,
+					has: entry && entry.m,
+					amountText,
+					amountClass,
+					sel: this.calSel === d
 				})
-			},
-			goToBills() {
-				uni.navigateTo({ url: '/pages/accounting/all-transactions' })
-			},
-			reload() { this.$store.dispatch('accounting/initialize') },
-			fmtShort(v) {
-				if (v >= 10000) return (v / 10000).toFixed(1).replace('.0', '') + 'w'
-				if (v >= 1000) return (v / 1000).toFixed(1).replace('.0', '') + 'k'
-				return v.toFixed(0)
 			}
+			return cells
+		},
+		dayBills() {
+			return getCalDayBills(this.calYear, this.calMonth, this.calSel, this.ledgerId)
+		},
+		dayExpense() {
+			return this.dayBills
+				.filter(b => b.amount < 0)
+				.reduce((s, b) => s + Math.abs(b.amount), 0)
+		},
+		dayIncome() {
+			return this.dayBills
+				.filter(b => b.amount > 0)
+				.reduce((s, b) => s + b.amount, 0)
+		}
+	},
+	onShow() {
+		applyThemeToPage(this)
+		this.ledgerId = getActiveLedgerId()
+	},
+	methods: {
+		fmt,
+		cellClass(cell) {
+			if (!cell.day) return 'cal-cell--empty'
+			return {
+				sel: cell.sel,
+				has: cell.has,
+				dot: cell.dot,
+				today: this.calYear === this.todayYear
+					&& this.calMonth === this.todayMonth
+					&& cell.day === this.todayDay
+			}
+		},
+		selectDay(cell) {
+			if (!cell.day) return
+			this.calSel = cell.day
+		},
+		onCalStep(dir) {
+			let m = this.calMonth - 1 + dir
+			let y = this.calYear
+			if (m < 0) { m = 11; y-- }
+			else if (m > 11) { m = 0; y++ }
+			this.calMonth = m + 1
+			this.calYear = y
+			const dim = new Date(y, this.calMonth, 0).getDate()
+			if (this.calSel > dim) this.calSel = dim
+		},
+		onOpenMonth() {
+			uni.showToast({ title: '选择年月', icon: 'none' })
+		},
+		gotoToday() {
+			const n = new Date()
+			this.calYear = n.getFullYear()
+			this.calMonth = n.getMonth() + 1
+			this.calSel = n.getDate()
+			this.todayYear = n.getFullYear()
+			this.todayMonth = n.getMonth() + 1
+			this.todayDay = n.getDate()
 		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
-	.calendar-page { height: 100vh; background: transparent; box-sizing: border-box; width: 100%; overflow-x: hidden; display: flex; flex-direction: column; }
+.calendar-page {
+	height: 100vh;
+	overflow: hidden;
+}
 
-	/* 自定义导航栏 - 文字居中 */
-	.custom-nav-bar { position: sticky; top: 0; z-index: 20; padding: calc(var(--status-bar-height) + 20rpx) 40rpx 16rpx; background: transparent; display: flex; align-items: center; justify-content: center; }
-	.nav-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
+.cal-card {
+	padding: 28rpx;
+}
 
-	.cal-scroll { flex: 1; width: 100%; box-sizing: border-box; padding: 0 40rpx 140rpx; }
+.cal-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 8rpx;
+	text-align: center;
+}
 
-	/* 月份标签行 - 嵌入日历卡片顶部，箭头在最外两侧 */
-	.card-month-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 2rpx solid var(--border, #E8F0FE); margin: 0 -24rpx 16rpx; padding: 8rpx 0 16rpx; }
-	.card-month-arrow { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #5A6B8A); cursor: pointer; flex-shrink: 0; }
-	.card-month-arrow:active { background: var(--border, #F5EDE6); border-radius: 50%; }
-	.card-month-arrow .icon-arrow-left-month, .card-month-arrow .icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: var(--text-secondary, #5A6B8A); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.card-month-text { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); cursor: pointer; white-space: nowrap; }
+.cal-header-row {
+	margin-bottom: 8rpx;
+}
 
-	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
-	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: var(--text-secondary, #5A6B8A); text-align: center; }
-	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(91, 155, 224, 0.2); border-top-color: var(--primary, #5B9BE0); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
-	@keyframes spin { to { transform: rotate(360deg); } }
+.wd {
+	font-size: 22rpx;
+	color: var(--text-secondary);
+	padding: 12rpx 0;
+}
 
-	.calendar-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; padding: 24rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); margin-top: 16rpx; }
+.cal-cell {
+	aspect-ratio: 1;
+	border-radius: 20rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	font-size: 26rpx;
+	color: var(--text-primary);
+}
+.cal-cell--empty {
+	visibility: hidden;
+}
+.cal-cell.today .day-num {
+	font-weight: 700;
+	color: var(--primary);
+}
+.cal-cell.sel {
+	background: linear-gradient(135deg, #8FC9FF 0%, #5B9BE0 55%, #8B7FF0 100%);
+	color: #fff;
+	box-shadow: 0 4rpx 12rpx rgba(91, 155, 224, 0.3);
+}
+.cal-cell.sel .day-num,
+.cal-cell.sel .cam {
+	color: #fff;
+}
+.cal-cell.has .cam {
+	font-weight: 700;
+}
 
-	.weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 16rpx; }
-	.weekday-header text { text-align: center; font-size: 24rpx; font-weight: 500; color: var(--text-tertiary, #8A9BB8); padding: 8rpx 0; }
-	.weekday-header text.weekend { color: var(--primary, #5B9BE0); }
+.day-num {
+	line-height: 1.3;
+}
 
-	.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-	.day-cell { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 12rpx; min-height: 112rpx; cursor: pointer; border-radius: 24rpx; transition: background 0.2s; }
-	.day-cell.empty { cursor: default; min-height: 112rpx; }
-	.day-number { font-size: 28rpx; font-weight: 400; color: var(--text-primary, #1A2744); line-height: 1; }
+.cam {
+	font-size: 18rpx;
+	margin-top: 2rpx;
+	line-height: 1.2;
+}
 
-	.day-cell.today { background: var(--primary, #5B9BE0); border-radius: 24rpx; }
-	.day-cell.today .day-number { color: #FFFFFF; font-weight: 600; }
-	.day-cell.active { background: rgba(91, 155, 224, 0.1); }
-	.day-cell.active .day-number { color: var(--primary, #5B9BE0); font-weight: 600; }
-	.day-cell.today.active { background: var(--primary, #5B9BE0); }
-	.day-cell.today.active .day-number { color: #FFFFFF; }
+.cal-cell .dot {
+	width: 8rpx;
+	height: 8rpx;
+	border-radius: 50%;
+	background: var(--warning);
+	position: absolute;
+	bottom: 6rpx;
+}
 
-	.day-amounts { display: flex; flex-direction: column; align-items: center; gap: 2rpx; margin-top: 6rpx; width: 100%; }
-	.day-expense { font-size: 18rpx; font-weight: 500; color: var(--expense, #FF6B6B); line-height: 1.2; }
-	.day-income { font-size: 18rpx; font-weight: 500; color: var(--income, #34C759); line-height: 1.2; }
-	.day-cell.today .day-expense { color: rgba(255,255,255,0.9); }
-	.day-cell.today .day-income { color: rgba(255,255,255,0.9); }
+.day-title {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: var(--text-primary);
+}
 
-	.day-detail-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); margin-top: 24rpx; overflow: hidden; }
-
-	.day-detail-header { padding: 32rpx 40rpx 24rpx; border-bottom: 2rpx solid var(--border, #E8F0FE); }
-	.day-detail-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); margin-bottom: 8rpx; }
-	.day-detail-summary { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); display: flex; align-items: center; gap: 12rpx; }
-	.day-detail-summary .expense-val { color: var(--expense, #FF6B6B); font-weight: 500; }
-	.day-detail-summary .income-val { color: var(--income, #34C759); font-weight: 500; }
-	.summary-divider { color: var(--border, #E8D5C8); }
-
-	.transaction-item { display: flex; align-items: center; padding: 28rpx 40rpx; border-bottom: 2rpx solid var(--border, #E8F0FE); gap: 24rpx; }
-	.transaction-item:last-child { border-bottom: none; }
-
-	.tx-emoji { font-size: 44rpx; width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; background: var(--bg, #EFF5FF); border-radius: 20rpx; flex-shrink: 0; }
-
-	.tx-info { flex: 1; min-width: 0; }
-	.tx-title { font-size: 28rpx; font-weight: 500; color: var(--text-primary, #1A2744); display: block; }
-	.tx-category { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); margin-top: 4rpx; display: block; }
-
-	.tx-amount { font-size: 28rpx; font-weight: 600; flex-shrink: 0; }
-	.tx-amount.expense { color: var(--expense, #FF6B6B); }
-	.tx-amount.income { color: var(--income, #34C759); }
-
-	.empty-tx { text-align: center; padding: 60rpx 40rpx; color: var(--text-tertiary, #8A9BB8); font-size: 26rpx; }
-
-	.goto-bills { display: block; text-align: center; padding: 28rpx 40rpx; font-size: 26rpx; color: var(--primary, #5B9BE0); font-weight: 500; border-top: 2rpx solid var(--border, #E8F0FE); }
-
-	.btn-secondary { padding: 20rpx 48rpx; background: rgba(91, 155, 224, 0.1); color: var(--primary, #5B9BE0); border-radius: 50rpx; font-size: 28rpx; font-weight: 500; }
-
-	@media (min-width: 768px) {
-		.cal-scroll { max-width: 650px; margin: 0 auto; width: 100%; padding-left: 48rpx; padding-right: 48rpx; }
-		.custom-nav-bar { padding: 32rpx 48rpx 16rpx; }
-	}
+.day-summary {
+	font-size: 24rpx;
+	color: var(--text-secondary);
+}
 </style>

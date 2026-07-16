@@ -1,179 +1,88 @@
 <template>
-	<view class="tab-bar-container">
-		<view class="fab-wrapper" v-if="showFab">
-			<view class="fab-btn" @click="handleFabClick">
-				<view class="fab-icon" :style="getFabIconStyle"></view>
+	<view class="bottom-nav">
+		<view
+			v-for="tab in tabs"
+			:key="tab.id"
+			class="bn-item"
+			:class="{ active: currentTab === tab.id }"
+			@click="handleTabClick(tab)"
+		>
+			<view class="ic">
+				<lucide-icon
+					:name="tab.icon"
+					size="42rpx"
+					:color="currentTab === tab.id ? '#4A90D9' : '#8A9099'"
+				/>
 			</view>
+			<text class="label">{{ tab.label }}</text>
 		</view>
-		<nav class="tab-bar" role="tablist">
-			<view v-for="tab in tabs" :key="tab.id" 
-				class="tab-item" 
-				:class="{ active: currentTab === tab.id, center: tab.center }"
-				@click="handleTabClick(tab.id)"
-				role="tab">
-				<view class="tab-icon-wrapper" :style="getIconStyle(tab.id)"></view>
-				<text class="tab-label">{{ tab.label }}</text>
-			</view>
-		</nav>
 	</view>
 </template>
 
 <script>
-	import { getIconStyle as makeIconStyle } from '@/common/icon-base64.js'
-	export default {
-		name: 'TabBar',
-		props: {
-			currentTab: {
-				type: String,
-				required: true
-			},
-			showFab: {
-				type: Boolean,
-				default: false
-			},
-			tabs: {
-				type: Array,
-				default: () => [
-					{ id: 'home', label: '首页' },
-					{ id: 'stats', label: '统计' },
-					{ id: 'calendar', label: '日历', center: true },
-					{ id: 'assets', label: '资产' },
-					{ id: 'profile', label: '我的' }
-				]
-			}
-		},
-		computed: {
-			getFabIconStyle() {
-				return makeIconStyle('fab-add', '#FFFFFF')
-			},
-			inactiveColor() {
-				return '#8A9BB8'
-			},
-			activeColor() {
-				return '#5B9BE0'
-			}
-		},
-		methods: {
-			getIconStyle(tabId) {
-				const isActive = tabId === this.currentTab
-				const color = isActive ? this.activeColor : this.inactiveColor
-				return makeIconStyle('tab-' + tabId, color)
-			},
-			handleTabClick(tabId) {
-				if (tabId !== this.currentTab) {
-					uni.redirectTo({ url: '/pages/accounting/' + tabId })
-				}
-			},
-			handleFabClick() {
-				uni.navigateTo({ url: '/pages/accounting/record' })
+export default {
+	name: 'TabBar',
+	props: {
+		currentTab: { type: String, required: true },
+		tabs: {
+			type: Array,
+			default: () => [
+				{ id: 'home', label: '首页', icon: 'home' },
+				{ id: 'stats', label: '统计', icon: 'bar-chart' },
+				{ id: 'calendar', label: '日历', icon: 'calendar' },
+				{ id: 'assets', label: '资产', icon: 'wallet' },
+				{ id: 'profile', label: '我的', icon: 'user' }
+			]
+		}
+	},
+	methods: {
+		handleTabClick(tab) {
+			if (tab.id !== this.currentTab) {
+				uni.reLaunch({ url: '/pages/accounting/' + tab.id })
 			}
 		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
-	.tab-bar-container {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		max-width: 430px;
-		margin: 0 auto;
-		z-index: 999;
-		pointer-events: none;
-		padding: 0 16px 12px 16px;
-		padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
-	}
-
-	.fab-wrapper {
-		pointer-events: auto;
-		display: flex;
-		justify-content: flex-end;
-		margin-bottom: -20px;
-		position: relative;
-		z-index: 32;
-	}
-
-	.fab-btn {
-		width: 48px;
-		height: 48px;
-		border-radius: 9999px;
-		background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-dark, #4A7FC0));
-		box-shadow: 0 8px 24px var(--primary-shadow, rgba(91, 155, 224, 0.08));
-		border: 3px solid #FFFFFF;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: transform 0.2s, box-shadow 0.2s;
-	}
-
-	.fab-btn:active {
-		transform: scale(0.95);
-	}
-
-	.fab-icon {
-		width: 22px;
-		height: 22px;
-	}
-
-	.tab-bar {
-		pointer-events: auto;
-		display: flex;
-		align-items: center;
-		justify-content: space-around;
-		height: 64px;
-		background: linear-gradient(170deg, rgba(255,255,255,0.95), rgba(240,247,255,0.95), rgba(245,240,255,0.95));
-		border-radius: 20px;
-		box-shadow: 0 8px 24px rgba(91, 155, 224, 0.08);
-		border: 1px solid rgba(255, 255, 255, 0.8);
-	}
-
-	.tab-item {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 2px;
-		text-decoration: none;
-		flex: 1;
-		height: 100%;
-		color: var(--text-tertiary, #8A9BB8);
-		transition: color 0.2s;
-	}
-
-	.tab-item.center {
-		position: relative;
-		margin-top: -16px;
-	}
-
-	.tab-item.active {
-		color: var(--primary, #5B9BE0);
-	}
-
-	.tab-item.active .tab-label {
-		font-weight: 500;
-	}
-
-	.tab-icon-wrapper {
-		width: 24px;
-		height: 24px;
-		background-color: currentColor;
-		mask-size: contain;
-		-webkit-mask-size: contain;
-		mask-repeat: no-repeat;
-		-webkit-mask-repeat: no-repeat;
-		mask-position: center;
-		-webkit-mask-position: center;
-	}
-
-	.tab-item.center .tab-icon-wrapper {
-		width: 28px;
-		height: 28px;
-	}
-
-	.tab-label {
-		font-size: 10px;
-		font-weight: 400;
-		line-height: 1;
-	}
+.bottom-nav {
+	position: fixed;
+	bottom: calc(24rpx + env(safe-area-inset-bottom));
+	left: 24rpx;
+	right: 24rpx;
+	z-index: 999;
+	height: 120rpx;
+	border-radius: 32rpx;
+	background: rgba(255, 255, 255, 0.88);
+	backdrop-filter: blur(24rpx);
+	-webkit-backdrop-filter: blur(24rpx);
+	box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08), 0 0 2rpx rgba(0, 0, 0, 0.04);
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+.bn-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4rpx;
+	font-size: 20rpx;
+	color: #8A9099;
+	position: relative;
+}
+.bn-item.active {
+	color: #4A90D9;
+}
+.bn-item .ic {
+	width: 48rpx;
+	height: 48rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.bn-item .label {
+	font-size: 20rpx;
+	line-height: 1.2;
+}
 </style>

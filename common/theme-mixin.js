@@ -3,7 +3,7 @@
  * 在页面 onShow 时自动应用当前主题的 CSS 变量
  * 解决 App 端页面切换后主题丢失的问题
  */
-import { applyThemeToPage, applyTheme, getCurrentTheme } from './theme-manager.js'
+import { applyThemeToPage, getCurrentTheme } from './theme-manager.js'
 
 export default {
 	onShow() {
@@ -16,4 +16,4 @@ export default {
 	}
 }
 
-export { applyThemeToPage, applyTheme, getCurrentTheme }
+export { applyThemeToPage, getCurrentTheme }

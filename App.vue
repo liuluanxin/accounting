@@ -3,33 +3,28 @@
 	import { setupGlobalErrorHandler, vueErrorHandler } from '@/common/error-handler.js'
 	import { configureApi } from '@/services/api-client.js'
 	import { applyTheme, getCurrentTheme } from '@/common/theme-manager.js'
-	import { needVerify } from '@/common/privacy-lock.js'
+	import { initDemoData } from '@/common/app-data.js'
 
 	export default {
 		onLaunch: function() {
 			setupGlobalErrorHandler()
+
+			// 首次使用初始化演示数据
+			initDemoData()
 			// #ifndef VUE3
 			Vue.config.errorHandler = vueErrorHandler
 			// #endif
 
-		// 初始化 API 配置（使用 uniCloud 云函数，调用已部署的云端服务）
+		// 初始化 API 配置（本地模拟模式，不依赖云函数）
 		configureApi({
-			baseURL: 'https://unicloud',
-			adapter: 'unicloud',
+			adapter: 'local',
 			timeout: 15000
 		})
 
-		Logger.info('App', '宇宙记账启动 [API: uniCloud]')
+		Logger.info('App', '宇宙记账启动 [API: local]')
 
 			// 应用主题
 			applyTheme(getCurrentTheme())
-
-			// 隐私密码检查：已设置 PIN 且需要验证时跳转锁屏页
-			if (needVerify()) {
-				setTimeout(() => {
-					uni.redirectTo({ url: '/pages/accounting/privacy-lock' })
-				}, 400)
-			}
 
 			// 登录检查：已登录则跳转首页，未登录则停留在登录页
 			const isLoggedIn = uni.getStorageSync('isLoggedIn') === 'true'
@@ -63,6 +58,7 @@
 
 <style lang="scss">
 	@import '@/uni.scss';
+	@import '@/common/cosmic-ui.scss';
 	page { background: linear-gradient(170deg, var(--hero-from, #EAF4FF), var(--hero-via, #F1ECFF), var(--hero-to, #FFFFFF)); height: 100%; font-size: 28rpx; color: var(--text-primary, #1A2744); font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Roboto', sans-serif; overflow: hidden; }
 	::-webkit-scrollbar { width: 0; height: 0; display: none; }
 	/* 全局滚动优化：启用原生动量滚动 + GPU 合成层，显著减少滚动卡顿 */

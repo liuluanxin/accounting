@@ -1,406 +1,517 @@
 <template>
-	<view class="stats-page">
-		<view class="custom-nav-bar">
-			<view class="stats-header">
-				<text class="header-title">统计</text>
-			</view>
-		</view>
+	<view class="cosmic-page stats-page">
+		<status-bar />
+		<top-bar title="统计" />
 
-		<scroll-view scroll-y class="stats-scroll">
-			<view class="period-selector">
-				<view class="period-pill" :class="{ active: period === 'week' }" @click="period = 'week'">周</view>
-				<view class="period-pill" :class="{ active: period === 'month' }" @click="period = 'month'">月</view>
-				<view class="period-pill" :class="{ active: period === 'year' }" @click="period = 'year'">年</view>
-				<view class="period-pill" :class="{ active: period === 'custom' }" @click="period = 'custom'">自定义</view>
-			</view>
-			<view v-if="period === 'custom'" class="custom-date-range">
-				<picker mode="date" :value="customStart" :end="todayStr" @change="onStartChange">
-					<view class="date-picker">
-						<text class="date-label">开始</text>
-						<text class="date-value">{{ customStart }}</text>
-					</view>
-				</picker>
-				<text class="date-separator">至</text>
-				<picker mode="date" :value="customEnd" :start="customStart" :end="todayStr" @change="onEndChange">
-					<view class="date-picker">
-						<text class="date-label">结束</text>
-						<text class="date-value">{{ customEnd }}</text>
-					</view>
-				</picker>
+		<scroll-view scroll-y class="screen screen--pb">
+			<!-- 时间维度 -->
+			<view class="seg">
+				<button
+					v-for="r in ranges"
+					:key="r.key"
+					:class="{ on: statRange === r.key }"
+					@click="setRange(r.key)"
+				>{{ r.label }}</button>
 			</view>
 
-			<view class="stats-card monthly-overview">
-				<text class="overview-label">{{ currentLabel }}总支出</text>
-				<text class="overview-amount">¥{{ formatMoney(summary.expense) }}</text>
-				<text class="overview-change" :class="changeClass">{{ changeText }}</text>
-			</view>
-
-			<view class="stats-card donut-section">
-				<view class="donut-chart" :class="{ empty: ranking.length === 0 }" :style="{ background: donutGradient }">
-					<view class="donut-center"></view>
+			<!-- 期间导航 -->
+			<view class="sticky-head">
+				<view class="period-flex">
+					<button v-if="showArrows" class="parrow" @click="stepPeriod(-1)">
+						<lucide-icon name="chevron-left" size="36rpx" />
+					</button>
+					<text class="period-center">{{ periodLabel }}</text>
+					<button v-if="showArrows" class="parrow" @click="stepPeriod(1)">
+						<lucide-icon name="chevron-right" size="36rpx" />
+					</button>
 				</view>
-				<view v-if="ranking.length > 0" class="donut-legend">
-					<view v-for="(item, i) in ranking.slice(0, 5)" :key="item.name" class="legend-item">
-						<view class="legend-dot" :style="{ background: donutColors[i] }"></view>
-						<text class="legend-text">{{ item.name }} {{ totalAmount > 0 ? (item.amount / totalAmount * 100).toFixed(0) : 0 }}%</text>
-					</view>
+				<view class="flt" @click="onFilter">
+					<lucide-icon name="sliders" size="24rpx" />
+					<text>筛选</text>
 				</view>
 			</view>
 
-			<view v-if="ranking.length > 0" class="stats-card ranking-section">
-				<text class="section-title">支出排行</text>
-				<view v-for="(item, i) in ranking" :key="item.name" class="ranking-item">
-					<text class="rank-emoji">{{ getCategoryEmoji(item.name) }}</text>
-					<view class="ranking-info">
-						<view class="ranking-header">
-							<text class="ranking-name">{{ getCategoryName(item.name) }}</text>
-							<text class="ranking-amount">¥{{ formatMoney(item.amount) }}</text>
+			<!-- 收支总览 -->
+			<view class="card">
+				<text class="card-title">收支总览 · {{ rangeLabel }}</text>
+				<text class="overview-amt" :class="statType === 'income' ? 'inc' : 'exp'">
+					{{ fmt(mainAmount) }}
+				</text>
+				<view class="row between muted-line">
+					<text class="muted">收入 {{ fmt(sd.income) }}</text>
+					<text class="muted">支出 {{ fmt(sd.expense) }}</text>
+				</view>
+				<view class="row between muted-line">
+					<text class="muted">
+						结余
+						<text :class="sd.balance < 0 ? 'exp' : 'inc'">{{ fmt(sd.balance) }}</text>
+					</text>
+					<text class="muted">共 {{ sd.count }} 笔</text>
+				</view>
+			</view>
+
+			<!-- 分类统计 -->
+			<view class="card">
+				<view class="between">
+					<text class="card-title" style="margin:0">分类统计</text>
+					<view class="seg2" style="width:240rpx;margin:0">
+						<button :class="{ on: statType === 'expense' }" @click="setStatType('expense')">支出</button>
+						<button :class="{ on: statType === 'income' }" @click="setStatType('income')">收入</button>
+					</view>
+				</view>
+				<view class="donut-row">
+					<view class="donut" :style="{ background: donutBg }">
+						<view class="hole">
+							<text class="muted hole-label">{{ srcLabel }}合计</text>
+							<text class="hole-amt">{{ fmt(mainAmount) }}</text>
 						</view>
-						<view class="progress-bar-track">
-							<view class="progress-bar-fill" :style="{ width: barWidth(item) + '%' }"></view>
+					</view>
+					<view class="legend-col">
+						<view v-if="sd.cats.length === 0" class="muted empty-cat">
+							该区间暂无{{ statType === 'income' ? '收入' : '支出' }}数据
+						</view>
+						<view v-for="c in sd.cats" :key="c.name" class="cat-line">
+							<view class="cic" :style="{ background: catColor(c.name) + '1f' }">{{ c.emoji }}</view>
+							<view class="dot" :style="{ background: catColor(c.name) }" />
+							<text class="cat-name">{{ c.name }}</text>
+							<text class="pct">{{ c.pct }}%</text>
+							<text class="val">{{ fmt(c.sum) }}</text>
 						</view>
 					</view>
 				</view>
 			</view>
 
-			<view class="stats-card trend-section">
-				<text class="section-title">{{ trendTitle }}</text>
-				<view class="bar-chart">
-					<view v-for="item in trendData" :key="item.label" class="bar-col">
-						<view class="bar-fill" :class="{ current: item.isCurrent }" :style="{ height: item.height + '%' }"></view>
-						<text class="bar-label" :class="{ current: item.isCurrent }">{{ item.label }}</text>
+			<!-- 收支流向 -->
+			<view class="card">
+				<text class="card-title" style="margin:0">收支流向</text>
+				<view class="sankey">
+					<view class="sankey-col">
+						<view class="sankey-node" :style="{ borderColor: srcColor }">
+							{{ srcLabel }} ¥{{ fmt(mainAmount) }}
+						</view>
+					</view>
+					<view class="sankey-col">
+						<view
+							v-for="(node, i) in sankeyNodes"
+							:key="i"
+							class="sankey-node"
+							:style="{ borderColor: node.color }"
+						>{{ node.emoji }} {{ node.name }} {{ fmt(node.sum) }}</view>
 					</view>
 				</view>
 			</view>
 
-			<view style="height: 200rpx;"></view>
+			<!-- 总账单汇总 -->
+			<view class="card">
+				<text class="card-title">{{ rangeLabel }}账单汇总</text>
+				<view class="sum-table-wrap">
+					<view class="sum-table">
+						<view class="sum-row sum-head">
+							<text class="sum-cell">{{ colLabel }}</text>
+							<text class="sum-cell">收入</text>
+							<text class="sum-cell">支出</text>
+							<text class="sum-cell">结余</text>
+						</view>
+						<view v-for="(row, i) in tableRows" :key="i" class="sum-row">
+							<text class="sum-cell">{{ row.label }}</text>
+							<text class="sum-cell">{{ row.income ? fmt(row.income) : '-' }}</text>
+							<text class="sum-cell">{{ row.expense ? fmt(row.expense) : '-' }}</text>
+							<text class="sum-cell" :class="row.balance < 0 ? 'exp' : 'inc'">{{ fmt(row.balance) }}</text>
+						</view>
+						<view class="sum-row sum-total">
+							<text class="sum-cell">总计</text>
+							<text class="sum-cell">{{ sd.income ? fmt(sd.income) : '-' }}</text>
+							<text class="sum-cell">{{ sd.expense ? fmt(sd.expense) : '-' }}</text>
+							<text class="sum-cell" :class="sd.balance < 0 ? 'exp' : 'inc'">{{ fmt(sd.balance) }}</text>
+						</view>
+					</view>
+				</view>
+			</view>
+
+			<view style="height:40rpx" />
 		</scroll-view>
 
-		<TabBar currentTab="stats" :showFab="false" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
+		<tab-bar current-tab="stats" />
 	</view>
 </template>
 
 <script>
-	import { mapState } from 'vuex'
-	import { formatMoney, CAT_ICONS } from '@/common/accounting-utils.js'
-	import TabBar from '@/components/TabBar.vue'
-	import themeMixin from '@/common/theme-mixin.js'
+import { fmt } from '@/common/constants.js'
+import { applyThemeToPage } from '@/common/theme-manager.js'
+import { statData, statRows, getActiveLedgerId } from '@/common/app-data.js'
+import { CAT_META } from '@/common/lucide-icons.js'
+import TabBar from '@/components/TabBar.vue'
 
-	export default {
-		mixins: [themeMixin],
-		components: {
-			TabBar
-		},
-		data() {
-			const now = new Date()
-			const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-			const sevenDaysAgo = new Date(now)
-			sevenDaysAgo.setDate(now.getDate() - 6)
-			const sevenDaysAgoStr = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(sevenDaysAgo.getDate()).padStart(2, '0')}`
+export default {
+	components: { TabBar },
+	data() {
+		const now = new Date()
+		const ws = new Date()
+		ws.setDate(ws.getDate() - ws.getDay() + 1)
+		ws.setHours(0, 0, 0, 0)
+		return {
+			statRange: 'total',
+			statType: 'expense',
+			statYear: now.getFullYear(),
+			statMonth: now.getMonth() + 1,
+			statWeekStart: ws.getTime(),
+			ledgerId: getActiveLedgerId(),
+			ranges: [
+				{ key: 'total', label: '总' },
+				{ key: 'year', label: '年' },
+				{ key: 'month', label: '月' },
+				{ key: 'week', label: '周' }
+			]
+		}
+	},
+	computed: {
+		cursor() {
 			return {
-				period: 'month',
-				year: now.getFullYear(),
-				month: now.getMonth() + 1,
-				customStart: sevenDaysAgoStr,
-				customEnd: todayStr,
-				todayStr: todayStr,
-				donutColors: ['#5B9BE0', '#7C8DF0', '#A57EE0', '#D48AC8', '#8A9BB8']
+				statYear: this.statYear,
+				statMonth: this.statMonth,
+				statWeekStart: this.statWeekStart
 			}
 		},
-		computed: {
-			...mapState('accounting', ['data', 'initialized', 'homeLedgerMode']),
-			filteredTransactions() {
-				const mode = this.homeLedgerMode
-				const txs = this.data.transactions || []
-				if (mode === 'all') return txs
-				const currentL = this.data.ledgers.find(l => l.current)
-				if (!currentL) return txs
-				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
-			},
-			currentLabel() {
-				if (this.period === 'week') return '本周'
-				if (this.period === 'month') return this.month + '月'
-				if (this.period === 'year') return this.year + '年'
-				return '自定义'
-			},
-			periodTxs() {
-				if (this.period === 'week') {
-					const now = new Date()
-					const currentDay = now.getDay()
-					const dayIndex = currentDay === 0 ? 6 : currentDay - 1
-					const monday = new Date(now)
-					monday.setDate(now.getDate() - dayIndex)
-					const sunday = new Date(monday)
-					sunday.setDate(monday.getDate() + 6)
-					const startStr = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
-					const endStr = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
-					return this.filteredTransactions.filter(t => t.date && t.date >= startStr && t.date <= endStr)
-				}
-				if (this.period === 'month') {
-					const p = this.year + '-' + String(this.month).padStart(2, '0')
-					return this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0)
-				}
-				if (this.period === 'year') {
-					const p = this.year + '-'
-					return this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0)
-				}
-				// custom
-				return this.filteredTransactions.filter(t => t.date && t.date >= this.customStart && t.date <= this.customEnd)
-			},
-			summary() {
-				let inc = 0, exp = 0
-				this.periodTxs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
-				return { income: inc, expense: exp, balance: inc - exp }
-			},
-			prevPeriodExpense() {
-				if (this.period === 'month') {
-					let prevMonth = this.month - 1
-					let prevYear = this.year
-					if (prevMonth === 0) {
-						prevMonth = 12
-						prevYear -= 1
-					}
-					const p = prevYear + '-' + String(prevMonth).padStart(2, '0')
-					const txs = this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
-					return txs.reduce((sum, t) => sum + t.amount, 0)
-				}
-				if (this.period === 'week') {
-					const now = new Date()
-					const currentDay = now.getDay()
-					const dayIndex = currentDay === 0 ? 6 : currentDay - 1
-					const monday = new Date(now)
-					monday.setDate(now.getDate() - dayIndex - 7)
-					const sunday = new Date(monday)
-					sunday.setDate(monday.getDate() + 6)
-					const startStr = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
-					const endStr = `${sunday.getFullYear()}-${String(sunday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}`
-					const txs = this.filteredTransactions.filter(t => t.date && t.date >= startStr && t.date <= endStr && t.type === 'expense')
-					return txs.reduce((sum, t) => sum + t.amount, 0)
-				}
-				if (this.period === 'year') {
-					const p = (this.year - 1) + '-'
-					const txs = this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
-					return txs.reduce((sum, t) => sum + t.amount, 0)
-				}
-				// custom - 上一个同长度周期
-				const start = new Date(this.customStart)
-				const end = new Date(this.customEnd)
-				const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
-				const prevEnd = new Date(start)
-				prevEnd.setDate(start.getDate() - 1)
-				const prevStart = new Date(prevEnd)
-				prevStart.setDate(prevEnd.getDate() - days + 1)
-				const startStr = `${prevStart.getFullYear()}-${String(prevStart.getMonth() + 1).padStart(2, '0')}-${String(prevStart.getDate()).padStart(2, '0')}`
-				const endStr = `${prevEnd.getFullYear()}-${String(prevEnd.getMonth() + 1).padStart(2, '0')}-${String(prevEnd.getDate()).padStart(2, '0')}`
-				const txs = this.filteredTransactions.filter(t => t.date && t.date >= startStr && t.date <= endStr && t.type === 'expense')
-				return txs.reduce((sum, t) => sum + t.amount, 0)
-			},
-			changeText() {
-				if (this.prevPeriodExpense === 0) return '上期无数据'
-				const change = ((this.summary.expense - this.prevPeriodExpense) / this.prevPeriodExpense * 100).toFixed(1)
-				if (parseFloat(change) > 0) return '比上期 ↑' + Math.abs(change) + '%'
-				return '比上期 ↓' + Math.abs(change) + '%'
-			},
-			changeClass() {
-				if (this.prevPeriodExpense === 0) return ''
-				return ((this.summary.expense - this.prevPeriodExpense) / this.prevPeriodExpense * 100) > 0 ? 'increase' : 'decrease'
-			},
-			ranking() {
-				const txs = this.periodTxs.filter(t => t.type === 'expense')
-				const map = {}
-				txs.forEach(t => { if (t.category) map[t.category] = (map[t.category] || 0) + t.amount })
-				return Object.entries(map).map(([n, a]) => ({ name: n, amount: Math.round(a * 100) / 100 })).sort((a, b) => b.amount - a.amount)
-			},
-			totalAmount() { return this.ranking.reduce((s, r) => s + r.amount, 0) },
-			donutGradient() {
-				if (this.ranking.length === 0) return 'none'
-				let pct = 0
-				const stops = this.ranking.slice(0, 5).map((r, i) => {
-					const p = this.totalAmount > 0 ? r.amount / this.totalAmount * 100 : 0
-					const s = pct; pct += p
-					return this.donutColors[i % this.donutColors.length] + ' ' + s + '% ' + pct + '%'
-				}).join(', ')
-				return 'conic-gradient(' + stops + ')'
-			},
-			maxAmount() { return this.ranking.length > 0 ? this.ranking[0].amount : 1 },
-			trendTitle() {
-				if (this.period === 'week') return '周趋势'
-				if (this.period === 'month') return '月度趋势'
-				if (this.period === 'year') return '年度趋势'
-				return '自定义趋势'
-			},
-			trendData() {
-				// 周：每天一根柱子（7根）
-				if (this.period === 'week') {
-					const now = new Date()
-					const currentDay = now.getDay()
-					const dayIndex = currentDay === 0 ? 6 : currentDay - 1
-					const monday = new Date(now)
-					monday.setDate(now.getDate() - dayIndex)
-
-					const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-					const days = []
-					for (let i = 0; i < 7; i++) {
-						const d = new Date(monday)
-						d.setDate(monday.getDate() + i)
-						const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-						const txs = this.filteredTransactions.filter(t => t.date === dateStr && t.type === 'expense')
-						const amount = txs.reduce((sum, t) => sum + t.amount, 0)
-						days.push({ label: weekDays[i], amount, isCurrent: i === dayIndex })
-					}
-					const max = Math.max(...days.map(d => d.amount), 1)
-					return days.map(d => ({ ...d, height: (d.amount / max * 100).toFixed(0) }))
-				}
-
-				// 月：每周一根柱子（4-5根）
-				if (this.period === 'month') {
-					const daysInMonth = new Date(this.year, this.month, 0).getDate()
-					const weeks = []
-					let weekStart = 1
-					const today = new Date()
-
-					while (weekStart <= daysInMonth) {
-						const weekEnd = Math.min(weekStart + 6, daysInMonth)
-						let amount = 0
-						for (let d = weekStart; d <= weekEnd; d++) {
-							const dateStr = `${this.year}-${String(this.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-							const txs = this.filteredTransactions.filter(t => t.date === dateStr && t.type === 'expense')
-							amount += txs.reduce((sum, t) => sum + t.amount, 0)
-						}
-
-						const isCurrentWeek = this.year === today.getFullYear() &&
-												  this.month === today.getMonth() + 1 &&
-												  today.getDate() >= weekStart &&
-												  today.getDate() <= weekEnd
-
-						weeks.push({
-							label: `第${weeks.length + 1}周`,
-							amount,
-							isCurrent: isCurrentWeek
-						})
-						weekStart = weekEnd + 1
-					}
-
-					const max = Math.max(...weeks.map(w => w.amount), 1)
-					return weeks.map(w => ({ ...w, height: (w.amount / max * 100).toFixed(0) }))
-				}
-
-				// 年：每月一根柱子（12根）
-				if (this.period === 'year') {
-					const months = []
-					for (let i = 0; i < 12; i++) {
-						const month = i + 1
-						const p = this.year + '-' + String(month).padStart(2, '0')
-						const txs = this.filteredTransactions.filter(t => t.date && t.date.indexOf(p) === 0 && t.type === 'expense')
-						const amount = txs.reduce((sum, t) => sum + t.amount, 0)
-						months.push({ label: month + '月', amount, year: this.year, isCurrent: month === this.month })
-					}
-					const max = Math.max(...months.map(m => m.amount), 1)
-					return months.map(m => ({ ...m, height: (m.amount / max * 100).toFixed(0) }))
-				}
-
-				// custom：按天显示
-				const start = new Date(this.customStart)
-				const end = new Date(this.customEnd)
-				const days = []
-				const today = new Date()
-				const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-
-				for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-					const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-					const txs = this.filteredTransactions.filter(t => t.date === dateStr && t.type === 'expense')
-					const amount = txs.reduce((sum, t) => sum + t.amount, 0)
-					days.push({
-						label: `${d.getMonth() + 1}/${d.getDate()}`,
-						amount,
-						isCurrent: dateStr === todayStr
-					})
-				}
-				const max = Math.max(...days.map(d => d.amount), 1)
-				return days.map(d => ({ ...d, height: (d.amount / max * 100).toFixed(0) }))
+		sd() {
+			const data = statData(this.statRange, this.statType, this.cursor, this.ledgerId)
+			return {
+				...data,
+				cats: data.cats.map(c => ({
+					...c,
+					color: (CAT_META[c.name] || {}).color || '#c0c8d2'
+				}))
 			}
 		},
-		onLoad() {
-			if (!this.initialized) this.$store.dispatch('accounting/initialize')
+		tableRows() {
+			return statRows(this.statRange, this.sd.bills)
 		},
-		onShow() {
-			this.$forceUpdate()
+		rangeLabel() {
+			return { total: '总', year: '年', month: '月', week: '周' }[this.statRange]
 		},
-		methods: {
-			formatMoney,
-			getCategoryName(cat) {
-				if (!cat) return '其他'
-				return cat
-			},
-			getCategoryEmoji(cat) {
-				return CAT_ICONS[cat] || '📦'
-			},
-			barWidth(item) { return (item.amount / this.maxAmount * 100).toFixed(0) },
-			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
-			goRecord() { uni.navigateTo({ url: '/pages/accounting/record' }) },
-			onStartChange(e) {
-				this.customStart = e.detail.value
-			},
-			onEndChange(e) {
-				this.customEnd = e.detail.value
+		colLabel() {
+			return { total: '年份', year: '月份', month: '周期', week: '日期' }[this.statRange]
+		},
+		showArrows() {
+			return this.statRange !== 'total'
+		},
+		periodLabel() {
+			if (this.statRange === 'total') return '全部列表'
+			if (this.statRange === 'year') return `${this.statYear}年`
+			if (this.statRange === 'month') return `${this.statYear}年${this.statMonth}月`
+			const ws = new Date(this.statWeekStart)
+			const we = new Date(this.statWeekStart)
+			we.setDate(we.getDate() + 6)
+			return `${ws.getMonth() + 1}月${ws.getDate()}日 - ${we.getMonth() + 1}月${we.getDate()}日`
+		},
+		mainAmount() {
+			return this.statType === 'income' ? this.sd.income : this.sd.expense
+		},
+		srcLabel() {
+			return this.statType === 'income' ? '收入' : '支出'
+		},
+		srcColor() {
+			return this.statType === 'income' ? 'var(--income)' : 'var(--expense)'
+		},
+		donutBg() {
+			const cats = this.sd.cats
+			if (!cats.length) return 'conic-gradient(#c0c8d2 0 100%)'
+			let from = 0
+			const stops = cats.map(c => {
+				const to = from + c.pct
+				const s = `${c.color} ${from}% ${to}%`
+				from = to
+				return s
+			})
+			return `conic-gradient(${stops.join(',')})`
+		},
+		sankeyNodes() {
+			const top = this.sd.cats.slice(0, 3)
+			const otherSum = this.sd.cats.slice(3).reduce((s, c) => s + c.sum, 0)
+			const nodes = top.map(c => ({
+				name: c.name,
+				sum: c.sum,
+				emoji: c.emoji,
+				color: c.color
+			}))
+			if (otherSum > 0) {
+				nodes.push({ name: '其他', sum: otherSum, emoji: '📦', color: '#c0c8d2' })
 			}
+			if (nodes.length === 0) {
+				nodes.push({ name: '暂无数据', sum: 0, emoji: '', color: '#c0c8d2' })
+			}
+			return nodes
+		}
+	},
+	onShow() {
+		applyThemeToPage(this)
+	},
+	methods: {
+		fmt,
+		catColor(name) {
+			return (CAT_META[name] || {}).color || '#c0c8d2'
+		},
+		setRange(r) {
+			this.statRange = r
+			const now = new Date()
+			if (r === 'year') this.statYear = now.getFullYear()
+			else if (r === 'month') {
+				this.statYear = now.getFullYear()
+				this.statMonth = now.getMonth() + 1
+			} else if (r === 'week') {
+				const ws = new Date()
+				ws.setDate(ws.getDate() - ws.getDay() + 1)
+				ws.setHours(0, 0, 0, 0)
+				this.statWeekStart = ws.getTime()
+			}
+		},
+		setStatType(t) {
+			this.statType = t
+		},
+		stepPeriod(dir) {
+			if (this.statRange === 'year') {
+				this.statYear += dir
+			} else if (this.statRange === 'month') {
+				let m = this.statMonth - 1 + dir
+				let y = this.statYear
+				if (m < 0) { m = 11; y-- }
+				else if (m > 11) { m = 0; y++ }
+				this.statMonth = m + 1
+				this.statYear = y
+			} else if (this.statRange === 'week') {
+				this.statWeekStart += dir * 7 * 86400000
+			}
+		},
+		onFilter() {
+			uni.showToast({ title: '筛选', icon: 'none' })
 		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
-	.stats-page { height: 100vh; background: transparent; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
-	.custom-nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: transparent; flex-shrink: 0; width: 100%; box-sizing: border-box; }
-	.stats-header { padding: calc(var(--status-bar-height) + 32rpx) 40rpx 24rpx; flex-shrink: 0; width: 100%; box-sizing: border-box; display: flex; justify-content: center; }
-	.header-title { font-size: 36rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
+.stats-page {
+	height: 100vh;
+	overflow: hidden;
+}
 
-	.period-selector { display: flex; gap: 16rpx; padding: 0 40rpx 20rpx; width: 100%; box-sizing: border-box; }
-	.period-pill { flex: 1; text-align: center; padding: 16rpx 0; border-radius: 50rpx; background: var(--border, #F5EDE6); color: var(--text-secondary, #5A6B8A); font-size: 28rpx; font-weight: 500; border: 2rpx solid transparent; transition: all 0.2s; }
-	.period-pill.active { background: var(--primary, #5B9BE0); color: #FFFFFF; border-color: var(--primary, #5B9BE0); }
+.seg {
+	display: flex;
+	background: #eef1f5;
+	border-radius: 20rpx;
+	padding: 6rpx;
+	margin: 0 28rpx 24rpx;
+	height: 80rpx;
+	align-items: center;
+}
+.seg button {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 26rpx;
+	font-weight: 600;
+	color: var(--text-secondary);
+	border-radius: 16rpx;
+	border: none;
+	background: transparent;
+}
+.seg button.on {
+	background: #fff;
+	color: var(--primary);
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
 
-	.custom-date-range { display: flex; align-items: center; justify-content: center; gap: 24rpx; padding: 0 40rpx 24rpx; width: 100%; box-sizing: border-box; }
-	.date-picker { background: var(--border, #F5EDE6); border-radius: 16rpx; padding: 12rpx 20rpx; display: flex; flex-direction: column; align-items: center; min-width: 200rpx; }
-	.date-label { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); margin-bottom: 4rpx; }
-	.date-value { font-size: 26rpx; color: var(--text-primary, #1A2744); font-weight: 500; }
-	.date-separator { font-size: 26rpx; color: var(--text-tertiary, #8A9BB8); }
+.sticky-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 28rpx 16rpx;
+}
+.period-flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16rpx;
+	flex: 1;
+}
+.period-center {
+	font-size: 30rpx;
+	font-weight: 600;
+	color: var(--text-primary);
+	min-width: 200rpx;
+	text-align: center;
+}
+.parrow {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.8);
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-secondary);
+}
+.flt {
+	display: flex;
+	align-items: center;
+	gap: 6rpx;
+	font-size: 26rpx;
+	color: var(--primary);
+	flex-shrink: 0;
+}
 
-	.stats-scroll { flex: 1; width: 100%; padding: calc(var(--status-bar-height) + 140rpx) 0 200rpx; box-sizing: border-box; }
+.overview-amt {
+	display: block;
+	font-size: 52rpx;
+	font-weight: 800;
+	margin-top: 8rpx;
+	letter-spacing: -2rpx;
+}
+.muted-line {
+	justify-content: space-between;
+	font-size: 26rpx;
+	margin-top: 8rpx;
+}
 
-	.stats-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); padding: 40rpx; margin-bottom: 32rpx; }
+.donut-row {
+	display: flex;
+	align-items: center;
+	gap: 28rpx;
+	margin-top: 16rpx;
+}
+.donut {
+	width: 220rpx;
+	height: 220rpx;
+	border-radius: 50%;
+	flex: none;
+	position: relative;
+}
+.hole {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 148rpx;
+	height: 148rpx;
+	border-radius: 50%;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4rpx;
+}
+.hole-label {
+	font-size: 22rpx;
+}
+.hole-amt {
+	font-size: 26rpx;
+	font-weight: 800;
+	color: var(--text-primary);
+}
+.legend-col {
+	flex: 1;
+	min-width: 0;
+}
+.empty-cat {
+	font-size: 24rpx;
+	text-align: center;
+	padding: 16rpx 0;
+}
+.cat-line {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+	padding: 14rpx 0;
+	font-size: 26rpx;
+}
+.cic {
+	width: 44rpx;
+	height: 44rpx;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24rpx;
+	flex: none;
+}
+.cat-line .dot {
+	width: 18rpx;
+	height: 18rpx;
+	border-radius: 50%;
+	flex: none;
+}
+.cat-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.pct {
+	color: var(--text-secondary);
+	width: 80rpx;
+	text-align: right;
+	flex: none;
+	font-size: 22rpx;
+}
+.val {
+	font-weight: 600;
+	flex: none;
+}
 
-	.monthly-overview .overview-label { font-size: 28rpx; color: var(--text-tertiary, #8A9BB8); display: block; margin-bottom: 8rpx; }
-	.monthly-overview .overview-amount { font-size: 64rpx; font-weight: 700; color: var(--text-primary, #1A2744); display: block; margin-bottom: 8rpx; letter-spacing: -1rpx; }
-	.monthly-overview .overview-change { font-size: 28rpx; }
-	.monthly-overview .overview-change.decrease { color: var(--expense, #4CAF50); }
-	.monthly-overview .overview-change.increase { color: var(--income, #34C759); }
+.sankey {
+	height: 240rpx;
+	display: flex;
+	align-items: stretch;
+	overflow: hidden;
+	border-radius: 20rpx;
+	background: #fafbfc;
+	margin-top: 16rpx;
+}
+.sankey-col {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 16rpx;
+	padding: 16rpx;
+}
+.sankey-node {
+	background: #fff;
+	border-radius: 16rpx;
+	padding: 16rpx 20rpx;
+	font-size: 22rpx;
+	box-shadow: 0 2rpx 8rpx rgba(91, 140, 210, 0.08);
+	border-left: 6rpx solid transparent;
+}
 
-	.donut-section { display: flex; flex-direction: column; align-items: center; }
-	.donut-chart { width: 320rpx; height: 320rpx; border-radius: 50%; position: relative; margin-bottom: 40rpx; background: var(--border, #F5EDE6); }
-	.donut-chart.empty { background: var(--border, #F5EDE6) !important; border: 4rpx dashed var(--border, #E0D4C8); }
-	.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180rpx; height: 180rpx; border-radius: 50%; background: var(--card-bg, #FFFFFF); }
-	.donut-legend { display: flex; flex-wrap: wrap; gap: 24rpx 40rpx; justify-content: center; width: 100%; }
-	.legend-item { display: flex; align-items: center; gap: 12rpx; }
-	.legend-dot { width: 20rpx; height: 20rpx; border-radius: 50%; flex-shrink: 0; }
-	.legend-text { font-size: 24rpx; color: var(--text-secondary, #5A6B8A); }
-
-	.ranking-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); margin-bottom: 32rpx; display: block; }
-	.ranking-item { display: flex; align-items: center; gap: 24rpx; margin-bottom: 32rpx; }
-	.ranking-item:last-child { margin-bottom: 0; }
-	.rank-emoji { font-size: 40rpx; width: 56rpx; text-align: center; }
-	.ranking-info { flex: 1; min-width: 0; }
-	.ranking-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8rpx; }
-	.ranking-name { font-size: 30rpx; font-weight: 500; color: var(--text-primary, #1A2744); }
-	.ranking-amount { font-size: 28rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
-	.progress-bar-track { height: 12rpx; background: var(--border, #F5EDE6); border-radius: 6rpx; overflow: hidden; flex: 1; }
-	.progress-bar-fill { height: 100%; border-radius: 6rpx; background: var(--primary, #5B9BE0); transition: width 0.6s ease; }
-
-	.trend-section .section-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); margin-bottom: 32rpx; display: block; }
-	.bar-chart { display: flex; align-items: flex-end; gap: 8rpx; height: 260rpx; padding-top: 16rpx; }
-	.bar-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12rpx; height: 100%; justify-content: flex-end; }
-	.bar-fill { width: 100%; border-radius: 8rpx 8rpx 4rpx 4rpx; transition: height 0.5s ease; min-height: 8rpx; background: rgba(91, 155, 224, 0.3); }
-	.bar-fill.current { background: var(--primary, #5B9BE0); }
-	.bar-label { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); white-space: nowrap; }
-	.bar-label.current { color: var(--text-primary, #1A2744); font-weight: 500; }
-
-	
+.sum-table-wrap {
+	margin-top: 8rpx;
+}
+.sum-table {
+	width: 100%;
+}
+.sum-row {
+	display: flex;
+	border-bottom: 1rpx solid var(--divider);
+}
+.sum-row.sum-head .sum-cell {
+	color: var(--text-secondary);
+	font-size: 24rpx;
+	font-weight: 500;
+}
+.sum-row.sum-total {
+	font-weight: 700;
+	border-bottom: none;
+}
+.sum-cell {
+	flex: 1;
+	padding: 18rpx 8rpx;
+	font-size: 26rpx;
+	color: var(--text-primary);
+	text-align: left;
+}
 </style>

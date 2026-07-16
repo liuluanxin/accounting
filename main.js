@@ -17,11 +17,14 @@ app.$mount()
 import {
 	createSSRApp
 } from 'vue'
-import * as Pinia from 'pinia';
+import * as Pinia from 'pinia'
+import { registerGlobalComponents } from '@/common/register-components.js'
+
 export function createApp() {
 	const app = createSSRApp(App)
 	app.use(store)
-	app.use(Pinia.createPinia());
+	app.use(Pinia.createPinia())
+	registerGlobalComponents(app)
 	return {
 		app,
 		Pinia

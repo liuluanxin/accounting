@@ -1,64 +1,85 @@
 <template>
-	<view class="login-page">
-		<view class="decoration-blob blob-1"></view>
-		<view class="decoration-blob blob-2"></view>
+	<view class="cosmic-page login-page">
+		<!-- 装饰星球 -->
+		<view class="cosmic-deco-planet cosmic-deco-planet--big" style="top:-80rpx;right:-60rpx;"></view>
+		<view class="cosmic-deco-planet cosmic-deco-planet--small" style="top:180rpx;left:-30rpx;"></view>
+		<view class="cosmic-deco-planet cosmic-deco-planet--ring" style="top:120rpx;right:40rpx;"></view>
+		<view class="cosmic-deco-star" style="top:60rpx;left:80rpx;"></view>
+		<view class="cosmic-deco-star" style="top:240rpx;right:60rpx;width:5rpx;height:5rpx;"></view>
 
-		<scroll-view scroll-y class="login-scroll">
+		<!-- 状态栏 -->
+		<status-bar />
+
+		<top-bar title="登录" />
+
+		<scroll-view scroll-y class="screen">
 			<view class="login-content">
-			<view class="login-logo">
-				<view class="logo-icon">
-					<image class="logo-img" src="/static/app-icon.png" mode="aspectFit" />
+				<!-- Logo 区域 -->
+				<view class="login-logo">
+					<view class="logo-icon-wrap">
+						<lucide-icon name="app-logo" brand size="100rpx" />
+					</view>
+					<text class="app-title">宇宙记账</text>
+					<text class="app-subtitle muted">让每一笔都清晰</text>
 				</view>
-				<text class="app-title">记账助手</text>
-				<text class="app-subtitle">轻松管理每一笔开支</text>
-			</view>
 
-				<view class="login-form-card">
+				<!-- 登录卡片 -->
+				<view class="card login-form-card">
 					<view class="form-group">
-						<view class="field-label">邮箱</view>
-						<view class="input-wrapper">
-							<text class="input-icon">📧</text>
-							<input class="input-field" type="text" v-model="email" placeholder="请输入邮箱地址" />
+						<view class="field-label">QQ邮箱</view>
+						<view class="field-wrapper">
+							<lucide-icon class="field-icon" name="mail" size="28rpx" color="#8A9BB8" />
+							<input class="field" type="text" v-model="email" placeholder="QQ邮箱" />
 						</view>
 					</view>
 
 					<view class="form-group">
 						<view class="field-label">密码</view>
-						<view class="input-wrapper">
-							<text class="input-icon">🔒</text>
-							<input class="input-field" :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码" />
-							<text class="toggle-pwd" @click="showPassword = !showPassword">{{ showPassword ? '👁️' : '🙈' }}</text>
+						<view class="field-wrapper">
+							<lucide-icon class="field-icon" name="lock" size="28rpx" color="#8A9BB8" />
+							<input class="field" :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码" maxlength="20" />
+							<view class="toggle-pwd" @click="showPassword = !showPassword">
+								<lucide-icon :name="showPassword ? 'eye' : 'eye-off'" size="32rpx" color="#8A9BB8" />
+							</view>
 						</view>
+						<text class="field-hint">密码长度为 8–20 位</text>
 					</view>
 
 					<view class="form-options">
-						<view class="remember-me">
-							<view class="checkbox" :class="{ checked: rememberMe }" @click="rememberMe = !rememberMe">
-								<text v-if="rememberMe" class="check-icon">✓</text>
+						<view class="custom-checkbox" @click="rememberMe = !rememberMe">
+							<view class="box" :class="{ checked: rememberMe }">
+								<lucide-icon v-if="rememberMe" name="check" size="20rpx" color="#FFFFFF" />
 							</view>
-							<text class="remember-text">记住我</text>
+							<text class="checkbox-label">记住我</text>
 						</view>
-						<text class="forgot-link" @click="showForgotPwd">忘记密码?</text>
+						<text class="btn-link" @click="showForgotPwd">忘记密码？</text>
 					</view>
 
-					<view class="btn-primary" @click="handleLogin">{{ logining ? '登录中...' : '登 录' }}</view>
+					<view class="btn-primary login-btn" @click="handleLogin">
+						<text>{{ logining ? '登录中...' : '登 录' }}</text>
+					</view>
 				</view>
 
-				<view class="register-link">
-					还没有账号？<text class="link-text" @click="showRegister">立即注册</text>
-				</view>
-
+				<!-- 其他登录方式 -->
 				<view class="social-section">
 					<view class="divider-row">
 						<view class="divider-line"></view>
 						<text class="divider-text">其他登录方式</text>
 						<view class="divider-line"></view>
 					</view>
-					<view class="social-login">
-						<view class="social-btn" @click="socialLogin('微信')">
-							<text class="social-icon-wechat">💚</text>
+					<view class="social-row">
+						<view class="social-btn" @click="socialLogin">
+							<lucide-icon name="wechat" brand size="44rpx" />
+						</view>
+						<view class="social-btn" @click="socialLogin">
+							<lucide-icon name="alipay" brand size="44rpx" />
 						</view>
 					</view>
+				</view>
+
+				<!-- 注册链接 -->
+				<view class="center-link">
+					还没有账号？<text class="btn-link" @click="showRegister">立即注册</text>
 				</view>
 			</view>
 		</scroll-view>
@@ -66,192 +87,128 @@
 </template>
 
 <script>
-	import Logger from '@/common/logger.js'
-	import themeMixin from '@/common/theme-mixin.js'
-import ICONS from '@/common/icon-base64.js'
-	import { apiRequest } from '@/services/api-client.js'
-	import ENDPOINTS from '@/services/api-endpoints.js'
-	import { rules, validate } from '@/common/validator.js'
+	import { isQqEmail, loginSuccess } from '@/common/auth-utils.js'
 
 	export default {
-		mixins: [themeMixin],
 		data() {
-			return { 
-				email: '', 
-				password: '', 
-				logining: false,
+			return {
+				email: '',
+				password: '',
 				showPassword: false,
-				rememberMe: false
+				rememberMe: false,
+				logining: false
 			}
 		},
 		methods: {
-			getIconStyle(name) {
-				return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
-			},
-			async handleLogin() {
+			handleLogin() {
 				const emailTrim = this.email.trim()
-				if (!emailTrim) { uni.showToast({ title: '请输入邮箱', icon: 'none' }); return }
-				const emailResult = validate({ email: emailTrim }, { email: [rules.required('请输入邮箱'), rules.email()] })
-				if (!emailResult.valid) { uni.showToast({ title: emailResult.errors.email, icon: 'none' }); return }
-				if (!this.password.trim()) { uni.showToast({ title: '请输入密码', icon: 'none' }); return }
-
+				if (!emailTrim) { uni.showToast({ title: '请输入QQ邮箱', icon: 'none' }); return }
+				if (!isQqEmail(emailTrim)) { uni.showToast({ title: '请输入有效的QQ邮箱', icon: 'none' }); return }
+				const pwd = this.password
+				if (!pwd) { uni.showToast({ title: '请输入密码', icon: 'none' }); return }
+				if (pwd.length < 8 || pwd.length > 20) { uni.showToast({ title: '密码需 8–20 位', icon: 'none' }); return }
 				this.logining = true
-				Logger.info('Login', '用户登录', { email: emailTrim })
-
-				try {
-					const res = await apiRequest({
-						url: ENDPOINTS.auth.login,
-						method: 'POST',
-						data: { email: emailTrim, password: this.password }
-					})
-
-					if (!res.success) {
-						uni.showToast({ title: res.message || '登录失败', icon: 'none' })
-						this.logining = false
-						return
-					}
-
-					const now = Date.now()
-					uni.setStorageSync('isLoggedIn', 'true')
-					uni.setStorageSync('loginTime', now)
-					uni.setStorageSync('login_email', emailTrim)
-					if (res.data?.token) {
-						uni.setStorageSync('auth_token', res.data.token)
-					}
-					if (res.data?.user) {
-						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
-					}
-					if (this.rememberMe) {
-						uni.setStorageSync('remember_email', emailTrim)
-					}
-					uni.redirectTo({ url: '/pages/accounting/home' })
-				} catch (err) {
-					Logger.errorWithException('Login', '登录失败', err)
-					uni.showToast({ title: '登录失败，请重试', icon: 'none' })
-				} finally {
+				loginSuccess(emailTrim, this.rememberMe)
+				uni.showToast({ title: '登录成功', icon: 'success' })
+				setTimeout(() => {
 					this.logining = false
-				}
+					uni.redirectTo({ url: '/pages/accounting/home' })
+				}, 1000)
 			},
-			socialLogin(provider) {
-				uni.showToast({ title: '暂不支持' + provider + '登录', icon: 'none' })
+			socialLogin() {
+				uni.showToast({ title: '二期开发', icon: 'none' })
 			},
-			showForgotPwd() { uni.navigateTo({ url: '/pages/accounting/forgot-pwd' }) },
-			showRegister() { uni.navigateTo({ url: '/pages/accounting/register' }) }
+			showForgotPwd() {
+				uni.navigateTo({ url: '/pages/accounting/forgot-pwd' })
+			},
+			showRegister() {
+				uni.navigateTo({ url: '/pages/accounting/register' })
+			}
 		}
 	}
 </script>
 
+
 <style lang="scss" scoped>
-	.login-page {
-		height: 100vh;
-		background: transparent;
-		width: 100%;
-		box-sizing: border-box;
-		overflow-x: hidden;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-	}
-	.login-scroll {
-		flex: 1;
-		width: 100%;
-		padding: 0 40rpx;
-		box-sizing: border-box;
-	}
-	/* 中等屏（大屏手机）增加左右呼吸空间 */
-	@media (min-width: 414px) {
-		.login-scroll { padding: 0 60rpx; }
-	}
-	/* 平板及以上 */
-	@media (min-width: 768px) {
-		.login-scroll { padding: 0 80rpx; }
-	}
-	.decoration-blob {
-		position: absolute;
+
+	/* ===== 装饰星球（scoped 版本） ===== */
+	.cosmic-deco-planet {
+		position: fixed;
 		border-radius: 50%;
 		pointer-events: none;
+		z-index: 0;
 	}
-	.blob-1 {
-		top: -160rpx;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 640rpx;
-		height: 640rpx;
-		background: radial-gradient(circle at 40% 40%, rgba(91, 155, 224, 0.1) 0%, rgba(91, 155, 224, 0.3) 40%, transparent 70%);
-		opacity: 0.6;
+	.cosmic-deco-planet--big {
+		width: 320rpx;
+		height: 320rpx;
+		background: radial-gradient(circle at 30% 30%, #8FC9FF, #5B9BE0);
+		opacity: 0.12;
 	}
-	.blob-2 {
-		top: -40rpx;
-		right: -120rpx;
-		width: 400rpx;
-		height: 400rpx;
-		background: radial-gradient(circle at 60% 30%, rgba(91, 155, 224, 0.3) 0%, transparent 60%);
-		opacity: 0.4;
+	.cosmic-deco-planet--small {
+		width: 140rpx;
+		height: 140rpx;
+		background: radial-gradient(circle at 35% 30%, #FFC774, #FFB020);
+		opacity: 0.10;
+	}
+	.cosmic-deco-planet--ring {
+		width: 200rpx;
+		height: 200rpx;
+		border: 6rpx solid #C4A8F5;
+		opacity: 0.08;
+		background: none;
+	}
+	.cosmic-deco-star {
+		position: fixed;
+		width: 6rpx;
+		height: 6rpx;
+		border-radius: 50%;
+		background: #5B9BE0;
+		opacity: 0.2;
+		pointer-events: none;
+		z-index: 0;
 	}
 
+	/* ===== 登录内容 ===== */
 	.login-content {
-		position: relative;
-		z-index: 1;
+		padding: 0 40rpx 80rpx;
 		width: 100%;
-		max-width: 600px;
+		max-width: 600rpx;
 		margin: 0 auto;
 		box-sizing: border-box;
-		padding-top: 120rpx;
-		padding-bottom: 80rpx;
+		position: relative;
+		z-index: 1;
 	}
 
+	/* ===== Logo 区域 ===== */
 	.login-logo {
 		text-align: center;
-		margin-bottom: 60rpx;
+		padding: 40rpx 0 36rpx;
 	}
-	.logo-icon {
-		width: 128rpx;
-		height: 128rpx;
-		margin: 0 auto 32rpx;
-		border-radius: 32rpx;
-		overflow: hidden;
-		background: var(--card-bg, #FFFFFF);
-		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
-		padding: 8rpx;
-		box-sizing: border-box;
-	}
-	.logo-img {
-		width: 100%;
-		height: 100%;
-		border-radius: 24rpx;
-		background: transparent;
+	.logo-icon-wrap {
+		width: 120rpx;
+		height: 120rpx;
+		margin: 0 auto 24rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 	.app-title {
 		display: block;
-		font-size: 48rpx;
-		font-weight: 700;
-		color: var(--primary, #5B9BE0);
+		font-size: 44rpx;
+		font-weight: 800;
+		color: #1A2744;
 		margin-bottom: 8rpx;
+		letter-spacing: 2rpx;
 	}
 	.app-subtitle {
 		display: block;
 		font-size: 26rpx;
-		color: var(--text-tertiary, #8A9BB8);
 	}
 
+	/* ===== 登录卡片 ===== */
 	.login-form-card {
-		background: var(--card-bg, #FFFFFF);
-		border-radius: 32rpx;
-		padding: 36rpx 32rpx;
-		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.08);
+		padding: 40rpx 32rpx;
 		margin-bottom: 40rpx;
-	}
-	/* 小屏手机：卡片内边距压缩 */
-	@media (max-width: 374px) {
-		.login-form-card { padding: 28rpx 24rpx; }
-	}
-	/* 大屏手机：卡片内边距舒展 */
-	@media (min-width: 414px) {
-		.login-form-card { padding: 44rpx 48rpx; }
-	}
-	/* 平板及以上 */
-	@media (min-width: 768px) {
-		.login-form-card { padding: 52rpx 56rpx; }
 	}
 
 	.form-group {
@@ -261,146 +218,122 @@ import ICONS from '@/common/icon-base64.js'
 		display: block;
 		font-size: 26rpx;
 		font-weight: 500;
-		color: var(--text-secondary, #5A6B8A);
+		color: #5A6B8A;
 		margin-bottom: 12rpx;
 	}
-	.input-wrapper {
-		display: flex;
-		align-items: center;
-		border-radius: 50rpx;
-		background: var(--input-bg, #F2F7FF);
-		border: 2rpx solid var(--border, #E8F0FE);
-padding: 16rpx 24rpx;
-		height: 88rpx;
-		box-sizing: border-box;
-		transition: border-color 0.2s;
-	}
-	.input-wrapper:focus-within {
-		border-color: var(--primary, #5B9BE0);
-	}
-	.input-icon {
-		font-size: 32rpx;
-		margin-right: 16rpx;
-		color: var(--text-tertiary, #8A9BB8);
-	}
-	.input-field {
-		flex: 1;
-padding: 0 0 0 12rpx;
-		margin: 0;
-		font-size: 30rpx;
-		line-height: 56rpx;
-		color: var(--text-primary, #1A2744);
-		background: transparent;
-		border: none;
-		outline: none;
-		text-align: left;
-	}
-	.input-field::placeholder {
-		color: #C8A896;
-	}
-	.toggle-pwd {
-		font-size: 30rpx;
-		padding: 0;
-		cursor: pointer;
-		user-select: none;
+	.field-hint {
+		display: block;
+		font-size: 22rpx;
+		color: #8A9BB8;
+		margin-top: 10rpx;
 	}
 
+	/* ===== 输入框包装 ===== */
+	.field-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+	.field-wrapper .field {
+		padding-left: 76rpx;
+		padding-right: 72rpx;
+		width: 100%;
+	}
+	.field-icon {
+		position: absolute;
+		left: 28rpx;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+		pointer-events: none;
+	}
+	.toggle-pwd {
+		position: absolute;
+		right: 20rpx;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+		padding: 12rpx;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* ===== 选项行 ===== */
 	.form-options {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		margin-bottom: 40rpx;
 	}
-	.remember-me {
+	.custom-checkbox {
 		display: flex;
 		align-items: center;
 		gap: 12rpx;
+		cursor: pointer;
+		user-select: none;
 	}
-	.checkbox {
+	.custom-checkbox .box {
 		width: 36rpx;
 		height: 36rpx;
 		border-radius: 8rpx;
-		border: 2rpx solid var(--border, #E8F0FE);
+		border: 2rpx solid #D0D7E3;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s;
+		background: #fff;
+		flex-shrink: 0;
 	}
-	.checkbox.checked {
-		background: var(--primary, #5B9BE0);
-		border-color: var(--primary, #5B9BE0);
+	.custom-checkbox .box.checked {
+		background: #5B9BE0;
+		border-color: #5B9BE0;
 	}
-	.check-icon {
-		font-size: 24rpx;
-		color: #fff;
-		font-weight: 600;
-	}
-	.remember-text {
+	.checkbox-label {
 		font-size: 26rpx;
-		color: var(--text-secondary, #5A6B8A);
+		color: #5A6B8A;
 	}
-	.forgot-link {
+	.btn-link {
 		font-size: 26rpx;
-		color: var(--primary, #5B9BE0);
+		color: #5B9BE0;
 		font-weight: 500;
 	}
 
-	.btn-primary {
+	/* ===== 登录按钮 ===== */
+	.login-btn {
 		width: 86%;
 		max-width: 520rpx;
-		min-width: 200rpx;
-		margin: 0 auto;
 		height: 96rpx;
-		min-height: 44px; /* 最小触摸目标 */
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--primary, #5B9BE0);
-		color: #fff;
-		font-size: 40rpx;
+		min-height: 44px;
+		margin: 0 auto;
+		font-size: 36rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
-		transition: background 0.2s;
-		cursor: pointer;
-		user-select: none;
-		touch-action: manipulation;
-		-webkit-tap-highlight-color: transparent;
-	}
-	.btn-primary:active {
-		background: var(--primary-dark, #4A7FC0);
 	}
 
-	.register-link {
-		text-align: center;
-		font-size: 28rpx;
-		color: var(--text-tertiary, #8A9BB8);
-		margin-bottom: 64rpx;
-	}
-	.link-text {
-		color: var(--primary, #5B9BE0);
-		font-weight: 600;
-	}
-
+	/* ===== 社交登录 ===== */
 	.social-section {
 		width: 100%;
+		margin-bottom: 40rpx;
 	}
 	.divider-row {
 		display: flex;
 		align-items: center;
 		gap: 24rpx;
-		margin-bottom: 40rpx;
+		margin-bottom: 36rpx;
 	}
 	.divider-line {
 		flex: 1;
 		height: 2rpx;
-		background: var(--border, #E8F0FE);
+		background: #E3ECF7;
 	}
 	.divider-text {
 		font-size: 24rpx;
-		color: var(--text-tertiary, #8A9BB8);
+		color: #8A9BB8;
+		white-space: nowrap;
 	}
-	.social-login {
+	.social-row {
 		display: flex;
 		justify-content: center;
 		gap: 48rpx;
@@ -409,40 +342,43 @@ padding: 0 0 0 12rpx;
 		width: 96rpx;
 		height: 96rpx;
 		border-radius: 50%;
-		background: var(--card-bg, #FFFFFF);
+		background: rgba(255, 255, 255, 0.92);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		transition: all 0.2s;
-		-webkit-tap-highlight-color: transparent;
 		box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.65);
 	}
 	.social-btn:active {
 		transform: scale(0.95);
 		box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.1);
 	}
-	.social-icon-wechat {
-		font-size: 48rpx;
+
+	/* ===== 中心链接 ===== */
+	.center-link {
+		text-align: center;
+		font-size: 28rpx;
+		color: #8A9BB8;
 	}
-	.social-icon-phone {
-		font-size: 48rpx;
-		color: var(--primary, #5B9BE0);
+	.center-link .btn-link {
+		margin-left: 4rpx;
 	}
 
+	@media (max-width: 374px) {
+		.login-content { padding: 0 24rpx 60rpx; }
+		.login-form-card { padding: 28rpx 24rpx; }
+		.login-btn { height: 88rpx; font-size: 30rpx; }
+		.social-row { gap: 32rpx; }
+		.social-btn { width: 80rpx; height: 80rpx; }
+	}
 	@media (min-width: 414px) {
-		.login-content { padding-top: 100rpx; }
+		.login-content { padding: 0 60rpx 80rpx; }
+		.login-form-card { padding: 44rpx 48rpx; }
 	}
 	@media (min-width: 768px) {
-		.login-page { padding: 0; }
-		.login-content { padding-top: 80rpx; }
+		.login-content { padding: 0 80rpx 80rpx; }
 		.app-title { font-size: 48rpx; }
-	}
-	@media (max-width: 374px) {
-		.login-page { padding: 0; }
-		.login-content { padding-top: 80rpx; }
-		.btn-primary { height: 80rpx; font-size: 28rpx; }
-		.social-login { gap: 32rpx; }
-		.social-btn { width: 80rpx; height: 80rpx; }
 	}
 </style>

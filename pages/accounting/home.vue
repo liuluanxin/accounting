@@ -1,628 +1,194 @@
 <template>
-	<view class="home-page">
-		<!-- 自定义导航栏：顶部操作栏 + 周期选择器 -->
-		<view class="custom-nav-bar">
-			<view class="home-header">
-				<view class="ledger-switch-btn" @click="showLedgerSwitch">
-					<view class="icon-book-open" :style="getIconStyle('book-open')"></view>
-					<text>{{ displayLedgerName || '总帐本' }}</text>
-					<view class="icon-arrow-down-small" :style="getIconStyle('arrow-down')"></view>
+	<view class="cosmic-page home-page">
+		<status-bar />
+		<top-bar
+			variant="home"
+			:current-ledger="currentLedger"
+			:ledgers="ledgers"
+			@search="onSearch"
+			@all-bills="goAllTransactions"
+			@customize="goCustomize"
+			@ledger-change="onLedgerChange"
+		/>
+
+		<scroll-view scroll-y class="screen home-screen">
+			<!-- Hero -->
+			<view class="hero">
+				<view class="hero-main">
+					<text class="lab">{{ summary.month }}月 · 支出</text>
+					<text class="amt">{{ fmt(summary.monthExpense) }}</text>
+					<view class="sub">
+						<text>收入 {{ fmt(summary.monthIncome) }}</text>
+						<text>结余 <text :class="summary.monthBalance >= 0 ? 'inc' : 'exp'">{{ fmt(summary.monthBalance) }}</text></text>
+					</view>
 				</view>
-				<view class="bell-btn" @click="showNotifications">
-					<view class="icon-bell" :style="getIconStyle('bell')"></view>
-					<view class="dot"></view>
+				<view class="hero-planet">
+					<svg viewBox="0 0 100 100" width="100%" height="100%">
+						<defs><radialGradient id="pg" cx="38%" cy="32%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#BFE0FF"/></radialGradient></defs>
+						<ellipse cx="50" cy="54" rx="45" ry="13" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="4" transform="rotate(-22 50 54)"/>
+						<circle cx="48" cy="46" r="27" fill="url(#pg)"/>
+						<circle cx="76" cy="28" r="12" fill="#FFD66B" stroke="#fff" stroke-width="2.5"/>
+						<text x="76" y="33" text-anchor="middle" fill="#B7791F" font-size="15" font-weight="bold" font-family="system-ui,sans-serif">¥</text>
+					</svg>
 				</view>
 			</view>
-			<view class="period-selector" v-if="!loading && !error">
-				<view class="month-nav">
-					<view class="month-arrow" @click="prevMonth">
-						<view class="icon-arrow-left-month" :style="getIconStyle('arrow-left')"></view>
-					</view>
-					<text class="month-label">{{ periodLabel }}</text>
-					<view class="month-arrow" @click="nextMonth">
-						<view class="icon-arrow-right-month" :style="getIconStyle('arrow-right')"></view>
-					</view>
+
+			<!-- 预算 -->
+			<view class="card" @click="goBudget">
+				<view class="between" style="margin-bottom:8px">
+					<text class="card-title" style="margin:0">本月预算</text>
+					<text class="link" @click.stop="showBudgetSettings">
+						<lucide-icon name="pencil" size="24rpx" />
+						{{ fmt(summary.budgetTotal) }}
+					</text>
 				</view>
-				<view class="period-cycle">
-					<view class="period-cycle-btn" @click="toggleViewMode">
-						<view class="icon-refresh" :style="getIconStyle('refresh-cw')"></view>
-						<text>{{ viewModeText }}</text>
+				<view class="ring-wrap">
+					<view class="ring" :style="budgetRingStyle">
+						<view class="hole" />
+					</view>
+					<view style="flex:1">
+						<view class="row" style="justify-content:space-between;font-size:26rpx">
+							<text class="muted">已消费</text>
+							<text>{{ fmt(summary.budgetUsed) }}</text>
+						</view>
+						<view class="row" style="justify-content:space-between;font-size:26rpx">
+							<text class="muted">剩余额度</text>
+							<text style="font-weight:600">{{ fmt(summary.budgetRemain) }}</text>
+						</view>
+						<view class="muted" style="font-size:24rpx;margin-top:12rpx">
+							本月日均 {{ fmt(summary.dailyBudget) }} · 剩余每日可消费 {{ fmt(summary.todayAvailable) }}
+						</view>
 					</view>
 				</view>
 			</view>
-		</view>
 
-		<scroll-view scroll-y class="home-scroll">
-			<view v-if="loading" class="state-container">
-				<view class="loading-spinner"></view>
-				<text class="state-text">加载中...</text>
+			<!-- 账户 -->
+			<view class="card">
+				<view class="card-title">我的账户</view>
+				<scroll-view scroll-x class="asset-scroll" show-scrollbar="false">
+					<view v-for="(acc, i) in accounts" :key="i" class="asset-pill" @click="goAssetPage">
+						<view class="ic">
+							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="44rpx" />
+						</view>
+						<text class="nm">{{ acc.name }}</text>
+						<text class="bl">¥{{ fmt(acc.bal) }}</text>
+					</view>
+				</scroll-view>
 			</view>
 
-			<view v-else-if="error" class="state-container">
-				<text class="state-icon">⚠️</text>
-				<text class="state-text">{{ error }}</text>
-				<view class="btn-secondary" @click="initData" style="margin-top: 32rpx;">重试</view>
+			<!-- 近7天账单 -->
+			<view class="card">
+				<view class="between" style="margin-bottom:8rpx">
+					<text class="card-title" style="margin:0">近7天账单</text>
+					<text class="link" @click="goAllTransactions">全部账单
+						<lucide-icon name="chevron-right" size="16rpx" />
+					</text>
+				</view>
+				<view v-if="bills.length === 0" class="empty">
+					<view class="ei"><lucide-icon name="calendar" size="64rpx" /></view>
+					<text>暂无账单记录</text>
+				</view>
+				<view v-else class="bill-group">
+					<view v-for="(bg, i) in bills" :key="i" style="margin-bottom:16rpx">
+						<view class="ghead">{{ bg.date }} · <text class="exp">支 {{ fmt(Math.abs(bg.sum)) }}</text></view>
+						<view v-for="(item, j) in bg.items" :key="j" class="bill-item">
+							<view class="bic">{{ item.iconEmoji }}</view>
+							<view>
+								<view class="bnm">{{ item.name }}</view>
+								<view class="bac">{{ item.acc }}</view>
+							</view>
+							<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
+						</view>
+						<view v-if="bg.badge" style="text-align:right">
+							<text class="badge">不计入预算</text>
+						</view>
+					</view>
+				</view>
 			</view>
-
-			<template v-else>
-				<view class="balance-card">
-					<view class="gradient-strip"></view>
-					<view class="card-body">
-						<text class="balance-label">{{ summaryLabel }}</text>
-						<text class="balance-amount">¥{{ formatMoney(summary.balance) }}</text>
-						<view class="summary-row">
-							<view class="summary-item">
-								<text class="label">收入</text>
-								<text class="amount income">¥{{ formatMoney(summary.income) }}</text>
-							</view>
-							<view class="summary-item">
-								<text class="label">支出</text>
-								<text class="amount expense">¥{{ formatMoney(summary.expense) }}</text>
-							</view>
-						</view>
-					</view>
-				</view>
-
-				<view class="budget-card" @click="goBudgetPage">
-					<view class="budget-card-header">
-						<view class="budget-card-title-row">
-							<view class="icon-pie-chart" :style="getIconStyle('pie-chart')"></view>
-							<text class="budget-card-title">{{ budgetTitle }}</text>
-							<view class="budget-card-arrow">
-								<view class="icon-arrow-right-budget" :style="getIconStyle('arrow-right')"></view>
-							</view>
-						</view>
-					</view>
-					<view class="budget-progress-row">
-						<view class="budget-progress-bar">
-							<view class="budget-progress-fill" :style="{ width: budgetPercent + '%' }"></view>
-						</view>
-						<text class="budget-progress-label">已用 {{ budgetPercent.toFixed(0) }}%</text>
-					</view>
-					<view class="budget-stats-grid">
-						<view class="budget-stat">
-							<text class="budget-stat-label">剩余额度</text>
-							<text class="budget-stat-value remaining">¥{{ formatMoney(budgetRemain) }}</text>
-						</view>
-						<view class="budget-stat-divider"></view>
-						<view class="budget-stat">
-							<text class="budget-stat-label">每日预算</text>
-							<text class="budget-stat-value daily">¥{{ formatMoney(dailyBudget) }}</text>
-						</view>
-						<view class="budget-stat-divider"></view>
-						<view class="budget-stat">
-							<text class="budget-stat-label">今日可用</text>
-							<text class="budget-stat-value today-avail">¥{{ formatMoney(todayAvailable) }}</text>
-						</view>
-					</view>
-					<view class="budget-tip">
-						<view class="icon-help-circle" :style="getIconStyle('help-circle')"></view>
-						<text>{{ budgetTipText }}</text>
-					</view>
-				</view>
-
-				<view class="recent-card">
-					<view class="card-header">
-						<text class="card-title">近期账单</text>
-						<text class="card-link" @click="goAllTransactions">查看全部 ></text>
-					</view>
-
-					<view v-if="homeLoading" class="state-container">
-						<view class="loading-spinner"></view>
-					</view>
-
-					<view v-else-if="groupedTxs.length === 0" class="state-container">
-						<text class="state-icon">📭</text>
-						<text class="state-text">{{ emptyViewText }}</text>
-						<text class="state-hint">点击右下角 + 按钮开始记账</text>
-					</view>
-
-					<template v-else>
-						<view v-for="group in groupedTxs.slice(0, 5)" :key="group.date" class="tx-group">
-							<view class="tx-date-header" @click="toggleGroup(group.date)">
-								<text class="tx-date-label">{{ group.label }}</text>
-								<view class="tx-date-right">
-									<text class="tx-date-summary">收 ¥{{ formatMoney(group.income) }} 支 ¥{{ formatMoney(group.expense) }}</text>
-									<view class="tx-collapse-arrow" :class="{ collapsed: collapsedDates[group.date] }">
-										<view class="icon-arrow-down-date" :style="getIconStyle('arrow-down')"></view>
-									</view>
-								</view>
-							</view>
-							<view v-for="tx in group.txs" :key="tx.id" class="tx-item" v-if="!collapsedDates[group.date]">
-								<text class="tx-emoji">{{ getCategoryEmoji(tx.category) }}</text>
-								<view class="tx-info">
-									<text class="tx-title">{{ tx.note || getCategoryName(tx.category) }}</text>
-									<text class="tx-time">{{ tx.time || '' }}</text>
-									<text v-if="tx.note && tx.note !== getCategoryName(tx.category)" class="tx-note">📝 {{ tx.note }}</text>
-								</view>
-								<view class="tx-right">
-									<text class="tx-amount" :class="tx.type === 'income' ? 'income' : 'expense'">
-										{{ tx.type === 'income' ? '+' : '-' }}¥{{ formatMoney(tx.amount || 0) }}
-									</text>
-									<text v-if="getAccountName(tx.accountId)" class="tx-account">{{ getAccountIcon(tx.accountId) }} {{ getAccountName(tx.accountId) }}</text>
-								</view>
-							</view>
-						</view>
-					</template>
-				</view>
-
-				<view style="height: 240rpx;"></view>
-			</template>
 		</scroll-view>
 
-		<!-- 账本切换弹窗 -->
-		<view class="ledger-overlay" v-if="showLedgerModal" @click="closeLedgerModal">
-			<view class="ledger-dropdown" @click.stop>
-				<view class="ledger-dropdown-arrow"></view>
-				<view class="ledger-dropdown-list">
-					<view class="ledger-dropdown-item ledger-all-item"
-						:class="{ current: isAllLedgersMode }"
-						@click="selectAllLedgers">
-						<text class="ledger-dropdown-name">📚 总帐本</text>
-						<text v-if="isAllLedgersMode" class="ledger-check">✓</text>
-					</view>
-					<view class="ledger-dropdown-divider"></view>
-					<view v-for="ledger in data.ledgers" :key="ledger.id"
-						class="ledger-dropdown-item"
-						:class="{ current: !isAllLedgersMode && currentLedgerId === ledger.id }"
-						@click="selectLedger(ledger.id)">
-						<text class="ledger-dropdown-name">{{ ledger.name }}</text>
-						<text v-if="!isAllLedgersMode && currentLedgerId === ledger.id" class="ledger-check">✓</text>
-					</view>
-				</view>
-				<view class="ledger-dropdown-divider"></view>
-				<view class="ledger-dropdown-item ledger-new-item" @click="createNewLedger">
-					<text class="ledger-new-text">+ 新建账本</text>
-				</view>
-			</view>
+		<view class="fab" @click="goRecord">
+			<lucide-icon name="plus" size="36rpx" color="#FFFFFF" />
 		</view>
-		<view class="fab-btn" @click="goRecord">
-			<view class="fab-icon" :style="getIconStyle('fab-add')"></view>
-		</view>
-		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
+
+		<tab-bar current-tab="home" />
 	</view>
 </template>
 
 <script>
-	import { mapState } from 'vuex'
-	import { formatMoney, todayStr, CAT_ICONS } from '@/common/accounting-utils.js'
-	import Logger from '@/common/logger.js'
-	import TabBar from '@/components/TabBar.vue'
-	import themeMixin from '@/common/theme-mixin.js'
+import { fmt } from '@/common/constants.js'
+import { applyThemeToPage } from '@/common/theme-manager.js'
+import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId } from '@/common/app-data.js'
+import { isBrandIcon } from '@/common/lucide-icons.js'
+import TabBar from '@/components/TabBar.vue'
 
-	import { getIconStyle as makeBgIconStyle } from '@/common/icon-base64.js'
-
-
-	function getWeekNumber(d) {
-		const date = new Date(d.valueOf())
-		const dayNum = (date.getDay() + 6) % 7
-		date.setDate(date.getDate() - dayNum + 3)
-		const firstThursday = date.valueOf()
-		date.setMonth(0, 1)
-		if (date.getDay() !== 4) {
-			date.setMonth(0, 1 + ((4 - date.getDay()) + 7) % 7)
+export default {
+	components: { TabBar },
+	data() {
+		return {
+			accounts: [],
+			bills: [],
+			summary: {},
+			currentLedger: getLedger(getActiveLedgerId()),
+			ledgers: getLedgers()
 		}
-		return 1 + Math.ceil((firstThursday - date) / 604800000)
-	}
-	function weekStartDate(year, week) {
-		const first = new Date(year, 0, 1)
-		const dayNum = (first.getDay() + 6) % 7
-		return new Date(year, 0, 1 + (week - 1) * 7 - dayNum)
-	}
-
-	export default {
-		mixins: [themeMixin],
-		components: { TabBar },
-		data() {
-			const now = new Date()
+	},
+	computed: {
+		budgetRingStyle() {
+			const pct = this.summary.budgetPercent || 0
 			return {
-				homeYear: now.getFullYear(),
-				homeMonth: now.getMonth() + 1,
-				homeViewMode: 'month',
-				homeWeek: getWeekNumber(now),
-				collapsedDates: {},
-				showLedgerModal: false,
-				iconMap: ICONS
-			}
-		},
-		computed: {
-			...mapState('accounting', ['data', 'loading', 'error', 'initialized', 'homeLoading', 'homeLedgerMode']),
-			isAllLedgersMode() {
-				return this.homeLedgerMode === 'all'
-			},
-			currentLedgerId() {
-				const l = this.data.ledgers.find(l => l.current)
-				return l ? l.id : null
-			},
-			displayLedgerName() {
-				if (this.isAllLedgersMode) return '总帐本'
-				const l = this.data.ledgers.find(l => l.current)
-				return l ? l.name : ''
-			},
-			viewModeText() {
-				const map = { week: '按周显示', month: '按月显示', year: '按年显示' }
-				return map[this.homeViewMode] || '按月显示'
-			},
-			emptyViewText() {
-				const map = { week: '本周暂无账单记录', month: '本月暂无账单记录', year: '今年暂无账单记录' }
-				return map[this.homeViewMode] || '暂无账单记录'
-			},
-			periodLabel() {
-				if (this.homeViewMode === 'year') {
-					return this.homeYear + '年'
-				} else if (this.homeViewMode === 'week') {
-					return this.homeYear + '年 第' + this.homeWeek + '周'
-				}
-				return this.homeYear + '年' + this.homeMonth + '月'
-			},
-			summaryLabel() {
-				const map = { week: '本周结余', month: '本月结余', year: '今年结余' }
-				return map[this.homeViewMode] || '本月结余'
-			},
-			budgetTitle() {
-				if (this.homeViewMode === 'year') return '今年预算'
-				return '本月预算'
-			},
-			// 按账本过滤后的交易
-			ledgerFilteredTxs() {
-				const txs = this.data.transactions || []
-				if (this.isAllLedgersMode) return txs
-				const currentL = this.data.ledgers.find(l => l.current)
-				if (!currentL) return txs
-				return txs.filter(t => !t.ledgerId || t.ledgerId === currentL.id)
-			},
-			monthTxs() {
-				const p = this.homeYear + '-' + String(this.homeMonth).padStart(2, '0')
-				return this.ledgerFilteredTxs.filter(t => t.date && t.date.indexOf(p) === 0)
-			},
-			viewTxs() {
-				if (this.homeViewMode === 'week') {
-					const start = weekStartDate(this.homeYear, this.homeWeek)
-					const end = new Date(start)
-					end.setDate(end.getDate() + 6)
-					end.setHours(23, 59, 59, 999)
-					return this.ledgerFilteredTxs.filter(t => {
-						if (!t.date) return false
-						const d = new Date(t.date)
-						return d >= start && d <= end
-					})
-				} else if (this.homeViewMode === 'year') {
-					const prefix = String(this.homeYear)
-					return this.ledgerFilteredTxs.filter(t => t.date && t.date.startsWith(prefix))
-				}
-				return this.monthTxs
-			},
-			summary() {
-				let inc = 0, exp = 0
-				this.viewTxs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
-				return { income: inc, expense: exp, balance: inc - exp }
-			},
-			budgetTotal() {
-				const key = this.homeYear + '-' + String(this.homeMonth).padStart(2, '0')
-				const b = this.data.budgets[key]
-				return b ? b.total : 0
-			},
-			budgetPercent() {
-				return this.budgetTotal > 0 ? Math.min(100, this.summary.expense / this.budgetTotal * 100) : 0
-			},
-			budgetRemain() {
-				return Math.max(0, this.budgetTotal - this.summary.expense)
-			},
-			dailyBudget() {
-				if (this.budgetTotal <= 0) return 0
-				const daysInMonth = new Date(this.homeYear, this.homeMonth, 0).getDate()
-				return this.budgetRemain / daysInMonth
-			},
-			todayAvailable() {
-				return this.dailyBudget - this.todayExpense
-			},
-			todayExpense() {
-				const today = todayStr()
-				return this.monthTxs.filter(t => t.date === today && t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
-			},
-			budgetTipText() {
-				const todayExp = this.todayExpense
-				if (todayExp > 0) {
-					return `今日已花费 ¥${formatMoney(todayExp)}，还剩 ¥${formatMoney(this.todayAvailable)} 可用，注意控制支出`
-				}
-				return '今日暂无支出，继续保持'
-			},
-			groupedTxs() {
-				const groups = {}
-				this.viewTxs.forEach(t => {
-					if (!t.date) return
-					if (!groups[t.date]) groups[t.date] = []
-					groups[t.date].push(t)
-				})
-				const sorted = Object.keys(groups).sort((a, b) => b.localeCompare(a))
-				const ts = todayStr()
-				const yd = new Date(); yd.setDate(yd.getDate() - 1)
-				const ys = yd.toISOString().slice(0, 10)
-				return sorted.map(date => {
-					const txs = groups[date].sort((a, b) => (b.time || '').localeCompare(a.time || ''))
-					let inc = 0, exp = 0
-					txs.forEach(t => { if (t.type === 'income') inc += t.amount; else exp += t.amount })
-					return { date, label: date === ts ? '今天' : date === ys ? '昨天' : date, txs, income: inc, expense: exp }
-				})
-			}
-		},
-		onLoad() {
-			if (!this.initialized) this.initData()
-		},
-		methods: {
-			getIconStyle(iconName) {
-
-				return makeBgIconStyle(iconName, '#3d3d3d')
-
-			},
-			formatMoney,
-			toggleGroup(date) {
-				this.collapsedDates = { ...this.collapsedDates, [date]: !this.collapsedDates[date] }
-			},
-			async initData() {
-				await this.$store.dispatch('accounting/initialize')
-			},
-			getAccountName(id) {
-				const a = this.data.accounts.find(a => a.id === id)
-				return a ? a.name : ''
-			},
-			getAccountIcon(id) {
-				const a = this.data.accounts.find(a => a.id === id)
-				return a ? (a.icon || '💳') : ''
-			},
-			getCategoryName(cat) {
-				if (!cat) return '其他'
-				return cat
-			},
-			getCategoryEmoji(cat) {
-				return CAT_ICONS[cat] || '📦'
-			},
-			toggleViewMode() {
-				const order = ['week', 'month', 'year']
-				const idx = order.indexOf(this.homeViewMode)
-				this.homeViewMode = order[(idx + 1) % 3]
-			},
-			prevMonth() {
-				if (this.homeViewMode === 'week') {
-					this.homeWeek--
-					if (this.homeWeek < 1) { this.homeWeek = 52; this.homeYear-- }
-				} else if (this.homeViewMode === 'year') {
-					this.homeYear--
-				} else {
-					if (this.homeMonth === 1) { this.homeMonth = 12; this.homeYear-- }
-					else this.homeMonth--
-				}
-			},
-			nextMonth() {
-				if (this.homeViewMode === 'week') {
-					this.homeWeek++
-					if (this.homeWeek > 52) { this.homeWeek = 1; this.homeYear++ }
-				} else if (this.homeViewMode === 'year') {
-					this.homeYear++
-				} else {
-					if (this.homeMonth === 12) { this.homeMonth = 1; this.homeYear++ }
-					else this.homeMonth++
-				}
-			},
-			goRecord() { uni.navigateTo({ url: '/pages/accounting/record' }) },
-			goBudgetPage() {
-				uni.navigateTo({
-					url: '/pages/accounting/budget',
-					success: () => { Logger.info('Home', '跳转预算页面成功') },
-					fail: (err) => {
-						Logger.error('Home', '跳转预算页面失败', err)
-						uni.showToast({ title: '页面跳转失败', icon: 'none' })
-					}
-				})
-			},
-			goLedgerPage() {
-				uni.navigateTo({ url: '/pages/accounting/ledgers' })
-			},
-			goAllTransactions() {
-				uni.navigateTo({ url: '/pages/accounting/all-transactions' })
-			},
-			switchTab(page) { uni.redirectTo({ url: '/pages/accounting/' + page }) },
-			async showLedgerSwitch() {
-				this.showLedgerModal = true
-			},
-			closeLedgerModal() {
-				this.showLedgerModal = false
-			},
-			selectAllLedgers() {
-				this.showLedgerModal = false
-				this.$store.dispatch('accounting/setHomeViewMode', 'all')
-				uni.showToast({ title: '已切换到总帐本', icon: 'none' })
-			},
-			async selectLedger(id) {
-				this.showLedgerModal = false
-				await this.$store.dispatch('accounting/switchLedger', id)
-				this.$store.dispatch('accounting/setHomeViewMode', id)
-				uni.showToast({ title: '账本已切换', icon: 'none' })
-			},
-			createNewLedger() {
-				this.showLedgerModal = false
-				uni.navigateTo({ url: '/pages/accounting/ledgers' })
-			},
-			showNotifications() {
-				uni.showToast({ title: '暂无新通知', icon: 'none' })
-			},
-			showSmartAssistant() {
-				uni.navigateTo({ url: '/pages/accounting/smart-assistant' })
-			},
-			showHomeMore() {
-				uni.showActionSheet({
-					itemList: ['全部账单', '智能助手', '导出台账', '预算设置'],
-					success: (res) => {
-						if (res.tapIndex === 0) uni.navigateTo({ url: '/pages/accounting/all-transactions' })
-						else if (res.tapIndex === 1) uni.navigateTo({ url: '/pages/accounting/smart-assistant' })
-						else if (res.tapIndex === 2) this.exportLedgerCSV()
-						else if (res.tapIndex === 3) this.showBudgetSettings()
-					}
-				})
-			},
-			exportLedgerCSV() {
-				const ledgers = this.data.ledgers || []
-				if (ledgers.length === 0) {
-					uni.showToast({ title: '暂无账本', icon: 'none' })
-					return
-				}
-				const items = ledgers.map(l => l.name + (l.current ? ' (当前)' : ''))
-				uni.showActionSheet({
-					itemList: items,
-					success: (res) => {
-						const ledger = ledgers[res.tapIndex]
-						const txs = (this.data.transactions || []).filter(t => !ledger.id || t.ledgerId === ledger.id || ledger.current)
-						if (txs.length === 0) {
-							uni.showToast({ title: '此账本暂无账单', icon: 'none' })
-							return
-						}
-						const csv = transactionsToCSV(txs)
-						const filename = `宇宙记账_${ledger.name}_${new Date().toISOString().slice(0, 10)}.csv`
-						const r = exportCSV(filename, csv)
-						if (r.platform === 'app-plus') {
-							uni.showModal({
-								title: '💾 导出成功',
-								content: `账本「${ledger.name}」共 ${txs.length} 条账单\n\nCSV 已生成（演示模式）`,
-								showCancel: false
-							})
-						} else if (r.success) {
-							uni.showToast({ title: '已导出 ✅', icon: 'success' })
-						} else {
-							uni.showToast({ title: '导出失败', icon: 'none' })
-						}
-					}
-				})
-			},
-			showBudgetSettings() {
-				const key = this.homeYear + '-' + String(this.homeMonth).padStart(2, '0')
-				const b = this.data.budgets[key]
-				uni.showModal({
-					title: '💰 预算设置',
-					editable: true,
-					placeholderText: b ? String(b.total) : '1500',
-					success: async (res) => {
-						if (res.confirm && res.content) {
-							const val = parseFloat(res.content)
-							if (val > 0) {
-								const r = await this.$store.dispatch('accounting/saveBudget', { year: this.homeYear, month: this.homeMonth, total: val })
-								uni.showToast({ title: r.success ? '预算已更新' : r.message, icon: 'none' })
-							}
-						}
-					}
-				})
+				background: `conic-gradient(#FFB020 0 ${pct}%, #E3ECF7 ${pct}% 100%)`
 			}
 		}
+	},
+	onShow() {
+		applyThemeToPage(this)
+		// 同步全局选中账本
+		this.currentLedger = getLedger(getActiveLedgerId())
+		this.loadData()
+	},
+	methods: {
+		fmt,
+		loadData() {
+			const lid = this.currentLedger.id
+			this.summary = getHomeSummary(lid)
+			this.accounts = getAccounts()
+			this.bills = getRecentBills(7, lid)
+		},
+		isBrand(ic) {
+			return isBrandIcon(ic)
+		},
+		onSearch() {
+			uni.showToast({ title: '搜索', icon: 'none' })
+		},
+		onLedgerChange(l) {
+			this.currentLedger = l
+			setActiveLedgerId(l.id)
+			uni.$emit('ledgerChange', l.id)
+			this.loadData()
+		},
+		goCustomize() {
+			uni.navigateTo({ url: '/pages/accounting/customize' })
+		},
+		goRecord() {
+			uni.navigateTo({ url: '/pages/accounting/record' })
+		},
+		goAssetPage() {
+			uni.reLaunch({ url: '/pages/accounting/assets' })
+		},
+		goAllTransactions() {
+			uni.navigateTo({ url: '/pages/accounting/all-transactions' })
+		},
+		goBudget() {
+			uni.navigateTo({ url: '/pages/accounting/budget' })
+		},
+		showBudgetSettings() {
+			uni.showToast({ title: '编辑总预算', icon: 'none' })
+		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
-	.home-page { height: 100vh; width: 100%; background: transparent; display: flex; flex-direction: column; box-sizing: border-box; overflow-x: hidden; position: relative; }
-	.custom-nav-bar { position: sticky; top: 0; z-index: 10; background: transparent; padding-bottom: 16rpx; flex-shrink: 0; }
-	.home-header { padding: calc(var(--status-bar-height) + 24rpx) 40rpx 0; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; }
-	.ledger-switch-btn { display: flex; align-items: center; gap: 12rpx; color: var(--text-primary, #1A2744); font-weight: 600; font-size: 32rpx; }
-	.bell-btn { width: 80rpx; height: 80rpx; border-radius: 50%; background: var(--card-bg, #FFFFFF); box-shadow: 0 2rpx 4rpx rgba(91, 155, 224, 0.04); display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #5A6B8A); position: relative; flex-shrink: 0; }
-	.bell-btn .dot { position: absolute; top: 16rpx; right: 18rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--primary, #5B9BE0); border: 4rpx solid var(--card-bg, #FFFFFF); }
-	.home-scroll { flex: 1; width: 100%; padding: 8rpx 20rpx 0; box-sizing: border-box; }
-
-	.state-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
-	.state-icon { font-size: 80rpx; margin-bottom: 24rpx; }
-	.state-text { font-size: 28rpx; color: var(--text-secondary, #5A6B8A); text-align: center; }
-	.state-hint { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); margin-top: 16rpx; }
-	.loading-spinner { width: 60rpx; height: 60rpx; border: 4rpx solid rgba(91, 155, 224, 0.2); border-top-color: var(--primary, #5B9BE0); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24rpx; }
-	@keyframes spin { to { transform: rotate(360deg); } }
-
-	.period-selector { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 0; }
-	.month-nav { display: flex; align-items: center; gap: 24rpx; }
-	.month-arrow { width: 64rpx; height: 64rpx; border-radius: 50%; border: 1px solid var(--border, #E8F0FE); background: var(--card-bg, #FFFFFF); display: flex; align-items: center; justify-content: center; color: var(--text-secondary, #5A6B8A); }
-	.month-arrow:active { background: var(--border, #E8F0FE); }
-	.month-label { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); min-width: 180rpx; text-align: center; }
-	.period-cycle { display: flex; align-items: center; }
-	.period-cycle-btn { display: flex; align-items: center; gap: 8rpx; padding: 16rpx 24rpx; background: var(--card-bg, #FFFFFF); border: 1px solid var(--border, #E8F0FE); border-radius: 40rpx; color: var(--text-secondary, #5A6B8A); font-size: 24rpx; font-weight: 500; }
-	.period-cycle-btn:active { border-color: var(--primary, #5B9BE0); color: var(--primary, #5B9BE0); }
-
-	.balance-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06); overflow: hidden; position: relative; margin-bottom: 40rpx; }
-	.balance-card .gradient-strip { height: 20rpx; background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-shadow, rgba(91, 155, 224, 0.3))); }
-	.balance-card .card-body { padding: 25rpx 48rpx; }
-	.balance-card .balance-label { font-size: 28rpx; color: var(--text-tertiary, #8A9BB8); margin-bottom: 8rpx; }
-	.balance-card .balance-amount { font-size: 72rpx; font-weight: 700; color: var(--primary, #5B9BE0); line-height: 1.25; margin-bottom: 40rpx; }
-	.balance-card .summary-row { display: flex; gap: 48rpx; }
-	.balance-card .summary-item { flex: 1; display: flex; flex-direction: column; }
-	.balance-card .summary-item .label { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); margin-bottom: 4rpx; }
-	.balance-card .summary-item .amount { font-size: 30rpx; font-weight: 600; }
-	.balance-card .summary-item .amount.income { color: var(--income, #34C759); }
-	.balance-card .summary-item .amount.expense { color: var(--primary, #5B9BE0); }
-
-	.budget-card { background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); padding: 40rpx; margin-bottom: 40rpx; }
-	.budget-card-header { margin-bottom: 24rpx; }
-	.budget-card-title-row { display: flex; align-items: center; gap: 16rpx; color: var(--text-primary, #1A2744); }
-	.budget-card-title { font-size: 32rpx; font-weight: 600; flex: 1; }
-	.budget-card-arrow { color: var(--text-tertiary, #8A9BB8); }
-	.budget-progress-row { display: flex; align-items: center; gap: 24rpx; margin-bottom: 32rpx; }
-	.budget-progress-bar { flex: 1; height: 16rpx; background: var(--border, #E8F0FE); border-radius: 40rpx; overflow: hidden; }
-	.budget-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-shadow, rgba(91, 155, 224, 0.5)), var(--primary, #5B9BE0)); border-radius: 40rpx; }
-	.budget-progress-label { font-size: 24rpx; font-weight: 500; color: var(--primary, #5B9BE0); white-space: nowrap; }
-	.budget-stats-grid { display: flex; align-items: center; justify-content: space-between; background: var(--bg, #EFF5FF); border-radius: 24rpx; padding: 32rpx 24rpx; margin-bottom: 24rpx; }
-	.budget-stat { text-align: center; flex: 1; }
-	.budget-stat-label { display: block; font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); margin-bottom: 8rpx; }
-	.budget-stat-value { display: block; font-size: 32rpx; font-weight: 700; color: var(--text-primary, #1A2744); }
-	.budget-stat-value.remaining { color: var(--expense, #4CAF50); }
-	.budget-stat-value.daily { color: var(--text-primary, #1A2744); }
-	.budget-stat-value.today-avail { color: var(--primary, #5B9BE0); }
-	.budget-stat-divider { width: 1px; height: 64rpx; background: var(--border, #E8F0FE); flex-shrink: 0; }
-	.budget-tip { display: flex; align-items: flex-start; gap: 16rpx; padding: 24rpx; background: rgba(91, 155, 224, 0.08); border-radius: 24rpx; font-size: 24rpx; color: var(--text-secondary, #5A6B8A); line-height: 1.5; }
-
-	.recent-card { margin: 0; background: var(--card-bg, #FFFFFF); border-radius: 32rpx; box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04); overflow: hidden; }
-	.recent-card .card-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 40rpx; border-bottom: 1px solid var(--border, #E8F0FE); }
-	.recent-card .card-title { font-size: 32rpx; font-weight: 600; color: var(--text-primary, #1A2744); }
-	.recent-card .card-link { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); }
-
-	.tx-group:not(:last-child) { border-bottom: 1px solid var(--border, #E8F0FE); }
-	.tx-date-header { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 40rpx 12rpx; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
-	.tx-date-label { font-size: 26rpx; font-weight: 600; color: var(--text-secondary, #5A6B8A); }
-	.tx-date-right { display: flex; align-items: center; gap: 12rpx; }
-	.tx-date-summary { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); }
-	.tx-collapse-arrow { width: 36rpx; height: 36rpx; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; flex-shrink: 0; }
-	.tx-collapse-arrow.collapsed { transform: rotate(-90deg); }
-	.icon-arrow-down-date { width: 28rpx; height: 28rpx; background-color: var(--text-tertiary, #8A9BB8); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-
-	.tx-item { display: flex; align-items: center; gap: 24rpx; padding: 24rpx 40rpx; }
-	.tx-item:last-child { padding-bottom: 32rpx; }
-	.tx-item:active { background: var(--border, #E8F0FE); }
-	.tx-item .tx-emoji { width: 80rpx; height: 80rpx; border-radius: 24rpx; background: var(--border, #E8F0FE); display: flex; align-items: center; justify-content: center; font-size: 36rpx; flex-shrink: 0; }
-	.tx-item .tx-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; min-width: 0; }
-	.tx-item .tx-title { font-size: 32rpx; font-weight: 500; color: var(--text-primary, #1A2744); }
-	.tx-item .tx-time { font-size: 24rpx; color: var(--text-tertiary, #8A9BB8); }
-	.tx-item .tx-note { font-size: 24rpx; color: var(--text-secondary, #5A6B8A); background: rgba(91, 155, 224, 0.06); padding: 6rpx 12rpx; border-radius: 8rpx; margin-top: 6rpx; line-height: 1.4; }
-	.tx-item .tx-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4rpx; flex-shrink: 0; }
-	.tx-item .tx-amount { font-size: 32rpx; font-weight: 600; white-space: nowrap; }
-	.tx-item .tx-amount.income { color: var(--income, #34C759); }
-	.tx-item .tx-amount.expense { color: var(--text-primary, #1A2744); }
-	.tx-item .tx-account { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); white-space: nowrap; }
-
-	/* 账本切换下拉菜单 */
-	.ledger-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: transparent; z-index: 100; }
-	.ledger-dropdown { position: absolute; top: calc(var(--status-bar-height) + 90rpx); left: 40rpx; min-width: 280rpx; background: var(--card-bg, #FFFFFF); border-radius: 24rpx; box-shadow: 0 8rpx 32rpx rgba(91, 155, 224, 0.12); }
-	.ledger-dropdown-arrow { position: absolute; top: -12rpx; left: 48rpx; width: 0; height: 0; border-left: 14rpx solid transparent; border-right: 14rpx solid transparent; border-bottom: 14rpx solid var(--card-bg, #FFFFFF); filter: drop-shadow(0 -4rpx 4rpx rgba(91, 155, 224, 0.04)); }
-	.ledger-dropdown-list { padding: 8rpx 0; }
-	.ledger-dropdown-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 36rpx; cursor: pointer; transition: background 0.15s; min-width: 200rpx; }
-	.ledger-dropdown-item:active { background: rgba(91, 155, 224, 0.06); }
-	.ledger-dropdown-item.current { background: rgba(91, 155, 224, 0.06); }
-	.ledger-dropdown-name { font-size: 28rpx; color: var(--text-primary, #1A2744); white-space: nowrap; }
-	.ledger-dropdown-divider { height: 1px; margin: 4rpx 36rpx; border-top: 1rpx dashed var(--border, #E8F0FE); }
-	.ledger-new-item { border-radius: 0 0 24rpx 24rpx; }
-	.ledger-new-text { font-size: 28rpx; color: var(--primary, #5B9BE0); font-weight: 500; }
-.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-dark, #4A7FC0)); box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(91, 155, 224, 0.35)); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid var(--card-bg, #FFFFFF); }
-	.fab-btn:active { transform: scale(0.95); }
-	.fab-icon { width: 44rpx; height: 44rpx; background-color: var(--card-bg, #FFFFFF); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-
-	.icon-base { mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-book-open { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-arrow-down-small { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-bell { width: 40rpx; height: 40rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-arrow-left-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-arrow-right-month { width: 32rpx; height: 32rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-refresh { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-pie-chart { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-arrow-right-budget { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-	.icon-help-circle { width: 28rpx; height: 28rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; flex-shrink: 0; }
+@import './home.scss';
 </style>

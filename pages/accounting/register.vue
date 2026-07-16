@@ -1,268 +1,165 @@
 <template>
-	<view class="register-page">
-		<view class="page-header">
-			<view class="header-back" @click="goBack">
-				<view class="back-icon" :style="getIconStyle('arrow-left')"></view>
-			</view>
-			<text class="header-title">创建账号</text>
-			<view class="header-spacer"></view>
-		</view>
+	<view class="cosmic-page register-page">
+		<!-- 装饰星球 -->
+		<view class="cosmic-deco-planet cosmic-deco-planet--big" style="top:-60rpx;left:-80rpx;"></view>
+		<view class="cosmic-deco-planet cosmic-deco-planet--small" style="bottom:120rpx;right:-20rpx;"></view>
+		<view class="cosmic-deco-star" style="top:100rpx;right:80rpx;"></view>
 
-		<scroll-view scroll-y class="form-scroll">
+		<!-- 状态栏 -->
+		<status-bar />
+
+		<top-bar title="注册" show-back @back="goBack" />
+
+		<scroll-view scroll-y class="screen">
 			<view class="register-content">
-				<view class="register-form-card">
-					<!-- 邮箱 -->
-					<view class="field-group">
-						<view class="field-label">邮箱地址</view>
-						<view class="input-wrapper" :class="{ 'input-error': errors.email && touched.email }">
-							<view class="input-icon" :style="getIconStyle('user')"></view>
-							<input
-								class="input-field"
-								type="text"
-								v-model="form.email"
-								placeholder="请输入邮箱地址"
-								@input="validateField('email')"
-								@blur="touched.email = true; validateField('email')"
-							/>
-						</view>
-					<text v-if="errors.email && touched.email" class="error-msg">{{ errors.email }}</text>
+				<!-- Logo 区域 -->
+				<view class="register-logo">
+					<view class="logo-icon-wrap">
+						<lucide-icon name="app-logo" brand size="76rpx" />
 					</view>
+					<text class="logo-text">加入宇宙记账</text>
+				</view>
 
-					<!-- 用户名 -->
-					<view class="field-group">
-						<view class="field-label">用户名</view>
-						<view class="input-wrapper" :class="{ 'input-error': errors.username && touched.username }">
-							<view class="input-icon" :style="getIconStyle('user')"></view>
-							<input
-								class="input-field"
-								type="text"
-								v-model="form.username"
-								placeholder="请输入用户名"
-								maxlength="20"
-								@input="validateField('username')"
-								@blur="touched.username = true; validateField('username')"
-							/>
+				<!-- 注册卡片 -->
+				<view class="card register-form-card">
+					<!-- QQ邮箱 -->
+					<view class="form-group">
+						<view class="field-label">QQ邮箱</view>
+						<view class="field-wrapper">
+							<lucide-icon class="field-icon" name="mail" size="28rpx" color="#8A9BB8" />
+							<input class="field" type="text" v-model="form.email" placeholder="QQ邮箱" />
 						</view>
-						<text v-if="errors.username && touched.username" class="error-msg">{{ errors.username }}</text>
 					</view>
 
 					<!-- 验证码 -->
-					<view class="field-group">
+					<view class="form-group">
 						<view class="field-label">验证码</view>
-						<view class="input-wrapper code-wrapper" :class="{ 'input-error': errors.code && touched.code }">
-							<input
-								class="input-field code-input"
-								type="text"
-								v-model="form.code"
-								placeholder="请输入验证码"
-								maxlength="6"
-								@input="validateField('code')"
-								@blur="touched.code = true; validateField('code')"
-							/>
-							<view
-								class="code-btn"
-								:class="{ 'code-sent': countdown > 0 }"
-								@click="sendCode"
-							>
+						<view class="code-row">
+							<view class="field-wrapper code-input-wrapper">
+								<lucide-icon class="field-icon" name="shield" size="28rpx" color="#8A9BB8" />
+								<input class="field" type="text" v-model="form.code" placeholder="请输入验证码" maxlength="6" />
+							</view>
+							<view class="code-btn" :class="{ 'code-sent': countdown > 0 }" @click="sendCode">
 								<text v-if="countdown > 0">{{ countdown }}s</text>
 								<text v-else>获取验证码</text>
 							</view>
 						</view>
-						<text v-if="errors.code && touched.code" class="error-msg">{{ errors.code }}</text>
 					</view>
 
 					<!-- 密码 -->
-					<view class="field-group">
+					<view class="form-group">
 						<view class="field-label">设置密码</view>
-						<view class="input-wrapper" :class="{ 'input-error': errors.password && touched.password }">
-							<view class="input-icon" :style="getIconStyle('lock')"></view>
-							<input
-								class="input-field"
-								:type="showPassword ? 'text' : 'password'"
-								v-model="form.password"
-								placeholder="请设置6-20位密码"
-								maxlength="20"
-								@input="validateField('password')"
-								@blur="touched.password = true; validateField('password')"
-							/>
+						<view class="field-wrapper">
+							<lucide-icon class="field-icon" name="lock" size="28rpx" color="#8A9BB8" />
+							<input class="field" :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="8–20位，含字母和数字" maxlength="20" />
 							<view class="toggle-pwd" @click="showPassword = !showPassword">
-								<view v-if="showPassword" class="eye-icon" :style="getIconStyle('eye-off')"></view>
-								<view v-else class="eye-icon" :style="getIconStyle('eye-open')"></view>
+								<lucide-icon :name="showPassword ? 'eye' : 'eye-off'" size="32rpx" color="#8A9BB8" />
 							</view>
 						</view>
-						<text v-if="errors.password && touched.password" class="error-msg">{{ errors.password }}</text>
-						<view v-if="form.password.length > 0" class="strength-bar">
-							<view class="strength-segment" :class="strengthClass(0)"></view>
-							<view class="strength-segment" :class="strengthClass(1)"></view>
-							<view class="strength-segment" :class="strengthClass(2)"></view>
-							<text class="strength-label">{{ strengthText }}</text>
+						<!-- 密码强度指示器 -->
+						<view v-if="form.password.length > 0" class="pwd-strength">
+							<span :class="strengthClass(0)"></span>
+							<span :class="strengthClass(1)"></span>
+							<span :class="strengthClass(2)"></span>
 						</view>
 					</view>
 
 					<!-- 确认密码 -->
-					<view class="field-group">
+					<view class="form-group">
 						<view class="field-label">确认密码</view>
-						<view class="input-wrapper" :class="{ 'input-error': errors.confirmPassword && touched.confirmPassword }">
-							<view class="input-icon" :style="getIconStyle('lock')"></view>
-							<input
-								class="input-field"
-								:type="showConfirmPwd ? 'text' : 'password'"
-								v-model="form.confirmPassword"
-								placeholder="请再次输入密码"
-								maxlength="20"
-								@input="validateField('confirmPassword')"
-								@blur="touched.confirmPassword = true; validateField('confirmPassword')"
-							/>
-							<text class="toggle-pwd" @click="showConfirmPwd = !showConfirmPwd">
-								{{ showConfirmPwd ? '🙈' : '👁️' }}
-							</text>
+						<view class="field-wrapper">
+							<lucide-icon class="field-icon" name="lock" size="28rpx" color="#8A9BB8" />
+							<input class="field" :type="showConfirmPwd ? 'text' : 'password'" v-model="form.confirmPassword" placeholder="请再次输入密码" maxlength="20" />
+							<view class="toggle-pwd" @click="showConfirmPwd = !showConfirmPwd">
+								<lucide-icon :name="showConfirmPwd ? 'eye' : 'eye-off'" size="32rpx" color="#8A9BB8" />
+							</view>
 						</view>
-						<text v-if="errors.confirmPassword && touched.confirmPassword" class="error-msg">{{ errors.confirmPassword }}</text>
 					</view>
 
 					<!-- 协议勾选 -->
-					<view class="agreement-row">
-						<view class="checkbox" :class="{ checked: agree }" @click="agree = !agree">
-							<text v-if="agree" class="check-icon">✓</text>
+					<view class="agreement-row" @click="agree = !agree">
+						<view class="custom-checkbox">
+							<view class="box" :class="{ checked: agree }">
+								<lucide-icon v-if="agree" name="check" size="20rpx" color="#FFFFFF" />
+							</view>
 						</view>
 						<text class="agreement-text">
 							我已阅读并同意
-							<text class="link-text">《用户协议》</text>
+							<text class="btn-link">《用户协议》</text>
 							和
-							<text class="link-text">《隐私政策》</text>
+							<text class="btn-link">《隐私政策》</text>
 						</text>
 					</view>
 
 					<!-- 注册按钮 -->
-					<view class="register-btn-wrapper">
-						<view
-							class="btn-primary"
-							:class="{ 'btn-disabled': !formValid || !agree || submitting }"
-							@click="handleRegister"
-						>
-							<text v-if="submitting">⏳ 注册中...</text>
-							<text v-else-if="registered">✅ 注册成功！即将跳转...</text>
-							<text v-else>注册</text>
-						</view>
+					<view class="btn-primary register-btn" @click="handleRegister">
+						<text>{{ submitting ? '注册中...' : '注 册' }}</text>
 					</view>
 				</view>
 
-				<view class="login-link-area">
-					<text class="login-hint">已有账号？</text>
-					<text class="login-link" @click="goBack">返回登录</text>
+				<!-- 登录链接 -->
+				<view class="center-link">
+					已有账号？<text class="btn-link" @click="goBack">返回登录</text>
 				</view>
 			</view>
-			<view style="height: 80rpx;"></view>
 		</scroll-view>
 	</view>
 </template>
 
 <script>
-	import Logger from '@/common/logger.js'
-	import { rules, validate } from '@/common/validator.js'
-	import themeMixin from '@/common/theme-mixin.js'
-	import ICONS from '@/common/icon-base64.js'
-	import { apiRequest } from '@/services/api-client.js'
-	import ENDPOINTS from '@/services/api-endpoints.js'
+	import { isQqEmail, validatePassword, loginSuccess } from '@/common/auth-utils.js'
 
 	export default {
-		mixins: [themeMixin],
 		data() {
 			return {
-				form: { email: '', username: '', code: '', password: '', confirmPassword: '' },
-				errors: { email: '', username: '', code: '', password: '', confirmPassword: '' },
-				touched: { email: false, username: false, code: false, password: false, confirmPassword: false },
+				form: {
+					email: '',
+					code: '',
+					password: '',
+					confirmPassword: ''
+				},
 				showPassword: false,
 				showConfirmPwd: false,
 				submitting: false,
-				registered: false,
 				agree: false,
 				countdown: 0,
 				countdownTimer: null
 			}
 		},
 		computed: {
-			formValid() {
-				return !this.errors.email && !this.errors.username && !this.errors.code && !this.errors.password && !this.errors.confirmPassword
-					&& this.form.email && this.form.username && this.form.code && this.form.password && this.form.confirmPassword
+			passwordValidation() {
+				return validatePassword(this.form.password)
 			},
 			passwordStrength() {
-				const p = this.form.password
-				if (p.length < 6) return 0
-				let score = 0
-				if (p.length >= 6) score++
-				if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++
-				if (/\d/.test(p)) score++
-				if (/[^A-Za-z0-9]/.test(p)) score++
-				if (score <= 1) return 1
-				if (score <= 2) return 2
-				return 3
-			},
-			strengthText() {
-				return { 0: '', 1: '弱', 2: '中', 3: '强' }[this.passwordStrength] || ''
+				return this.passwordValidation.level
 			}
 		},
 		beforeDestroy() {
-			if (this.countdownTimer) clearInterval(this.countdownTimer)
+			if (this.countdownTimer) {
+				clearInterval(this.countdownTimer)
+				this.countdownTimer = null
+			}
 		},
 		methods: {
-			getIconStyle(name) {
-				return {
-					'mask-image': 'url(' + ICONS[name] + ')',
-					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
-				}
-			},
 			strengthClass(index) {
 				const level = this.passwordStrength
-				if (index >= level) return 'strength-empty'
-				if (level === 1) return 'strength-weak'
-				if (level === 2) return 'strength-medium'
-				return 'strength-strong'
+				if (index >= level) return ''
+				if (level === 1) return 'weak'
+				if (level === 2) return 'medium'
+				return 'strong'
 			},
-			validateField(field) {
-				const fieldRules = {
-					email: [rules.required('请输入邮箱'), rules.email()],
-					username: [rules.required('请输入用户名'), rules.username()],
-					code: [rules.required('请输入验证码'), rules.minLength(6, '验证码为6位')],
-					password: [rules.required('请输入密码'), rules.minLength(6, '密码至少6位')],
-					confirmPassword: [
-						rules.required('请确认密码'),
-						(v) => {
-							if (v !== this.form.password) return { valid: false, message: '两次密码不一致' }
-							return { valid: true }
-						}
-					]
-				}
-				const result = validate({ [field]: this.form[field] }, { [field]: fieldRules[field] })
-				this.errors[field] = result.valid ? '' : result.errors[field]
-			},
-			async sendCode() {
+			sendCode() {
 				if (this.countdown > 0) return
-				const emailResult = validate({ email: this.form.email }, { email: [rules.required('请输入邮箱'), rules.email()] })
-				if (!emailResult.valid) {
-					this.errors.email = emailResult.errors.email
-					this.touched.email = true
+				const email = this.form.email.trim()
+				if (!email) {
+					uni.showToast({ title: '请先输入QQ邮箱', icon: 'none' })
 					return
 				}
-				this.errors.email = ''
-				
-				Logger.info('Register', '发送邮箱验证码', { email: this.form.email })
-				const res = await apiRequest({
-					url: ENDPOINTS.auth.sendEmailCode,
-					method: 'POST',
-					data: { email: this.form.email, scene: 'register' }
-				})
-				
-				if (!res.success) {
-					uni.showToast({ title: res.message || '发送失败', icon: 'none' })
+				if (!isQqEmail(email)) {
+					uni.showToast({ title: '请输入有效的QQ邮箱', icon: 'none' })
 					return
 				}
-				
-// 开发模式：自动填入模拟验证码
-				if (res.data && res.data.mockCode) {
-					this.form.code = res.data.mockCode
-				}
-				uni.showToast({ title: res.message || '验证码已发送', icon: 'none' })
+				uni.showToast({ title: '验证码已发送', icon: 'none' })
 				this.countdown = 60
 				this.countdownTimer = setInterval(() => {
 					this.countdown--
@@ -272,222 +169,182 @@
 					}
 				}, 1000)
 			},
-			async handleRegister() {
-				Object.keys(this.touched).forEach(k => { this.touched[k] = true; this.validateField(k) })
-				if (!this.formValid || !this.agree || this.submitting || this.registered) return
-
-				this.submitting = true
-				Logger.info('Register', '用户注册', { email: this.form.email })
-
-				try {
-					const res = await apiRequest({
-						url: ENDPOINTS.auth.register,
-						method: 'POST',
-						data: {
-							email: this.form.email,
-							username: this.form.username,
-							code: this.form.code,
-							password: this.form.password
-						}
-					})
-
-					if (!res.success) {
-						uni.showToast({ title: res.message || '注册失败', icon: 'none' })
-						this.submitting = false
-						return
-					}
-
-					Logger.info('Register', '注册成功', { username: this.form.username })
-					this.registered = true
-					this.submitting = false
-
-					if (res.data?.token) {
-						uni.setStorageSync('auth_token', res.data.token)
-					}
-					if (res.data?.user) {
-						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
-					}
-
-					const now = Date.now()
-					uni.setStorageSync('isLoggedIn', 'true')
-					uni.setStorageSync('loginTime', now)
-					uni.setStorageSync('login_email', this.form.email)
-
-					uni.redirectTo({ url: '/pages/accounting/home' })
-				} catch (err) {
-					Logger.errorWithException('Register', '注册失败', err)
-					this.submitting = false
-					uni.showToast({ title: '注册失败，请重试', icon: 'none' })
+			handleRegister() {
+				const email = this.form.email.trim()
+				if (!email || !this.form.code.trim() || !this.form.password.trim() || !this.form.confirmPassword.trim()) {
+					uni.showToast({ title: '请填写完整信息', icon: 'none' })
+					return
 				}
+				if (!isQqEmail(email)) {
+					uni.showToast({ title: '请输入有效的QQ邮箱', icon: 'none' })
+					return
+				}
+				const pwdResult = validatePassword(this.form.password)
+				if (!pwdResult.ok) {
+					uni.showToast({ title: pwdResult.msg, icon: 'none' })
+					return
+				}
+				if (this.form.password !== this.form.confirmPassword) {
+					uni.showToast({ title: '两次密码不一致', icon: 'none' })
+					return
+				}
+				if (!this.agree) {
+					uni.showToast({ title: '请阅读并同意协议', icon: 'none' })
+					return
+				}
+				this.submitting = true
+				loginSuccess(email, false)
+				uni.showToast({ title: '注册成功', icon: 'success' })
+				setTimeout(() => {
+					this.submitting = false
+					uni.redirectTo({ url: '/pages/accounting/home' })
+				}, 1000)
 			},
-			goBack() { uni.redirectTo({ url: '/pages/accounting/login' }) }
+			goBack() {
+				uni.redirectTo({ url: '/pages/accounting/login' })
+			}
 		}
 	}
 </script>
 
+
 <style lang="scss" scoped>
-	.register-page {
-		height: 100vh;
-		background: transparent;
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		box-sizing: border-box;
-		overflow-x: hidden;
-	}
 
-	.page-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: calc(var(--status-bar-height) + 24rpx) 40rpx 24rpx;
-		flex-shrink: 0;
-		width: 100%;
-		box-sizing: border-box;
-	}
-	.header-back {
-		width: 72rpx;
-		height: 72rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	/* ===== 装饰星球 ===== */
+	.cosmic-deco-planet {
+		position: fixed;
 		border-radius: 50%;
-		background: var(--card-bg, #FFFFFF);
-		box-shadow: 0 2rpx 8rpx rgba(91, 155, 224, 0.04);
-		transition: background 0.2s;
+		pointer-events: none;
+		z-index: 0;
 	}
-	.header-back:active {
-		background: var(--border, #E8F0FE);
+	.cosmic-deco-planet--big {
+		width: 320rpx;
+		height: 320rpx;
+		background: radial-gradient(circle at 30% 30%, #8FC9FF, #5B9BE0);
+		opacity: 0.12;
 	}
-	.back-icon {
-		width: 40rpx;
-		height: 40rpx;
-		background-color: var(--text-primary, #1A2744);
-		mask-size: contain;
-		mask-repeat: no-repeat;
-		mask-position: center;
-		-webkit-mask-size: contain;
-		-webkit-mask-repeat: no-repeat;
-		-webkit-mask-position: center;
+	.cosmic-deco-planet--small {
+		width: 140rpx;
+		height: 140rpx;
+		background: radial-gradient(circle at 35% 30%, #FFC774, #FFB020);
+		opacity: 0.10;
 	}
-	.header-title {
-		font-size: 34rpx;
-		font-weight: 600;
-		color: var(--text-primary, #1A2744);
-	}
-	.header-spacer {
-		width: 72rpx;
-	}
-
-	.form-scroll {
-		flex: 1;
-		width: 100%;
-		box-sizing: border-box;
-		flex-direction: column;
+	.cosmic-deco-star {
+		position: fixed;
+		width: 6rpx;
+		height: 6rpx;
+		border-radius: 50%;
+		background: #5B9BE0;
+		opacity: 0.2;
+		pointer-events: none;
+		z-index: 0;
 	}
 
+	/* ===== 注册内容 ===== */
 	.register-content {
 		padding: 0 40rpx 80rpx;
 		width: 100%;
-		max-width: 100%;
+		max-width: 600rpx;
+		margin: 0 auto;
 		box-sizing: border-box;
-		align-self: stretch;
+		position: relative;
+		z-index: 1;
 	}
 
+	/* ===== Logo 区域 ===== */
+	.register-logo {
+		text-align: center;
+		margin-bottom: 36rpx;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16rpx;
+	}
+	.register-logo .logo-icon-wrap {
+		width: 80rpx;
+		height: 80rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.logo-text {
+		font-size: 32rpx;
+		font-weight: 700;
+		color: #1A2744;
+	}
+
+	/* ===== 注册卡片 ===== */
 	.register-form-card {
-		background: var(--card-bg, #FFFFFF);
-		border-radius: 32rpx;
-		padding: 40rpx;
-		box-shadow: 0 4rpx 16rpx rgba(91, 155, 224, 0.06);
-		width: 100%;
-		max-width: 100%;
-		box-sizing: border-box;
+		padding: 40rpx 32rpx;
 	}
 
-	.field-group {
-		margin-bottom: 40rpx;
+	.form-group {
+		margin-bottom: 32rpx;
 	}
 	.field-label {
 		display: block;
 		font-size: 26rpx;
 		font-weight: 500;
-		color: var(--text-secondary, #5A6B8A);
+		color: #5A6B8A;
 		margin-bottom: 12rpx;
 	}
 
-	.input-wrapper {
+	/* ===== 输入框包装 ===== */
+	.field-wrapper {
+		position: relative;
 		display: flex;
 		align-items: center;
-		border-radius: 24rpx;
-		background: var(--input-bg, #F2F7FF);
-		border: 2rpx solid var(--border, #E8F0FE);
-padding: 16rpx 32rpx;
-		height: 88rpx;
-		box-sizing: border-box;
-		transition: border-color 0.2s;
 	}
-	.input-wrapper:focus-within {
-		border-color: var(--primary, #5B9BE0);
+	.field-wrapper .field {
+		padding-left: 76rpx;
+		padding-right: 72rpx;
+		width: 100%;
 	}
-	.input-icon {
-		width: 40rpx;
-		height: 40rpx;
-		background-color: currentColor;
-		flex-shrink: 0;
-		mask-size: contain;
-		mask-repeat: no-repeat;
-		mask-position: center;
-		-webkit-mask-size: contain;
-		-webkit-mask-repeat: no-repeat;
-		-webkit-mask-position: center;
+	.field-icon {
+		position: absolute;
+		left: 28rpx;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+		pointer-events: none;
 	}
-	.input-wrapper.input-error {
-		border-color: #E53935 !important;
+	.toggle-pwd {
+		position: absolute;
+		right: 20rpx;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 2;
+		padding: 12rpx;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
-	.input-field {
+
+	/* ===== 验证码行 ===== */
+	.code-row {
+		display: flex;
+		gap: 20rpx;
+		align-items: center;
+	}
+	.code-input-wrapper {
 		flex: 1;
-		padding: 0 0 0 12rpx;
-		margin: 0;
-		font-size: 30rpx;
-line-height: 56rpx;
-		color: var(--text-primary, #1A2744);
-		background: transparent;
-		border: none;
-		outline: none;
-	}
-	.input-field::placeholder {
-		color: #C8A896;
-	}
-
-.country-code {
-		padding-right: 24rpx;
-		border-right: 2rpx solid var(--border, #E8F0FE);
-		margin-right: 24rpx;
-	}
-	.code-text {
-		font-size: 30rpx;
-		font-weight: 500;
-		color: var(--text-primary, #1A2744);
-	}
-
-	.code-wrapper {
-		padding-right: 0;
-	}
-	.code-input {
-		padding-right: 0;
 	}
 	.code-btn {
-		padding: 0 32rpx;
-		height: 96rpx;
+		flex-shrink: 0;
+		padding: 0 28rpx;
+		height: 88rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background: rgba(91, 155, 224, 0.1);
-		color: var(--primary, #5B9BE0);
-		font-size: 28rpx;
+		color: #5B9BE0;
+		font-size: 26rpx;
 		font-weight: 500;
-		border-radius: 0 24rpx 24rpx 0;
+		border-radius: 24rpx;
 		transition: all 0.2s;
+		white-space: nowrap;
+		cursor: pointer;
 	}
 	.code-btn:active {
 		background: rgba(91, 155, 224, 0.3);
@@ -497,176 +354,99 @@ line-height: 56rpx;
 		pointer-events: none;
 	}
 
-	.toggle-pwd {
-		font-size: 32rpx;
-		padding: 12rpx;
-		cursor: pointer;
-		user-select: none;
-	}
-	.eye-icon {
-		width: 44rpx;
-		height: 44rpx;
-		background-color: currentColor;
-		flex-shrink: 0;
-		mask-size: contain;
-		mask-repeat: no-repeat;
-		mask-position: center;
-		-webkit-mask-size: contain;
-		-webkit-mask-repeat: no-repeat;
-		-webkit-mask-position: center;
-	}
-
-	.error-msg {
-		display: block;
-		font-size: 22rpx;
-		color: #E53935;
-		margin-top: 10rpx;
-		padding-left: 8rpx;
-	}
-
-	.strength-bar {
+	/* ===== 密码强度条 ===== */
+	.pwd-strength {
 		display: flex;
-		align-items: center;
 		gap: 8rpx;
 		margin-top: 16rpx;
-		padding: 0 8rpx;
 	}
-	.strength-segment {
+	.pwd-strength span {
 		flex: 1;
 		height: 6rpx;
 		border-radius: 3rpx;
+		background: #E3ECF7;
 		transition: all 0.3s;
 	}
-	.strength-empty { background: var(--border, #E8F0FE); }
-	.strength-weak { background: #E53935; }
-	.strength-medium { background: var(--warning, #F0AD4E); }
-	.strength-strong { background: #4CAF50; }
-	.strength-label {
-		font-size: 20rpx;
-		color: var(--text-tertiary, #8A9BB8);
-		margin-left: 8rpx;
-		min-width: 40rpx;
+	.pwd-strength span.weak {
+		background: #FF6B6B;
+	}
+	.pwd-strength span.medium {
+		background: #FFB020;
+	}
+	.pwd-strength span.strong {
+		background: #34C759;
 	}
 
+	/* ===== 协议行 ===== */
 	.agreement-row {
 		display: flex;
 		align-items: flex-start;
 		gap: 16rpx;
 		margin-bottom: 40rpx;
+		cursor: pointer;
+		user-select: none;
 	}
-	.checkbox {
+	.custom-checkbox .box {
 		width: 32rpx;
 		height: 32rpx;
 		border-radius: 6rpx;
-		border: 2rpx solid var(--border, #E8F0FE);
+		border: 2rpx solid #D0D7E3;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s;
 		flex-shrink: 0;
 		margin-top: 4rpx;
+		background: #fff;
 	}
-	.checkbox.checked {
-		background: var(--primary, #5B9BE0);
-		border-color: var(--primary, #5B9BE0);
-	}
-	.check-icon {
-		font-size: 22rpx;
-		color: var(--card-bg, #FFFFFF);
-		font-weight: 600;
+	.custom-checkbox .box.checked {
+		background: #5B9BE0;
+		border-color: #5B9BE0;
 	}
 	.agreement-text {
 		font-size: 24rpx;
-		color: var(--text-tertiary, #8A9BB8);
+		color: #8A9BB8;
 		line-height: 1.6;
 	}
-	.link-text {
-		color: var(--primary, #5B9BE0);
+	.btn-link {
+		color: #5B9BE0;
 		font-weight: 500;
 	}
 
-	.btn-primary {
-		width: 100%;
-		height: 104rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--primary, #5B9BE0);
-		color: var(--card-bg, #FFFFFF);
-		font-size: 32rpx;
-		font-weight: 600;
-		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
-		transition: background 0.2s;
-	}
-	.btn-primary:active {
-		background: var(--primary-dark, #4A7FC0);
-	}
-	.btn-disabled {
-		opacity: 0.4 !important;
-		pointer-events: none;
-	}
-
-	.register-btn-wrapper {
-		text-align: center;
-	}
-
-	.register-btn-wrapper .btn-primary {
+	/* ===== 注册按钮 ===== */
+	.register-btn {
 		width: 86%;
 		max-width: 520rpx;
-		min-width: 200rpx;
-		margin: 0 auto;
 		height: 96rpx;
 		min-height: 44px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--primary, #5B9BE0);
-		color: var(--card-bg, #FFFFFF);
-		font-size: 40rpx;
+		margin: 0 auto;
+		font-size: 36rpx;
 		font-weight: 600;
 		border-radius: 50rpx;
-		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
-		transition: background 0.2s;
-		cursor: pointer;
-		user-select: none;
-		touch-action: manipulation;
-		-webkit-tap-highlight-color: transparent;
-	}
-	.register-btn-wrapper .btn-primary:active {
-		background: var(--primary-dark, #4A7FC0);
-	}
-	.register-btn-wrapper .btn-disabled {
-		opacity: 0.4 !important;
-		pointer-events: none;
 	}
 
-	.login-link-area {
+	/* ===== 中心链接 ===== */
+	.center-link {
 		text-align: center;
 		margin-top: 48rpx;
 		font-size: 28rpx;
+		color: #8A9BB8;
 	}
-	.login-hint {
-		color: var(--text-tertiary, #8A9BB8);
-	}
-	.login-link {
-		color: var(--primary, #5B9BE0);
-		font-weight: 600;
-		margin-left: 8rpx;
+	.center-link .btn-link {
+		margin-left: 4rpx;
 	}
 
-	@media (min-width: 768px) {
-		.register-content {
-			max-width: 600px;
-			margin: 0 auto;
-		}
+	@media (max-width: 374px) {
+		.register-content { padding: 0 24rpx 60rpx; }
+		.register-form-card { padding: 28rpx 24rpx; }
+		.code-btn { padding: 0 24rpx; font-size: 24rpx; }
+		.register-btn { height: 88rpx; font-size: 30rpx; }
 	}
-	@media (max-width: 360px) {
-		.page-header { padding: calc(var(--status-bar-height) + 16rpx) 24rpx 16rpx; }
-		.register-content { padding: 0 24rpx 80rpx; }
-		.register-form-card { padding: 28rpx; }
-		.input-field { font-size: 28rpx; }
-		.code-btn { padding: 0 24rpx; font-size: 26rpx; }
-		.btn-primary { height: 92rpx; font-size: 30rpx; }
+	@media (min-width: 414px) {
+		.register-content { padding: 0 60rpx 80rpx; }
+		.register-form-card { padding: 44rpx 48rpx; }
+	}
+	@media (min-width: 768px) {
+		.register-content { padding: 0 80rpx 80rpx; }
 	}
 </style>
