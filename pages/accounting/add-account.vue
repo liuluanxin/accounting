@@ -53,16 +53,55 @@
 				<view class="section-label">
 					<text class="label-text">账户图标</text>
 				</view>
-				<view class="icon-grid">
-					<view
-						v-for="(icon, idx) in accountIcons"
-						:key="idx"
-						class="icon-item"
-						:class="{ 'icon-selected': accountIcon === icon }"
-						:style="accountIcon === icon ? { borderColor: selectedColor } : {}"
-						@click="accountIcon = icon"
-					>
-						<text class="icon-emoji">{{ icon }}</text>
+				<!-- 搜索框 -->
+				<view class="search-row">
+					<view class="search-input-wrapper">
+						<view class="search-icon" :style="getIconStyle('search')"></view>
+						<input
+							class="search-input"
+							v-model="iconSearch"
+							placeholder="如：微信、工行等"
+							placeholder-class="search-placeholder"
+							:adjust-position="false"
+						/>
+					</view>
+					<view class="custom-btn" @click="showCustomIcon = true">
+						<view class="custom-icon" :style="getIconStyle('edit')"></view>
+						<text class="custom-text">自定义</text>
+					</view>
+				</view>
+				<!-- 支付平台 -->
+				<view class="icon-section">
+					<text class="icon-section-title">支付平台</text>
+					<view class="icon-grid">
+						<view
+							v-for="(item, idx) in payIconList"
+							:key="'pay-' + idx"
+							class="icon-item"
+							:class="{ 'icon-selected': accountIconKey === item.key }"
+							:style="accountIconKey === item.key ? { borderColor: selectedColor } : {}"
+							@click="selectIcon(item)"
+						>
+							<image class="icon-svg" :src="item.icon" mode="aspectFit"></image>
+							<text class="icon-label">{{ item.name }}</text>
+						</view>
+					</view>
+				</view>
+				<!-- 银行 -->
+				<view class="icon-section">
+					<text class="icon-section-title">银行</text>
+					<view class="icon-grid">
+						<view
+							v-for="(item, idx) in bankIconList"
+							:key="'bank-' + idx"
+							class="icon-item"
+							:class="{ 'icon-selected': accountIconKey === item.key }"
+							:style="accountIconKey === item.key ? { borderColor: selectedColor } : {}"
+							@click="selectIcon(item)"
+						>
+							<image class="icon-svg" :src="item.icon" mode="aspectFit"></image>
+							<text class="icon-label">{{ item.name }}</text>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -177,12 +216,22 @@
 
 <script>
 	import { mapState } from 'vuex'
-<<<<<<< Updated upstream
 	import themeMixin from '@/common/theme-mixin.js'
 	import ICONS from '@/common/icon-base64.js'
-=======
-import themeMixin from '@/common/theme-mixin.js'
->>>>>>> Stashed changes
+	import {
+		ACCOUNT_ICONS_MAP as PAY_ICONS_MAP,
+		ICON_WECHAT, ICON_ALIPAY, ICON_HUABEI, ICON_JD, ICON_ECNY,
+		ICON_QQWALLET, ICON_MEITUAN, ICON_ELEME, ICON_CHINAMOBILE,
+		ICON_CHINATELECOM, ICON_CHINAUNICOM, ICON_SINOPEC, ICON_CNPC,
+		ICON_STATEGRID, ICON_LINGQIANGTONG, ICON_LICAITONG, ICON_YUEBAO,
+		ICON_DOUYIN, ICON_CHNMEDICAL, ICON_XIAOHEBAO
+	} from '@/common/account-icons.js'
+	import {
+		BANK_ICONS_MAP,
+		ICON_CITIC, ICON_CEBBANK, ICON_ABCHINA, ICON_CCB, ICON_PSBC,
+		ICON_BOC, ICON_BANKCOMM, ICON_CMBC, ICON_SPDB, ICON_CIB,
+		ICON_PINGAN, ICON_ICBC, ICON_CGB, ICON_CMB, ICON_MYBANK
+	} from '@/common/account-icons-bank.js'
 
 	const ACCOUNT_TYPES = [
 		{ value: 'cash', label: '现金', icon: '💵' },
@@ -193,12 +242,13 @@ import themeMixin from '@/common/theme-mixin.js'
 		{ value: 'other', label: '其他', icon: '📦' }
 	]
 
-	const ACCOUNT_ICONS = [
-		'🏦', '💳', '💰', '💵', '🏠', '🚗', '📈', '🛒',
-		'🎓', '✈️', '🏥', '🍔', '🎮', '👔', '📱', '💎',
-		'🔑', '🎯', '🧧', '🏆', '💼', '🎁', '⚽', '🎵',
-		'📚', '🏖️', '🚀', '🎪'
-	]
+	const PAY_ICONS_LIST = Object.entries(PAY_ICONS_MAP).map(([key, val]) => ({
+		key, name: val.name, icon: val.icon, color: val.color, bg: val.bg
+	}))
+
+	const BANK_ICONS_LIST = Object.entries(BANK_ICONS_MAP).map(([key, val]) => ({
+		key, name: val.name, icon: val.icon, color: val.color, bg: val.bg
+	}))
 
 	const PRESET_COLORS = [
 		'#E8734A', '#FF8C5A', '#FFB07A', '#C4A484',
@@ -212,14 +262,18 @@ import themeMixin from '@/common/theme-mixin.js'
 			return {
 				accountName: '',
 				accountType: 'bank',
-				accountIcon: '🏦',
+				accountIconKey: 'wechat',
+				accountIcon: ICON_WECHAT,
 				selectedColor: '#E8734A',
 				cardNumberRaw: '',
 				cardNumberVisible: false,
 				balance: '',
 				description: '',
+				iconSearch: '',
+				showCustomIcon: false,
 				accountTypes: ACCOUNT_TYPES,
-				accountIcons: ACCOUNT_ICONS,
+				payIconList: PAY_ICONS_LIST,
+				bankIconList: BANK_ICONS_LIST,
 				presetColors: PRESET_COLORS,
 				saving: false
 			}
@@ -261,18 +315,17 @@ import themeMixin from '@/common/theme-mixin.js'
 			}
 		},
 		methods: {
-<<<<<<< Updated upstream
 			getIconStyle(name) {
 				return {
 					'mask-image': 'url(' + ICONS[name] + ')',
 					'-webkit-mask-image': 'url(' + ICONS[name] + ')'
 				}
 			},
-			onKeyboardHeightChange(e) {
-				this.keyboardHeight = (e && e.height) || 0
+			/** 选择图标 */
+			selectIcon(item) {
+				this.accountIconKey = item.key
+				this.accountIcon = item.icon
 			},
-=======
->>>>>>> Stashed changes
 			/** 返回上一页 */
 			goBack() {
 				uni.navigateBack()
@@ -317,7 +370,8 @@ import themeMixin from '@/common/theme-mixin.js'
 					const accountData = {
 						name,
 						type: this.accountType,
-						icon: this.accountIcon,
+						icon: this.accountIconKey,
+						iconSvg: this.accountIcon,
 						color: this.selectedColor,
 						balance: parseFloat(this.balance) || 0,
 						desc: this.description.trim(),
@@ -594,38 +648,140 @@ import themeMixin from '@/common/theme-mixin.js'
 		color: inherit;
 	}
 
+	/* ===== 搜索行 ===== */
+	.search-row {
+		display: flex;
+		gap: 16rpx;
+		align-items: center;
+		margin-bottom: 20rpx;
+	}
+	.search-input-wrapper {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		background: var(--card-bg, #FFFFFF);
+		border-radius: 16rpx;
+		border: 2rpx solid var(--border, #E8F0FE);
+		padding: 0 20rpx;
+		height: 72rpx;
+		box-sizing: border-box;
+		gap: 12rpx;
+	}
+	.search-icon {
+		width: 28rpx;
+		height: 28rpx;
+		background-color: var(--text-tertiary, #8A9BB8);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		flex-shrink: 0;
+	}
+	.search-input {
+		flex: 1;
+		font-size: 26rpx;
+		color: var(--text-primary, #1A2744);
+		height: 100%;
+		background: transparent;
+		border: none;
+		outline: none;
+		padding: 0;
+	}
+	.search-placeholder {
+		color: var(--text-tertiary, #8A9BB8);
+		font-size: 26rpx;
+	}
+	.custom-btn {
+		display: flex;
+		align-items: center;
+		gap: 6rpx;
+		padding: 0 20rpx;
+		height: 72rpx;
+		background: var(--card-bg, #FFFFFF);
+		border-radius: 16rpx;
+		border: 2rpx solid var(--border, #E8F0FE);
+		box-sizing: border-box;
+		flex-shrink: 0;
+		transition: all 0.2s;
+	}
+	.custom-btn:active {
+		transform: scale(0.95);
+		background: var(--input-bg, #F2F7FF);
+	}
+	.custom-icon {
+		width: 24rpx;
+		height: 24rpx;
+		background-color: var(--text-secondary, #5A6B8A);
+		mask-size: contain;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+	}
+	.custom-text {
+		font-size: 24rpx;
+		color: var(--text-secondary, #5A6B8A);
+		font-weight: 500;
+	}
+
+	/* ===== 图标分类区块 ===== */
+	.icon-section {
+		margin-bottom: 24rpx;
+	}
+	.icon-section-title {
+		display: block;
+		font-size: 24rpx;
+		font-weight: 600;
+		color: var(--text-secondary, #5A6B8A);
+		margin-bottom: 12rpx;
+		padding-left: 4rpx;
+	}
+
 	/* ===== 图标网格 ===== */
 	.icon-grid {
 		display: grid;
-		grid-template-columns: repeat(7, 1fr);
+		grid-template-columns: repeat(5, 1fr);
 		gap: 12rpx;
-		background: var(--card-bg, #FFFFFF);
-		padding: 20rpx;
-		border-radius: 20rpx;
-		border: 2rpx solid var(--border, #E8F0FE);
-		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 	}
 	.icon-item {
-		width: 100%;
-		aspect-ratio: 1;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: center;
+		gap: 6rpx;
+		padding: 12rpx 4rpx;
 		border-radius: 16rpx;
 		border: 2rpx solid transparent;
 		transition: all 0.2s;
-		background: var(--input-bg, #F2F7FF);
+		cursor: pointer;
+		background: var(--card-bg, #FFFFFF);
+		box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.04);
 	}
 	.icon-item:active {
-		transform: scale(0.9);
+		transform: scale(0.92);
+		background: var(--input-bg, #F2F7FF);
 	}
 	.icon-selected {
 		border-color: var(--primary, #5B9BE0);
-		background: rgba(91, 155, 224, 0.1);
-		box-shadow: 0 0 0 2rpx rgba(91, 155, 224, 0.2);
+		background: rgba(91, 155, 224, 0.06);
+		box-shadow: 0 0 0 2rpx rgba(91, 155, 224, 0.15);
 	}
-	.icon-emoji {
-		font-size: 36rpx;
+	.icon-svg {
+		width: 64rpx;
+		height: 64rpx;
+		border-radius: 50%;
+	}
+	.icon-label {
+		font-size: 20rpx;
+		color: var(--text-secondary, #5A6B8A);
+		text-align: center;
+		line-height: 1.2;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 100%;
 	}
 
 	/* ===== 颜色选择 ===== */
@@ -731,7 +887,7 @@ import themeMixin from '@/common/theme-mixin.js'
 			width: 100%;
 		}
 		.icon-grid {
-			grid-template-columns: repeat(8, 1fr);
+			grid-template-columns: repeat(6, 1fr);
 		}
 	}
 	@media (max-width: 360px) {
@@ -739,12 +895,15 @@ import themeMixin from '@/common/theme-mixin.js'
 			padding: 16rpx 16rpx;
 		}
 		.icon-grid {
-			grid-template-columns: repeat(6, 1fr);
-			padding: 16rpx;
+			grid-template-columns: repeat(4, 1fr);
 			gap: 8rpx;
 		}
-		.icon-emoji {
-			font-size: 30rpx;
+		.icon-svg {
+			width: 52rpx;
+			height: 52rpx;
+		}
+		.icon-label {
+			font-size: 18rpx;
 		}
 		.type-chip {
 			padding: 12rpx 20rpx;

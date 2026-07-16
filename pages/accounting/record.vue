@@ -126,11 +126,7 @@
 	import { todayStr, CAT_ICONS } from '@/common/accounting-utils.js'
 	import Logger from '@/common/logger.js'
 	import themeMixin from '@/common/theme-mixin.js'
-<<<<<<< Updated upstream
-	import ICONS from '@/common/icon-base64.js'
-=======
-	import { getIconStyle } from '@/common/icon-base64.js'
->>>>>>> Stashed changes
+import { getIconStyle } from '@/common/icon-base64.js'
 
 	export default {
 		mixins: [themeMixin],
@@ -192,20 +188,9 @@
 		},
 		methods: {
 			getIconStyle(name) {
-<<<<<<< Updated upstream
-				const iconUri = ICONS[name] || ''
-				return {
-					'mask-image': 'url(' + iconUri + ')',
-					'-webkit-mask-image': 'url(' + iconUri + ')'
-				}
-			},
-			onKeyboardHeightChange(e) {
-				this.keyboardHeight = (e && e.height) || 0
-=======
-				// 使用 common/icon-base64 的 background-image 方式渲染图标
+// 使用 common/icon-base64 的 background-image 方式渲染图标
 				// 默认使用 text-primary 色
 				return getIconStyle(name, '#1A2744')
->>>>>>> Stashed changes
 			},
 			loadFromStore() {
 				this.accounts = (this.data && this.data.accounts) || []

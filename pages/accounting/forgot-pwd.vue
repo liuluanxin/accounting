@@ -489,13 +489,8 @@
 		border-radius: 24rpx;
 		background: var(--input-bg, #F2F7FF);
 		border: 2rpx solid var(--border, #E8F0FE);
-<<<<<<< Updated upstream
-		padding: 0 32rpx;
-		transition: border-color 0.2s;
-=======
-		padding: 16rpx 32rpx;
+padding: 16rpx 32rpx;
 		height: 88rpx;
->>>>>>> Stashed changes
 		box-sizing: border-box;
 		transition: border-color 0.2s;
 	}
@@ -623,11 +618,7 @@
 		box-shadow: 0 8rpx 24rpx rgba(91, 155, 224, 0.3);
 		transition: background 0.2s;
 	}
-<<<<<<< Updated upstream
-	.btn-primary:active {
-=======
-	.btn-row .btn-primary:active {
->>>>>>> Stashed changes
+.btn-row .btn-primary:active {
 		background: var(--primary-dark, #4A7FC0);
 	}
 	.btn-row .btn-disabled {

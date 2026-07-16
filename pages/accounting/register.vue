@@ -258,13 +258,10 @@
 					return
 				}
 				
-<<<<<<< Updated upstream
-=======
-				// 开发模式：自动填入模拟验证码
+// 开发模式：自动填入模拟验证码
 				if (res.data && res.data.mockCode) {
 					this.form.code = res.data.mockCode
 				}
->>>>>>> Stashed changes
 				uni.showToast({ title: res.message || '验证码已发送', icon: 'none' })
 				this.countdown = 60
 				this.countdownTimer = setInterval(() => {
@@ -424,13 +421,8 @@
 		border-radius: 24rpx;
 		background: var(--input-bg, #F2F7FF);
 		border: 2rpx solid var(--border, #E8F0FE);
-<<<<<<< Updated upstream
-		padding: 0 32rpx;
-		transition: border-color 0.2s;
-=======
-		padding: 16rpx 32rpx;
+padding: 16rpx 32rpx;
 		height: 88rpx;
->>>>>>> Stashed changes
 		box-sizing: border-box;
 		transition: border-color 0.2s;
 	}
@@ -457,10 +449,7 @@
 		padding: 0 0 0 12rpx;
 		margin: 0;
 		font-size: 30rpx;
-<<<<<<< Updated upstream
-=======
-		line-height: 56rpx;
->>>>>>> Stashed changes
+line-height: 56rpx;
 		color: var(--text-primary, #1A2744);
 		background: transparent;
 		border: none;
@@ -470,8 +459,7 @@
 		color: #C8A896;
 	}
 
-<<<<<<< Updated upstream
-	.country-code {
+.country-code {
 		padding-right: 24rpx;
 		border-right: 2rpx solid var(--border, #E8F0FE);
 		margin-right: 24rpx;
@@ -481,9 +469,6 @@
 		font-weight: 500;
 		color: var(--text-primary, #1A2744);
 	}
-=======
-
->>>>>>> Stashed changes
 
 	.code-wrapper {
 		padding-right: 0;

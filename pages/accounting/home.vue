@@ -176,14 +176,9 @@
 				</view>
 			</view>
 		</view>
-
-<<<<<<< Updated upstream
 		<view class="fab-btn" @click="goRecord">
 			<view class="fab-icon" :style="getIconStyle('fab-add')"></view>
 		</view>
-
-=======
->>>>>>> Stashed changes
 		<TabBar currentTab="home" :showFab="true" :tabs="[{ id: 'home', label: '首页' }, { id: 'calendar', label: '日历' }, { id: 'stats', label: '统计' }, { id: 'profile', label: '我的' }]"/>
 	</view>
 </template>
@@ -194,11 +189,9 @@
 	import Logger from '@/common/logger.js'
 	import TabBar from '@/components/TabBar.vue'
 	import themeMixin from '@/common/theme-mixin.js'
-<<<<<<< Updated upstream
-	import ICONS from '@/common/icon-base64.js'
-=======
+
 	import { getIconStyle as makeBgIconStyle } from '@/common/icon-base64.js'
->>>>>>> Stashed changes
+
 
 	function getWeekNumber(d) {
 		const date = new Date(d.valueOf())
@@ -358,15 +351,9 @@
 		},
 		methods: {
 			getIconStyle(iconName) {
-<<<<<<< Updated upstream
-				const iconUri = ICONS[iconName] || ''
-				return {
-					'mask-image': 'url(' + iconUri + ')',
-					'-webkit-mask-image': 'url(' + iconUri + ')'
-				}
-=======
+
 				return makeBgIconStyle(iconName, '#3d3d3d')
->>>>>>> Stashed changes
+
 			},
 			formatMoney,
 			toggleGroup(date) {
@@ -624,15 +611,9 @@
 	.ledger-dropdown-divider { height: 1px; margin: 4rpx 36rpx; border-top: 1rpx dashed var(--border, #E8F0FE); }
 	.ledger-new-item { border-radius: 0 0 24rpx 24rpx; }
 	.ledger-new-text { font-size: 28rpx; color: var(--primary, #5B9BE0); font-weight: 500; }
-<<<<<<< Updated upstream
-
-	.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-dark, #4A7FC0)); box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(91, 155, 224, 0.35)); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid var(--card-bg, #FFFFFF); }
+.fab-btn { position: fixed; bottom: 180rpx; right: 40rpx; width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, var(--primary, #5B9BE0), var(--primary-dark, #4A7FC0)); box-shadow: 0 8rpx 24rpx var(--primary-shadow, rgba(91, 155, 224, 0.35)); display: flex; align-items: center; justify-content: center; z-index: 40; border: 6rpx solid var(--card-bg, #FFFFFF); }
 	.fab-btn:active { transform: scale(0.95); }
 	.fab-icon { width: 44rpx; height: 44rpx; background-color: var(--card-bg, #FFFFFF); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
-=======
-
-
->>>>>>> Stashed changes
 
 	.icon-base { mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }
 	.icon-book-open { width: 36rpx; height: 36rpx; background-color: currentColor; mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-position: center; -webkit-mask-position: center; }

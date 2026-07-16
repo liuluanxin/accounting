@@ -68,10 +68,7 @@
 <script>
 	import Logger from '@/common/logger.js'
 	import themeMixin from '@/common/theme-mixin.js'
-<<<<<<< Updated upstream
-	import ICONS from '@/common/icon-base64.js'
-=======
->>>>>>> Stashed changes
+import ICONS from '@/common/icon-base64.js'
 	import { apiRequest } from '@/services/api-client.js'
 	import ENDPOINTS from '@/services/api-endpoints.js'
 	import { rules, validate } from '@/common/validator.js'
@@ -120,15 +117,6 @@
 					uni.setStorageSync('login_email', emailTrim)
 					if (res.data?.token) {
 						uni.setStorageSync('auth_token', res.data.token)
-<<<<<<< Updated upstream
-					}
-					if (res.data?.user) {
-						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
-					}
-					if (this.rememberMe) {
-						uni.setStorageSync('remember_email', emailTrim)
-=======
->>>>>>> Stashed changes
 					}
 					if (res.data?.user) {
 						uni.setStorageSync('login_user', JSON.stringify(res.data.user))
@@ -282,13 +270,9 @@
 		border-radius: 50rpx;
 		background: var(--input-bg, #F2F7FF);
 		border: 2rpx solid var(--border, #E8F0FE);
-<<<<<<< Updated upstream
-		padding: 0rpx 24rpx;
-=======
-		padding: 16rpx 24rpx;
+padding: 16rpx 24rpx;
 		height: 88rpx;
 		box-sizing: border-box;
->>>>>>> Stashed changes
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
@@ -301,15 +285,10 @@
 	}
 	.input-field {
 		flex: 1;
-<<<<<<< Updated upstream
-		height: 70rpx;
-		font-size: 30rpx;
-=======
-		padding: 0 0 0 12rpx;
+padding: 0 0 0 12rpx;
 		margin: 0;
 		font-size: 30rpx;
 		line-height: 56rpx;
->>>>>>> Stashed changes
 		color: var(--text-primary, #1A2744);
 		background: transparent;
 		border: none;

@@ -281,15 +281,11 @@
 		background: var(--card-bg, #FFFFFF);
 		border-radius: 16rpx;
 		border: 2rpx solid var(--border, #F0E4DA);
-<<<<<<< Updated upstream
-		padding: 0 24rpx;
-=======
-		padding: 16rpx 24rpx;
+padding: 16rpx 24rpx;
 		height: 88rpx;
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
->>>>>>> Stashed changes
 		transition: border-color 0.2s;
 	}
 	.input-wrapper:focus-within {
@@ -300,10 +296,7 @@
 		padding: 0 0 0 12rpx;
 		margin: 0;
 		font-size: 30rpx;
-<<<<<<< Updated upstream
-=======
-		line-height: 56rpx;
->>>>>>> Stashed changes
+line-height: 56rpx;
 		color: var(--text-primary, #3D2316);
 	}
 	.input-placeholder {

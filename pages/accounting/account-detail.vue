@@ -99,13 +99,9 @@
 <script>
 import { mapState } from 'vuex'
 import Logger from '@/common/logger.js'
-<<<<<<< Updated upstream
 import { formatMoney } from '@/common/accounting-utils.js'
 import themeMixin from '@/common/theme-mixin.js'
 import ICONS from '@/common/icon-base64.js'
-=======
-import themeMixin from '@/common/theme-mixin.js'
->>>>>>> Stashed changes
 
 const accountTypes = [
 	{ value: 'cash', label: '现金', icon: '💵' },
@@ -183,13 +179,10 @@ export default {
 		}
 	},
 	methods: {
-<<<<<<< Updated upstream
-		getIconStyle(name) {
+getIconStyle(name) {
 			return { 'mask-image': 'url(' + ICONS[name] + ')', '-webkit-mask-image': 'url(' + ICONS[name] + ')' }
 		},
 		formatMoney,
-=======
->>>>>>> Stashed changes
 		goBack() { uni.navigateBack() },
 		shadeColor(hex, percent) {
 			const f = parseInt(hex.slice(1), 16),

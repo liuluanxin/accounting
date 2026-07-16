@@ -43,10 +43,6 @@
 <script>
 import { hasPin, setPin, clearPin, verifyPin, markVerified } from '@/common/privacy-lock.js'
 import themeMixin from '@/common/theme-mixin.js'
-<<<<<<< Updated upstream
-import ICONS from '@/common/icon-base64.js'
-=======
->>>>>>> Stashed changes
 
 export default {
 	mixins: [themeMixin],
