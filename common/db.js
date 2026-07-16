@@ -81,6 +81,32 @@ export function getBillsByDateRange(startTs, endTs) {
   return getBills().filter(b => b.ts >= startTs && b.ts < endTs)
 }
 
+/**
+ * 更新一条账单记录
+ * @param {string} id  账单ID
+ * @param {Object} updates  要更新的字段
+ */
+export function updateBill(id, updates) {
+  const list = getBills()
+  const idx = list.findIndex(b => b.id === id)
+  if (idx === -1) return false
+  list[idx] = { ...list[idx], ...updates }
+  saveBills(list)
+  return true
+}
+
+/**
+ * 删除一条账单记录
+ * @param {string} id  账单ID
+ */
+export function deleteBill(id) {
+  const list = getBills()
+  const filtered = list.filter(b => b.id !== id)
+  if (filtered.length === list.length) return false
+  saveBills(filtered)
+  return true
+}
+
 export function getRecentBills(limit = 7) {
   const all = getBills().sort((a, b) => b.ts - a.ts)
   return all.slice(0, limit)

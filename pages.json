@@ -157,6 +157,13 @@
 				"navigationBarTitleText": "自定义首页",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/accounting/bill-detail",
+			"style": {
+				"navigationBarTitleText": "账单详情",
+				"navigationStyle": "custom"
+			}
 		}
 ],
 	"globalStyle": {

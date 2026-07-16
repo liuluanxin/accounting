@@ -73,11 +73,27 @@ export function addBill(bill) {
   return db.addBill(bill)
 }
 
+export function updateBill(id, updates) {
+  return db.updateBill(id, updates)
+}
+
+export function deleteBill(id) {
+  return db.deleteBill(id)
+}
+
+export function getBillById(id) {
+  return db.getBills().find(b => b.id === id) || null
+}
+
 /** 获取近7天账单（按日期分组） */
 export function getRecentBills(limit = 7, ledgerId) {
-  const all = filterByLedger(db.getBills(), ledgerId).sort((a, b) => b.ts - a.ts)
-  const raw = all.slice(0, limit)
-  return groupBillsByDate(raw)
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  sevenDaysAgo.setHours(0, 0, 0, 0)
+  const all = filterByLedger(db.getBills(), ledgerId)
+    .filter(b => b.ts >= sevenDaysAgo.getTime())
+    .sort((a, b) => b.ts - a.ts)
+  return groupBillsByDate(all)
 }
 
 /** 按日期分组账单 */

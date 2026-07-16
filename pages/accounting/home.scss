@@ -69,9 +69,23 @@
 .bill-group .ghead {
 	font-size: 26rpx; font-weight: 600; color: var(--text-secondary); margin-bottom: 12rpx;
 }
+.bill-info-wrap {
+	flex: 1;
+	min-width: 0;
+}
+.bill-amt-wrap {
+	margin-left: auto;
+	text-align: right;
+	flex-shrink: 0;
+}
 .badge {
 	display: inline-block; padding: 4rpx 16rpx; border-radius: 20rpx;
 	background: var(--divider); font-size: 20rpx; color: var(--text-muted);
+}
+.budget-badge {
+	display: inline-block; padding: 4rpx 12rpx; border-radius: 12rpx;
+	background: #FFF3E0; font-size: 18rpx; color: #E65100; margin-top: 4rpx;
+	line-height: 1.4;
 }
 .fab {
 	position: fixed; right: 36rpx; bottom: calc(180rpx + env(safe-area-inset-bottom));

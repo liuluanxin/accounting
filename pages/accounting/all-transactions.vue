@@ -64,12 +64,12 @@
 								<view class="bnm">{{ item.name }}</view>
 								<view class="bac">{{ item.acc }}</view>
 							</view>
-							<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">
-								{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}
+							<view>
+								<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">
+									{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}
+								</view>
+								<view v-if="item.excludeBudget" class="budget-badge">不计入预算</view>
 							</view>
-						</view>
-						<view v-if="bg.badge" class="badge-row">
-							<text class="badge">不计入预算</text>
 						</view>
 					</view>
 				</view>
@@ -125,7 +125,7 @@ export default {
 			uni.showToast({ title: '高级筛选', icon: 'none' })
 		},
 		onBillTap(item) {
-			uni.showToast({ title: `${item.name} ${fmt(item.amt)}`, icon: 'none' })
+			uni.navigateTo({ url: '/pages/accounting/bill-detail?id=' + item.id })
 		}
 	}
 }
@@ -166,5 +166,15 @@ export default {
 	background: var(--divider);
 	font-size: 20rpx;
 	color: var(--text-muted);
+}
+.budget-badge {
+	display: inline-block;
+	padding: 4rpx 12rpx;
+	border-radius: 12rpx;
+	background: #FFF3E0;
+	font-size: 18rpx;
+	color: #E65100;
+	margin-top: 4rpx;
+	line-height: 1.4;
 }
 </style>

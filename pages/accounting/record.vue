@@ -79,8 +79,8 @@
 						<view class="bill-tag" @tap="openAccountSheet">
 							<text>{{ selectedAcc.name }}</text>
 						</view>
-						<view class="bill-tag">
-							<text>2026</text>
+						<view class="bill-tag" @tap="openLedgerSheet">
+							<text>{{ selectedLedger ? selectedLedger.name : '2026' }}</text>
 						</view>
 						<view class="bill-tag" :class="{ on: excludeBudget }" @tap="toggleExcludeBudget">
 							<text>不计入预算</text>
@@ -95,6 +95,7 @@
 			</view>
 		</view>
 
+		<!-- 选择账户 -->
 		<cosmic-sheet
 			:visible="accountSheetVisible"
 			@update:visible="accountSheetVisible = $event"
@@ -110,6 +111,60 @@
 			>
 				<text class="acc-name">{{ acc.name }}</text>
 				<text class="acc-bal">¥{{ fmt(acc.bal) }}</text>
+			</view>
+		</cosmic-sheet>
+
+		<!-- 选择账本 -->
+		<cosmic-sheet
+			:visible="ledgerSheetVisible"
+			@update:visible="ledgerSheetVisible = $event"
+			@close="ledgerSheetVisible = false"
+		>
+			<text class="sheet-title">选择账本</text>
+			<view
+				v-for="(l, i) in ledgers"
+				:key="i"
+				class="acc-row"
+				:class="{ on: selectedLedger && selectedLedger.id === l.id }"
+				@tap="selectLedger(l)"
+			>
+				<text class="acc-name">{{ l.name }}</text>
+			</view>
+		</cosmic-sheet>
+
+		<!-- 选择日期（日历弹窗） -->
+		<cosmic-sheet
+			:visible="dateSheetVisible"
+			@update:visible="dateSheetVisible = $event"
+			@close="dateSheetVisible = false"
+		>
+			<text class="sheet-title">选择日期</text>
+			<view class="cal-header">
+				<view class="cal-nav" @tap="prevMonth">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:28rpx;height:28rpx"><polyline points="15 18 9 12 15 6"/></svg>
+				</view>
+				<text class="cal-title">{{ calYear }}年{{ calMonth }}月</text>
+				<view class="cal-nav" @tap="nextMonth">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:28rpx;height:28rpx"><polyline points="9 18 15 12 9 6"/></svg>
+				</view>
+			</view>
+			<view class="cal-weekdays">
+				<text v-for="w in weekdays" :key="w" class="cal-wd">{{ w }}</text>
+			</view>
+			<view class="cal-days">
+				<view
+					v-for="(d, i) in calDays"
+					:key="i"
+					class="cal-day"
+					:class="{
+						other: !d.inMonth,
+						sel: d.sel,
+						today: d.today
+					}"
+					@tap="selectDay(d)"
+				>
+					<text class="cal-day-num">{{ d.day }}</text>
+				</view>
 			</view>
 		</cosmic-sheet>
 
@@ -131,7 +186,7 @@
 </template>
 
 <script>
-import { getAccounts, CAT_GROUPS, freqSubs, addBill, getActiveLedgerId, fmt } from '@/common/app-data.js'
+import { getAccounts, CAT_GROUPS, freqSubs, addBill, getActiveLedgerId, fmt, getLedgers, getLedger } from '@/common/app-data.js'
 import { catEmoji } from '@/common/lucide-icons.js'
 import { applyThemeToPage } from '@/common/theme-manager.js'
 
@@ -140,8 +195,14 @@ function todayLabel() {
 	return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
+function formatDateLabel(d) {
+	const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${weekdays[d.getDay()]}`
+}
+
 export default {
 	data() {
+		const now = new Date()
 		return {
 			typeTabs: [
 				{ id: 'expense', label: '支出' },
@@ -150,16 +211,28 @@ export default {
 			],
 			billType: 'expense',
 			amount: '0',
+			sign: -1,            // 1 = 正数, -1 = 负数
 			cat: null,
 			subcat: null,
 			remark: '',
 			remarkDraft: '',
 			billDate: todayLabel(),
-			selectedAcc: getAccounts()[0],
+			billDateTs: Date.now(),
+			selectedAcc: getAccounts()[0] || { name: '未分类', bal: 0 },
 			accounts: getAccounts(),
 			excludeBudget: false,
 			accountSheetVisible: false,
-			remarkSheetVisible: false
+			remarkSheetVisible: false,
+			// 日历
+			dateSheetVisible: false,
+			calYear: now.getFullYear(),
+			calMonth: now.getMonth() + 1,
+			calDay: now.getDate(),
+			weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+			// 账本
+			ledgerSheetVisible: false,
+			ledgers: getLedgers(),
+			selectedLedger: getLedger(getActiveLedgerId())
 		}
 	},
 	computed: {
@@ -178,13 +251,46 @@ export default {
 			return parts[0] + '.' + dec
 		},
 		amountClass() {
-			if (this.billType === 'income') return 'inc'
-			if (this.billType === 'expense') return 'exp'
-			return 'xfer'
+			if (this.sign === 1) return 'inc'
+			return 'exp'
+		},
+		/** 生成日历天数网格 */
+		calDays() {
+			const y = this.calYear
+			const m = this.calMonth
+			const firstDay = new Date(y, m - 1, 1).getDay()
+			const daysInMonth = new Date(y, m, 0).getDate()
+			const daysInPrev = new Date(y, m - 1, 0).getDate()
+			const today = new Date()
+			const cells = []
+			// 上月填充
+			for (let i = firstDay - 1; i >= 0; i--) {
+				cells.push({ day: daysInPrev - i, inMonth: false, sel: false, today: false })
+			}
+			// 本月
+			for (let i = 1; i <= daysInMonth; i++) {
+				const sel = i === this.calDay
+				const isToday = y === today.getFullYear() && m === today.getMonth() + 1 && i === today.getDate()
+				cells.push({ day: i, inMonth: true, sel, today: isToday })
+			}
+			// 下月填充
+			const remaining = 7 - (cells.length % 7)
+			if (remaining < 7) {
+				for (let i = 1; i <= remaining; i++) {
+					cells.push({ day: i, inMonth: false, sel: false, today: false })
+				}
+			}
+			return cells
 		}
 	},
 	onShow() {
 		applyThemeToPage()
+		this.accounts = getAccounts()
+		this.ledgers = getLedgers()
+		this.selectedLedger = getLedger(getActiveLedgerId())
+		this.selectedAcc = getAccounts()[0] || { name: '未分类', bal: 0 }
+		// 默认符号与类型一致
+		if (this.billType === 'expense') this.sign = -1
 	},
 	methods: {
 		fmt,
@@ -193,6 +299,9 @@ export default {
 			this.billType = type
 			this.cat = null
 			this.subcat = null
+			// 切换类型时重置符号
+			if (type === 'expense') this.sign = -1
+			else if (type === 'income') this.sign = 1
 		},
 		pickSub(cat, sub) {
 			this.cat = cat
@@ -224,15 +333,12 @@ export default {
 			}
 			this.amount = a
 		},
+		// +/- 切换金额符号（不切换类型）
 		onPlus() {
-			this.billType = 'income'
-			this.cat = null
-			this.subcat = null
+			this.sign = 1
 		},
 		onMinus() {
-			this.billType = 'expense'
-			this.cat = null
-			this.subcat = null
+			this.sign = -1
 		},
 		validate() {
 			const amt = parseFloat(this.amount)
@@ -251,20 +357,20 @@ export default {
 		},
 		saveBill(again) {
 			if (!this.validate()) return
-			// 保存到本地存储
-			const amt = this.billType === 'expense' ? -Math.abs(Number(this.amount)) : Math.abs(Number(this.amount))
+			// 使用 sign 决定金额正负
+			const amt = this.sign * Math.abs(Number(this.amount))
 			addBill({
 				ic: this.cat ? this.frequentSubs.find(f => f.cat === this.cat)?.ic || 'circle' : 'circle',
 				cat: this.cat || '其他',
 				subcat: this.subcat || '',
-				ledger: getActiveLedgerId(),
+				ledger: this.selectedLedger ? this.selectedLedger.id : getActiveLedgerId(),
 				name: (this.cat || '') + (this.subcat ? ' · ' + this.subcat : ''),
 				acc: this.selectedAcc?.name || '未分类',
 				amt: amt,
 				type: this.billType,
 				note: this.remark,
 				excludeBudget: this.excludeBudget,
-				ts: Date.now()
+				ts: this.billDateTs
 			})
 			if (again) {
 				uni.showToast({ title: '已保存，继续记账', icon: 'none' })
@@ -291,9 +397,47 @@ export default {
 			this.remark = this.remarkDraft.trim()
 			this.remarkSheetVisible = false
 		},
+		// ---- 日历 ----
 		onDatePick() {
-			uni.showToast({ title: '选择日期', icon: 'none' })
+			const now = new Date()
+			this.calYear = now.getFullYear()
+			this.calMonth = now.getMonth() + 1
+			this.calDay = now.getDate()
+			this.dateSheetVisible = true
 		},
+		prevMonth() {
+			if (this.calMonth === 1) {
+				this.calYear--
+				this.calMonth = 12
+			} else {
+				this.calMonth--
+			}
+		},
+		nextMonth() {
+			if (this.calMonth === 12) {
+				this.calYear++
+				this.calMonth = 1
+			} else {
+				this.calMonth++
+			}
+		},
+		selectDay(d) {
+			if (!d.inMonth) return
+			this.calDay = d.day
+			const dt = new Date(this.calYear, this.calMonth - 1, d.day)
+			this.billDate = formatDateLabel(dt)
+			this.billDateTs = dt.getTime()
+			this.dateSheetVisible = false
+		},
+		// ---- 账本 ----
+		openLedgerSheet() {
+			this.ledgerSheetVisible = true
+		},
+		selectLedger(l) {
+			this.selectedLedger = l
+			this.ledgerSheetVisible = false
+		},
+		// ---- 其他 ----
 		onTemplate() {
 			uni.showToast({ title: '模板', icon: 'none' })
 		},
@@ -587,5 +731,78 @@ export default {
 	color: #fff;
 	font-size: 30rpx;
 	font-weight: 600;
+}
+
+/* ===== 日历样式 ===== */
+.cal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 0 20rpx;
+}
+.cal-title {
+	font-size: 30rpx;
+	font-weight: 700;
+	color: var(--text-primary, #1a2744);
+}
+.cal-nav {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f5f8fe;
+	cursor: pointer;
+}
+.cal-nav:active {
+	background: #e8edf5;
+}
+.cal-weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4rpx;
+	margin-bottom: 12rpx;
+}
+.cal-wd {
+	text-align: center;
+	font-size: 24rpx;
+	font-weight: 600;
+	color: var(--text-secondary, #8a9099);
+	padding: 8rpx 0;
+}
+.cal-days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4rpx;
+}
+.cal-day {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16rpx 0;
+	border-radius: 16rpx;
+	cursor: pointer;
+}
+.cal-day:active {
+	background: #f0f4ff;
+}
+.cal-day.other .cal-day-num {
+	color: #d0d5dd;
+}
+.cal-day.today .cal-day-num {
+	font-weight: 700;
+	color: var(--primary, #4a90d9);
+}
+.cal-day.sel {
+	background: var(--primary, #4a90d9);
+}
+.cal-day.sel .cal-day-num {
+	color: #fff;
+	font-weight: 700;
+}
+.cal-day-num {
+	font-size: 28rpx;
+	color: var(--text-primary, #1a2744);
 }
 </style>

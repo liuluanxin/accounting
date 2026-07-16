@@ -91,16 +91,16 @@
 				<view v-else class="bill-group">
 					<view v-for="(bg, i) in bills" :key="i" style="margin-bottom:16rpx">
 						<view class="ghead">{{ bg.date }} · <text class="exp">支 {{ fmt(Math.abs(bg.sum)) }}</text></view>
-						<view v-for="(item, j) in bg.items" :key="j" class="bill-item">
+						<view v-for="(item, j) in bg.items" :key="j" class="bill-item" @click="editBill(item)">
 							<view class="bic">{{ item.iconEmoji }}</view>
-							<view>
+							<view class="bill-info-wrap">
 								<view class="bnm">{{ item.name }}</view>
 								<view class="bac">{{ item.acc }}</view>
 							</view>
-							<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
-						</view>
-						<view v-if="bg.badge" style="text-align:right">
-							<text class="badge">不计入预算</text>
+							<view class="bill-amt-wrap">
+								<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
+								<view v-if="item.excludeBudget" class="budget-badge">不计入预算</view>
+							</view>
 						</view>
 					</view>
 				</view>
@@ -184,6 +184,9 @@ export default {
 		},
 		showBudgetSettings() {
 			uni.showToast({ title: '编辑总预算', icon: 'none' })
+		},
+		editBill(item) {
+			uni.navigateTo({ url: '/pages/accounting/bill-detail?id=' + item.id })
 		}
 	}
 }
