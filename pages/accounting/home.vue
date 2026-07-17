@@ -19,11 +19,11 @@
 					<text class="amt">{{ fmt(summary.monthExpense) }}</text>
 					<view class="sub">
 						<text>收入 {{ fmt(summary.monthIncome) }}</text>
-						<text>结余 <text :class="summary.monthBalance >= 0 ? 'inc' : 'exp'">{{ fmt(summary.monthBalance) }}</text></text>
+						<view>结余 <text :class="summary.monthBalance >= 0 ? 'inc' : 'exp'">{{ fmt(summary.monthBalance) }}</text></view>
 					</view>
 				</view>
 				<view class="hero-planet">
-					<svg viewBox="0 0 100 100" width="100%" height="100%">
+					<svg viewBox="5 12 90 65" width="100%" height="100%">
 						<defs><radialGradient id="pg" cx="38%" cy="32%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#BFE0FF"/></radialGradient></defs>
 						<ellipse cx="50" cy="54" rx="45" ry="13" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="4" transform="rotate(-22 50 54)"/>
 						<circle cx="48" cy="46" r="27" fill="url(#pg)"/>
@@ -68,7 +68,7 @@
 				<scroll-view scroll-x class="asset-scroll" show-scrollbar="false">
 					<view v-for="(acc, i) in accounts" :key="i" class="asset-pill" @click="goAssetPage">
 						<view class="ic">
-							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="44rpx" />
+							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="72rpx" />
 						</view>
 						<text class="nm">{{ acc.name }}</text>
 						<text class="bl">¥{{ fmt(acc.bal) }}</text>
@@ -91,18 +91,27 @@
 				<view v-else class="bill-group">
 					<view v-for="(bg, i) in bills" :key="i" style="margin-bottom:16rpx">
 						<view class="ghead">{{ bg.date }} · <text class="exp">支 {{ fmt(Math.abs(bg.sum)) }}</text></view>
-						<view v-for="(item, j) in bg.items" :key="j" class="bill-item" @click="editBill(item)">
-							<view class="bic">{{ item.iconEmoji }}</view>
-							<view class="bill-info-wrap">
-								<view class="bnm">{{ item.name }}</view>
-								<view class="bac">{{ item.acc }}</view>
+						<uni-swipe-action-item
+							v-for="(item, j) in bg.items" :key="reloadKey + '-' + i + '-' + j"
+							:right-options="swipeDeleteOpt"
+							@click="onSwipeDelete($event, item)"
+							@touchmove.stop.prevent
+						>
+							<view class="bill-item" @click="editBill(item)">
+								<view class="bic">{{ item.iconEmoji }}</view>
+								<view class="bill-info-wrap">
+									<view class="bnm">{{ item.name }}</view>
+									<view class="bac">{{ item.acc }}</view>
+									<view class="bnn" v-if="item.note">{{ item.note }}</view>
+								</view>
+								<view class="bill-amt-wrap">
+									<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
+									<view v-if="item.excludeBudget" class="budget-badge">不计入预算</view>
+								</view>
 							</view>
-							<view class="bill-amt-wrap">
-								<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
-								<view v-if="item.excludeBudget" class="budget-badge">不计入预算</view>
-							</view>
-						</view>
+						</uni-swipe-action-item>
 					</view>
+					<view class="end-line">已经到底了</view>
 				</view>
 			</view>
 		</scroll-view>
@@ -118,7 +127,7 @@
 <script>
 import { fmt } from '@/common/constants.js'
 import { applyThemeToPage } from '@/common/theme-manager.js'
-import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId } from '@/common/app-data.js'
+import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId, deleteBill } from '@/common/app-data.js'
 import { isBrandIcon } from '@/common/lucide-icons.js'
 import TabBar from '@/components/TabBar.vue'
 
@@ -130,7 +139,12 @@ export default {
 			bills: [],
 			summary: {},
 			currentLedger: getLedger(getActiveLedgerId()),
-			ledgers: getLedgers()
+			ledgers: getLedgers(),
+			swipeDeleteOpt: [{
+				text: '删除',
+				style: { backgroundColor: '#E85D5D' }
+			}],
+			reloadKey: 0
 		}
 	},
 	computed: {
@@ -154,6 +168,7 @@ export default {
 			this.summary = getHomeSummary(lid)
 			this.accounts = getAccounts()
 			this.bills = getRecentBills(7, lid)
+			this.reloadKey++
 		},
 		isBrand(ic) {
 			return isBrandIcon(ic)
@@ -187,6 +202,18 @@ export default {
 		},
 		editBill(item) {
 			uni.navigateTo({ url: '/pages/accounting/bill-detail?id=' + item.id })
+		},
+		onSwipeDelete(e, item) {
+			uni.showModal({
+				title: '确认删除',
+				content: '确定要删除这笔账单吗？',
+				success: (res) => {
+					if (res.confirm) {
+						deleteBill(item.id)
+						this.loadData()
+					}
+				}
+			})
 		}
 	}
 }

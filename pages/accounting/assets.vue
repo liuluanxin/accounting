@@ -11,7 +11,7 @@
 				<view class="acc-list">
 					<view v-for="(acc, i) in accounts" :key="i" class="acc-row">
 						<view class="acc-row-left">
-							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="40rpx" />
+							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="72rpx" />
 							<text class="acc-name">{{ acc.name }}</text>
 						</view>
 						<text class="acc-bal">¥{{ fmt(acc.bal) }}</text>

@@ -70,9 +70,9 @@
 													<text v-if="ledger.current" class="ledger-badge">默认</text>
 												</view>
 												<view class="ledger-meta">
-													<text>本月支出 <text class="ledger-amount">{{ formatAmount(getLedgerExpense(ledger.id)) }}</text></text>
+													<view>本月支出 <text class="ledger-amount">{{ formatAmount(getLedgerExpense(ledger.id)) }}</text></view>
 													<text class="meta-divider">|</text>
-													<text>收入 <text class="ledger-amount income">{{ formatAmount(getLedgerIncome(ledger.id)) }}</text></text>
+													<view>收入 <text class="ledger-amount income">{{ formatAmount(getLedgerIncome(ledger.id)) }}</text></view>
 												</view>
 												<view class="ledger-progress">
 													<view class="progress-header">

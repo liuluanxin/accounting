@@ -11,7 +11,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "echo 'Lint check passed'"
+    "lint": "echo 'Lint check passed'",
+    "export:brands": "node scripts/export-brand-logos.mjs"
   },
   "repository": {
     "type": "git",

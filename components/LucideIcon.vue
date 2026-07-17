@@ -1,14 +1,15 @@
 <template>
-	<image
-		class="lucide-icon"
-		:src="src"
-		:style="wrapStyle"
-		mode="aspectFit"
-	/>
+	<view class="lucide-icon" :style="wrapStyle">
+		<image
+			class="lucide-icon__img"
+			:src="src"
+			:mode="imgMode"
+		/>
+	</view>
 </template>
 
 <script>
-import { iconSrc } from '@/common/lucide-icons.js'
+import { iconSrc, isBrandAssetIcon } from '@/common/lucide-icons.js'
 
 export default {
 	name: 'LucideIcon',
@@ -22,13 +23,14 @@ export default {
 		src() {
 			return iconSrc(this.name, this.color, this.brand)
 		},
+		imgMode() {
+			return isBrandAssetIcon(this.name) ? 'aspectFit' : 'scaleToFill'
+		},
 		wrapStyle() {
 			return {
 				width: this.size,
 				height: this.size,
-				display: 'inline-block',
-				flexShrink: 0,
-				verticalAlign: 'middle'
+				flexShrink: 0
 			}
 		}
 	}
@@ -37,6 +39,19 @@ export default {
 
 <style scoped>
 .lucide-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	vertical-align: middle;
 	line-height: 0;
+	flex-shrink: 0;
+}
+
+.lucide-icon__img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	pointer-events: none;
 }
 </style>

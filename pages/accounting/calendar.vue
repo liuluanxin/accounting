@@ -40,7 +40,7 @@
 					<text class="day-title">{{ calMonth }}月{{ calSel }}日</text>
 					<text v-if="dayBills.length" class="day-summary">
 						支出 <text class="exp">¥{{ fmt(dayExpense) }}</text>
-						<text v-if="dayIncome"> · 收入 <text class="inc">¥{{ fmt(dayIncome) }}</text></text>
+						<view v-if="dayIncome"> · 收入 <text class="inc">¥{{ fmt(dayIncome) }}</text></view>
 					</text>
 					<text v-else class="muted">暂无账单</text>
 				</view>

@@ -5,3 +5,4 @@ unpackage/
 *.log
 .DS_Store
 Thumbs.db
+scripts/.tmp-*.mjs

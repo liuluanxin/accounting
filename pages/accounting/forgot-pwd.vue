@@ -74,7 +74,7 @@
 							<text>下一步</text>
 						</view>
 
-						<text class="tip-text">没有收到验证码？<text class="btn-link" @click="sendCode">重新发送</text></text>
+						<view class="tip-text">没有收到验证码？<text class="btn-link" @click="sendCode">重新发送</text></view>
 					</template>
 
 					<!-- 步骤2：设置新密码 -->

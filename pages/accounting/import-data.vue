@@ -15,7 +15,7 @@
 				@click="onImport(item)"
 			>
 				<view class="import-card__icon" :style="{ background: item.gradient }">
-					<lucide-icon :name="item.icon" :brand="item.brand" size="40rpx" />
+					<lucide-icon :name="item.icon" :brand="item.brand" size="64rpx" />
 				</view>
 				<view class="import-card__body">
 					<text class="import-card__title">{{ item.title }}</text>
@@ -111,6 +111,9 @@ export default {
 	justify-content: center;
 	flex-shrink: 0;
 	color: #fff;
+	overflow: hidden;
+	padding: 8rpx;
+	box-sizing: border-box;
 }
 .import-card__body {
 	flex: 1;

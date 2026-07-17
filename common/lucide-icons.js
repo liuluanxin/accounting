@@ -4,12 +4,10 @@
  */
 
 import { BANK_ICONS_MAP } from '@/common/account-icons-bank.js'
+import { PAYMENT_BRAND_SVGS, PAYMENT_BRAND_KEYS } from '@/common/brand-icons.js'
+import { BANK_ALIASES, getBrandAssetSrc } from '@/common/brand-assets.js'
 
-/** ACC_ICON_KEYS 与银行图标库 key 别名 */
-export const BANK_ALIASES = {
-	abc: 'abchina',
-	comm: 'bankcomm'
-}
+export { BANK_ALIASES }
 
 export const ICON_INNER = {
 	planet: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="15" ry="5" transform="rotate(-22 12 12)"/>',
@@ -80,19 +78,14 @@ export const CAT_META = {
 	'红包': { color: '#E84393', emoji: '🧧' }
 }
 
-/** 品牌 Logo SVG（完整标签） */
+/** 品牌 Logo SVG（app-logo + 支付生活，银行走 BANK_ICONS_MAP） */
 export const BRAND_LOGOS = {
-	'app-logo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><radialGradient id="pg" cx="35%" cy="30%"><stop offset="0%" stop-color="#C7E4FF"/><stop offset="55%" stop-color="#7FB8F0"/><stop offset="100%" stop-color="#5B9BE0"/></radialGradient></defs><circle cx="12" cy="12" r="9" fill="url(#pg)"/><ellipse cx="12" cy="12" rx="15" ry="5" transform="rotate(-22 12 12)" stroke="#8FC9FF" stroke-width="2.5" fill="none" opacity="0.7"/><circle cx="16" cy="8" r="1.5" fill="#FFD66B"/></svg>',
-	wechat: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#07C160"/><ellipse cx="9.5" cy="11" rx="4.5" ry="3.5" fill="#fff"/><ellipse cx="14.5" cy="13" rx="4.5" ry="3.5" fill="#fff" stroke="#07C160" stroke-width="1"/></svg>',
-	alipay: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1677FF"/><text x="12" y="16.5" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">支</text></svg>',
-	cmb: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E60012"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">招</text></svg>',
-	icbc: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#C41230"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">工</text></svg>',
-	ccb: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#003B8F"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">建</text></svg>',
-	qq: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#12B7F5"/><text x="12" y="16.5" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Q</text></svg>',
-	jd: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E1251B"/><text x="12" y="16.5" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">京</text></svg>',
-	meituan: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFC300"/><text x="12" y="16.5" text-anchor="middle" fill="#333" font-size="11" font-weight="bold">美</text></svg>',
-	huabei: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1677FF"/><text x="12" y="16.5" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">花</text></svg>'
+	'app-logo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><radialGradient id="pg" cx="35%" cy="30%"><stop offset="0%" stop-color="#C7E4FF"/><stop offset="55%" stop-color="#7FB8F0"/><stop offset="100%" stop-color="#5B9BE0"/></radialGradient></defs><g transform="translate(12 12) scale(1.2) translate(-12 -12)"><circle cx="12" cy="12" r="9.5" fill="url(#pg)"/><ellipse cx="12" cy="12" rx="16" ry="5.5" transform="rotate(-22 12 12)" stroke="#8FC9FF" stroke-width="2.5" fill="none" opacity="0.7"/><circle cx="16" cy="8" r="1.8" fill="#FFD66B"/></g></svg>',
+	...PAYMENT_BRAND_SVGS
 }
+
+/** 图标内容放大系数（银行白底圆适当放大 Logo） */
+export const ICON_CONTENT_SCALE = 1.22
 
 function svgToDataUri(svg) {
 	if (!svg) return ''
@@ -100,19 +93,49 @@ function svgToDataUri(svg) {
 	return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
 }
 
-function buildStrokeSvg(name, color = '#5A6B8A') {
-	const inner = ICON_INNER[name] || ICON_INNER.tag
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+/** 以 viewBox 中心放大 SVG 内容（用于银行 data URI 等） */
+function zoomSvgDataUri(dataUri, scale = ICON_CONTENT_SCALE) {
+	if (!dataUri || !dataUri.startsWith('data:image/svg+xml')) return dataUri
+	try {
+		const svg = decodeURIComponent(dataUri.slice(dataUri.indexOf(',') + 1))
+		const match = svg.match(/<svg([^>]*)>([\s\S]*)<\/svg>/i)
+		if (!match) return dataUri
+		const attrs = match[1]
+		const vbMatch = attrs.match(/viewBox=["']([^"']+)["']/)
+		const vb = vbMatch ? vbMatch[1] : '0 0 24 24'
+		const p = vb.split(/[\s,]+/).map(Number)
+		const cx = p[0] + p[2] / 2
+		const cy = p[1] + p[3] / 2
+		const zoomed = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"><g transform="translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})">${match[2]}</g></svg>`
+		return svgToDataUri(zoomed)
+	} catch (e) {
+		return dataUri
+	}
 }
 
-/** 生成可在 image 标签中使用的 SVG data URI（全平台兼容） */
+function buildStrokeSvg(name, color = '#5A6B8A') {
+	const inner = ICON_INNER[name] || ICON_INNER.tag
+	const s = ICON_CONTENT_SCALE
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(12 12) scale(${s}) translate(-12 -12)">${inner}</g></svg>`
+}
+
+/** 生成可在 image 标签中使用的图标地址（本地素材优先，否则 SVG data URI） */
 export function iconSrc(name, color = '#5A6B8A', brand = false) {
 	const bankKey = BANK_ALIASES[name] || name
-	if (brand || BANK_ICONS_MAP[bankKey]) {
+	const isPaymentBrand = PAYMENT_BRAND_KEYS.includes(name) || name === 'app-logo'
+	const isBankBrand = !!(BANK_ICONS_MAP[bankKey] && !isPaymentBrand)
+	const wantsBrand = brand || isPaymentBrand || isBankBrand
+
+	if (wantsBrand) {
+		const asset = getBrandAssetSrc(name) || getBrandAssetSrc(bankKey)
+		if (asset) return asset
+	}
+
+	if (isBankBrand) {
 		const bank = BANK_ICONS_MAP[bankKey]
 		if (bank && bank.icon) return bank.icon
 	}
-	if (brand && BRAND_LOGOS[name]) {
+	if ((brand || isPaymentBrand) && BRAND_LOGOS[name]) {
 		return svgToDataUri(BRAND_LOGOS[name])
 	}
 	return svgToDataUri(buildStrokeSvg(name, color))
@@ -120,8 +143,28 @@ export function iconSrc(name, color = '#5A6B8A', brand = false) {
 
 export function isBrandIcon(name) {
 	const bankKey = BANK_ALIASES[name] || name
-	return !!(BRAND_LOGOS[name] || BANK_ICONS_MAP[bankKey])
+	return !!(
+		getBrandAssetSrc(name) ||
+		getBrandAssetSrc(bankKey) ||
+		BRAND_LOGOS[name] ||
+		BANK_ICONS_MAP[bankKey]
+	)
 }
+
+export function isBrandAssetIcon(name) {
+	const bankKey = BANK_ALIASES[name] || name
+	return !!(getBrandAssetSrc(name) || getBrandAssetSrc(bankKey))
+}
+
+/** 创建账户页图标列表（来自注册表） */
+export { ACC_ICON_KEYS } from '@/common/account-icon-registry.js'
+export { getAccountIconLabel, searchAccountIcons, getAccountIcons } from '@/common/account-icon-registry.js'
+export {
+	getBrandAssetSrc,
+	hasBrandAsset,
+	expectedBrandAssetPath,
+	ALL_BRAND_ICON_KEYS
+} from '@/common/brand-assets.js'
 
 export function iconSvg(name, size = '1em') {
 	const inner = ICON_INNER[name] || ''
@@ -135,8 +178,3 @@ export function icon2(name, size = '1em') {
 export function catEmoji(iconKey) {
 	return ICON_EMOJI[iconKey] || '📦'
 }
-
-export const ACC_ICON_KEYS = [
-	'wallet', 'credit-card', 'banknote', 'wechat', 'alipay', 'qq', 'trending-up',
-	'icbc', 'ccb', 'abc', 'boc', 'comm', 'cmb', 'spdb', 'cgb', 'cmbc', 'citic', 'jd', 'meituan', 'huabei'
-]

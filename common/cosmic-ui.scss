@@ -529,14 +529,14 @@
   padding-top: 0;
 }
 .bic {
-  width: 76rpx;
-  height: 76rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
   background: #EEF4FF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
+  font-size: 48rpx;
   flex-shrink: 0;
 }
 .bnm {
@@ -985,6 +985,9 @@
   cursor: pointer;
   border: 2rpx solid transparent;
   gap: 4rpx;
+  overflow: hidden;
+  padding: 6rpx;
+  box-sizing: border-box;
 }
 .acc-ic-grid .p .label {
   font-size: 18rpx;

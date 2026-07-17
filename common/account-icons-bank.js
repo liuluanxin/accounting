@@ -1,278 +1,125 @@
 // ============================================================
-// 银行图标库 - Bank Icons
-// 每个图标为 100x100 SVG data URI，白底 + 品牌色 Logo 图案
-// 使用 ES module 导出，可直接 import 使用
+// 银行图标库 — 高保真自绘（官方标准色 + 识别图形）
+// viewBox 100×100，满铺圆底（与支付品牌一致）
 // ============================================================
 
-// ---------- 1. 中信银行 ----------
-// 白底 + 红色对称"中"字变形
-export const ICON_CITIC = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M35 35 L65 35 L65 44 L35 44 Z" fill="#E60012"/>' +
-  '<path d="M46 35 L46 65 L54 65 L54 35 Z" fill="#E60012"/>' +
-  '<path d="M35 56 L65 56 L65 65 L35 65 Z" fill="#E60012"/>' +
-  '</svg>'
-);
+import { brandCircle } from './brand-svg-util.js'
 
-// ---------- 2. 光大银行 ----------
-// 白底 + 多彩"E"字母（黄粉蓝紫渐变）
-export const ICON_CEBBANK = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<defs>' +
-  '<linearGradient id="cebGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-  '<stop offset="0%" stop-color="#FFD700"/>' +
-  '<stop offset="25%" stop-color="#FF8C00"/>' +
-  '<stop offset="50%" stop-color="#FF69B4"/>' +
-  '<stop offset="75%" stop-color="#4169E1"/>' +
-  '<stop offset="100%" stop-color="#9400D3"/>' +
-  '</linearGradient>' +
-  '</defs>' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M30 25 L70 25 L70 37 L42 37 L42 47 L66 47 L66 57 L42 57 L42 67 L70 67 L70 79 L30 79 Z" fill="url(#cebGrad)"/>' +
-  '</svg>'
-);
+function bankDataUri(svg) {
+	return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+}
 
-// ---------- 3. 农业银行 ----------
-// 白底 + 绿色麦穗环绕古钱币
-export const ICON_ABCHINA = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<circle cx="50" cy="50" r="18" fill="#4CAF50"/>' +
-  '<circle cx="50" cy="50" r="12" fill="#FFFFFF"/>' +
-  '<rect x="45" y="45" width="10" height="10" rx="1" fill="#4CAF50"/>' +
-  '<ellipse cx="32" cy="35" rx="7" ry="3" fill="#4CAF50" transform="rotate(-30 32 35)"/>' +
-  '<ellipse cx="24" cy="50" rx="7" ry="3" fill="#4CAF50"/>' +
-  '<ellipse cx="32" cy="65" rx="7" ry="3" fill="#4CAF50" transform="rotate(30 32 65)"/>' +
-  '<ellipse cx="68" cy="35" rx="7" ry="3" fill="#4CAF50" transform="rotate(30 68 35)"/>' +
-  '<ellipse cx="76" cy="50" rx="7" ry="3" fill="#4CAF50"/>' +
-  '<ellipse cx="68" cy="65" rx="7" ry="3" fill="#4CAF50" transform="rotate(-30 68 65)"/>' +
-  '</svg>'
-);
+/** 原始 SVG 字符串（供 static/brands 导出与 data URI 共用） */
+export const BANK_BRAND_SVGS = {
+	icbc: brandCircle('#C7000B',
+		'<rect x="28" y="28" width="44" height="44" rx="6" fill="none" stroke="#fff" stroke-width="4.5"/>' +
+		'<rect x="38" y="36" width="24" height="5" fill="#fff"/>' +
+		'<rect x="47.5" y="36" width="5" height="28" fill="#fff"/>' +
+		'<rect x="38" y="59" width="24" height="5" fill="#fff"/>'
+	),
+	ccb: brandCircle('#003A8F',
+		'<path d="M68 28C82 28 90 38 90 50C90 62 82 72 68 72H54C68 62 68 38 54 28H68Z" fill="#fff" opacity=".95"/>' +
+		'<path d="M54 28H68C82 28 90 38 90 50C90 62 82 72 68 72H54V58C66 58 66 42 54 42V28Z" fill="#fff"/>'
+	),
+	abchina: brandCircle('#009944',
+		'<circle cx="50" cy="50" r="18" fill="#fff"/>' +
+		'<rect x="45" y="45" width="10" height="10" rx="1" fill="#009944"/>' +
+		'<ellipse cx="32" cy="36" rx="8" ry="3.5" fill="#fff" transform="rotate(-30 32 36)"/>' +
+		'<ellipse cx="24" cy="50" rx="8" ry="3.5" fill="#fff"/>' +
+		'<ellipse cx="32" cy="64" rx="8" ry="3.5" fill="#fff" transform="rotate(30 32 64)"/>' +
+		'<ellipse cx="68" cy="36" rx="8" ry="3.5" fill="#fff" transform="rotate(30 68 36)"/>' +
+		'<ellipse cx="76" cy="50" rx="8" ry="3.5" fill="#fff"/>' +
+		'<ellipse cx="68" cy="64" rx="8" ry="3.5" fill="#fff" transform="rotate(-30 68 64)"/>'
+	),
+	boc: brandCircle('#C7000B',
+		'<circle cx="50" cy="50" r="26" fill="#fff"/>' +
+		'<rect x="44" y="34" width="12" height="32" fill="#C7000B"/>' +
+		'<rect x="34" y="44" width="32" height="12" fill="#C7000B"/>'
+	),
+	bankcomm: brandCircle('#003A8F',
+		'<path d="M22 58C38 34 50 50 50 50C50 50 62 34 78 58C62 70 50 56 50 56C50 56 38 70 22 58Z" fill="#fff"/>'
+	),
+	cmb: brandCircle('#C7000B',
+		'<path d="M22 72L40 30L50 48L60 30L78 72L66 72L56 50L50 60L44 50L34 72Z" fill="#fff"/>'
+	),
+	spdb: brandCircle('#1D2088',
+		'<path d="M62 28C48 28 44 40 44 48C44 56 48 60 54 60C60 60 62 64 62 70C62 78 54 82 44 82" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>'
+	),
+	citic: brandCircle('#E60012',
+		'<rect x="30" y="32" width="40" height="8" fill="#fff"/>' +
+		'<rect x="46" y="32" width="8" height="36" fill="#fff"/>' +
+		'<rect x="30" y="60" width="40" height="8" fill="#fff"/>'
+	),
+	cebbank: (
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+		'<circle cx="50" cy="50" r="50" fill="#fff"/>' +
+		'<defs><linearGradient id="ceb" x1="0" y1="0" x2="1" y2="1">' +
+		'<stop offset="0%" stop-color="#FFD700"/><stop offset="50%" stop-color="#FF69B4"/><stop offset="100%" stop-color="#4169E1"/></linearGradient></defs>' +
+		'<path d="M28 24H72V36H40V44H68V56H40V64H72V76H28Z" fill="url(#ceb)"/>' +
+		'</svg>'
+	),
+	cmbc: (
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+		'<circle cx="50" cy="50" r="50" fill="#fff"/>' +
+		'<defs><linearGradient id="cmbc" x1="0" y1="0" x2="1" y2="1">' +
+		'<stop offset="0%" stop-color="#0099CC"/><stop offset="100%" stop-color="#00B388"/></linearGradient></defs>' +
+		'<path d="M64 28C48 28 44 42 44 50C44 58 48 62 54 62C60 62 64 66 64 74C64 82 54 86 42 86" fill="none" stroke="url(#cmbc)" stroke-width="8" stroke-linecap="round"/>' +
+		'</svg>'
+	),
+	cib: brandCircle('#003A8F',
+		'<circle cx="50" cy="50" r="20" fill="none" stroke="#fff" stroke-width="5"/>' +
+		'<circle cx="50" cy="50" r="6" fill="#fff"/>'
+	),
+	pingan: (
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+		'<defs><linearGradient id="pa" x1="0" y1="0" x2="1" y2="1">' +
+		'<stop offset="0%" stop-color="#FF6600"/><stop offset="100%" stop-color="#E60012"/></linearGradient></defs>' +
+		'<circle cx="50" cy="50" r="50" fill="url(#pa)"/>' +
+		'<text x="50" y="58" text-anchor="middle" fill="#fff" font-size="22" font-weight="700" font-family="PingFang SC,Microsoft YaHei,sans-serif">平安</text>' +
+		'</svg>'
+	),
+	cgb: brandCircle('#E60012',
+		'<path d="M50 28L78 72H22Z" fill="#fff"/>' +
+		'<path d="M50 42L64 68H36Z" fill="#E60012"/>'
+	),
+	psbc: brandCircle('#007E3E',
+		'<path d="M50 24L80 56H62V76H38V56H20Z" fill="#fff"/>'
+	),
+	mybank: brandCircle('#0066CC',
+		'<path d="M26 72L38 32L50 50L62 32L74 72L64 72L54 48L50 56L46 48L36 72Z" fill="#fff"/>'
+	)
+}
 
-// ---------- 4. 建设银行 ----------
-// 白底 + 蓝色立体"C"字
-export const ICON_CCB = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M62 25 Q75 25 75 50 Q75 75 62 75 L52 75 Q62 65 62 50 Q62 35 52 25 Z" fill="#003366"/>' +
-  '<path d="M52 25 L62 25 Q75 25 75 50 Q75 75 62 75 L52 75 L52 62 Q62 62 62 50 Q62 38 52 38 Z" fill="#0066CC"/>' +
-  '</svg>'
-);
+export const ICON_ICBC = bankDataUri(BANK_BRAND_SVGS.icbc)
+export const ICON_CCB = bankDataUri(BANK_BRAND_SVGS.ccb)
+export const ICON_ABCHINA = bankDataUri(BANK_BRAND_SVGS.abchina)
+export const ICON_BOC = bankDataUri(BANK_BRAND_SVGS.boc)
+export const ICON_BANKCOMM = bankDataUri(BANK_BRAND_SVGS.bankcomm)
+export const ICON_CMB = bankDataUri(BANK_BRAND_SVGS.cmb)
+export const ICON_SPDB = bankDataUri(BANK_BRAND_SVGS.spdb)
+export const ICON_CITIC = bankDataUri(BANK_BRAND_SVGS.citic)
+export const ICON_CEBBANK = bankDataUri(BANK_BRAND_SVGS.cebbank)
+export const ICON_CMBC = bankDataUri(BANK_BRAND_SVGS.cmbc)
+export const ICON_CIB = bankDataUri(BANK_BRAND_SVGS.cib)
+export const ICON_PINGAN = bankDataUri(BANK_BRAND_SVGS.pingan)
+export const ICON_CGB = bankDataUri(BANK_BRAND_SVGS.cgb)
+export const ICON_PSBC = bankDataUri(BANK_BRAND_SVGS.psbc)
+export const ICON_MYBANK = bankDataUri(BANK_BRAND_SVGS.mybank)
 
-// ---------- 5. 邮政储蓄 ----------
-// 白底 + 绿色飞鸟/箭头
-export const ICON_PSBC = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M50 25 L75 55 L60 55 L60 75 L40 75 L40 55 L25 55 Z" fill="#00A650"/>' +
-  '</svg>'
-);
-
-// ---------- 6. 中国银行 ----------
-// 白底 + 红色古钱币内嵌"中"字
-export const ICON_BOC = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<circle cx="50" cy="50" r="24" fill="#E60012"/>' +
-  '<rect x="44" y="36" width="12" height="28" fill="#FFFFFF"/>' +
-  '<rect x="36" y="44" width="28" height="12" fill="#FFFFFF"/>' +
-  '</svg>'
-);
-
-// ---------- 7. 交通银行 ----------
-// 白底 + 蓝色飞翼/蜜蜂
-export const ICON_BANKCOMM = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M25 55 Q40 35 50 50 Q60 35 75 55 Q60 65 50 52 Q40 65 25 55" fill="#003399"/>' +
-  '<ellipse cx="50" cy="50" rx="5" ry="8" fill="#003399"/>' +
-  '</svg>'
-);
-
-// ---------- 8. 民生银行 ----------
-// 白底 + 蓝绿渐变"S"形流动
-export const ICON_CMBC = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<defs>' +
-  '<linearGradient id="cmbcGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-  '<stop offset="0%" stop-color="#0099CC"/>' +
-  '<stop offset="100%" stop-color="#00CC99"/>' +
-  '</linearGradient>' +
-  '</defs>' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M62 30 Q48 30 46 45 Q44 55 50 55 Q56 55 56 62 Q56 72 45 72 Q36 72 34 62" fill="none" stroke="url(#cmbcGrad)" stroke-width="8" stroke-linecap="round"/>' +
-  '</svg>'
-);
-
-// ---------- 9. 浦发银行 ----------
-// 白底 + 蓝紫色"SP"字母
-export const ICON_SPDB = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<text x="50" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#6A0DAD">SP</text>' +
-  '</svg>'
-);
-
-// ---------- 10. 兴业银行 ----------
-// 白底 + 蓝色圆环中心圆点
-export const ICON_CIB = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<circle cx="50" cy="50" r="18" fill="none" stroke="#003399" stroke-width="5"/>' +
-  '<circle cx="50" cy="50" r="5" fill="#003399"/>' +
-  '</svg>'
-);
-
-// ---------- 11. 平安银行 ----------
-// 白底 + 橙红渐变圆角矩形，白色"平安"文字
-export const ICON_PINGAN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<defs>' +
-  '<linearGradient id="pinganGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-  '<stop offset="0%" stop-color="#FF6600"/>' +
-  '<stop offset="100%" stop-color="#E60012"/>' +
-  '</linearGradient>' +
-  '</defs>' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<rect x="20" y="32" width="60" height="36" rx="8" fill="url(#pinganGrad)"/>' +
-  '<text x="50" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#FFFFFF">平安</text>' +
-  '</svg>'
-);
-
-// ---------- 12. 工商银行 ----------
-// 白底 + 红色"工"字（外圆内方）
-export const ICON_ICBC = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<rect x="32" y="32" width="36" height="36" rx="4" fill="none" stroke="#E60012" stroke-width="5"/>' +
-  '<rect x="42" y="38" width="16" height="5" fill="#E60012"/>' +
-  '<rect x="48" y="38" width="5" height="24" fill="#E60012"/>' +
-  '<rect x="42" y="57" width="16" height="5" fill="#E60012"/>' +
-  '</svg>'
-);
-
-// ---------- 13. 广发银行 ----------
-// 白底 + 红色三角形/箭头组合
-export const ICON_CGB = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M50 30 L75 70 L25 70 Z" fill="#E60012"/>' +
-  '<path d="M50 42 L62 65 L38 65 Z" fill="#FFFFFF"/>' +
-  '</svg>'
-);
-
-// ---------- 14. 招商银行 ----------
-// 白底 + 红色"M"字母（山峰造型）
-export const ICON_CMB = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M25 70 L42 35 L50 50 L58 35 L75 70 L65 70 L55 50 L50 58 L45 50 L35 70 Z" fill="#E60012"/>' +
-  '</svg>'
-);
-
-// ---------- 15. 网商银行 ----------
-// 白底 + 蓝色"M"字母
-export const ICON_MYBANK = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-  '<circle cx="50" cy="50" r="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>' +
-  '<path d="M28 70 L40 35 L50 52 L60 35 L72 70 L63 70 L54 50 L50 58 L46 50 L37 70 Z" fill="#0066CC"/>' +
-  '</svg>'
-);
-
-// ============================================================
-// 银行图标映射表
-// 包含名称、图标 data URI、品牌色、背景色
-// ============================================================
 export const BANK_ICONS_MAP = {
-  citic: {
-    name: '中信银行',
-    icon: ICON_CITIC,
-    color: '#E60012',
-    bg: '#FFFFFF'
-  },
-  cebbank: {
-    name: '光大银行',
-    icon: ICON_CEBBANK,
-    color: '#FFD700',
-    bg: '#FFFFFF'
-  },
-  abchina: {
-    name: '农业银行',
-    icon: ICON_ABCHINA,
-    color: '#4CAF50',
-    bg: '#FFFFFF'
-  },
-  ccb: {
-    name: '建设银行',
-    icon: ICON_CCB,
-    color: '#003366',
-    bg: '#FFFFFF'
-  },
-  psbc: {
-    name: '邮政储蓄',
-    icon: ICON_PSBC,
-    color: '#00A650',
-    bg: '#FFFFFF'
-  },
-  boc: {
-    name: '中国银行',
-    icon: ICON_BOC,
-    color: '#E60012',
-    bg: '#FFFFFF'
-  },
-  bankcomm: {
-    name: '交通银行',
-    icon: ICON_BANKCOMM,
-    color: '#003399',
-    bg: '#FFFFFF'
-  },
-  cmbc: {
-    name: '民生银行',
-    icon: ICON_CMBC,
-    color: '#0099CC',
-    bg: '#FFFFFF'
-  },
-  spdb: {
-    name: '浦发银行',
-    icon: ICON_SPDB,
-    color: '#6A0DAD',
-    bg: '#FFFFFF'
-  },
-  cib: {
-    name: '兴业银行',
-    icon: ICON_CIB,
-    color: '#003399',
-    bg: '#FFFFFF'
-  },
-  pingan: {
-    name: '平安银行',
-    icon: ICON_PINGAN,
-    color: '#FF6600',
-    bg: '#FFFFFF'
-  },
-  icbc: {
-    name: '工商银行',
-    icon: ICON_ICBC,
-    color: '#E60012',
-    bg: '#FFFFFF'
-  },
-  cgb: {
-    name: '广发银行',
-    icon: ICON_CGB,
-    color: '#E60012',
-    bg: '#FFFFFF'
-  },
-  cmb: {
-    name: '招商银行',
-    icon: ICON_CMB,
-    color: '#E60012',
-    bg: '#FFFFFF'
-  },
-  mybank: {
-    name: '网商银行',
-    icon: ICON_MYBANK,
-    color: '#0066CC',
-    bg: '#FFFFFF'
-  }
-};
+	citic: { name: '中信银行', icon: ICON_CITIC, color: '#E60012', bg: '#E60012' },
+	cebbank: { name: '光大银行', icon: ICON_CEBBANK, color: '#FFD700', bg: '#FFFFFF' },
+	abchina: { name: '农业银行', icon: ICON_ABCHINA, color: '#009944', bg: '#009944' },
+	ccb: { name: '建设银行', icon: ICON_CCB, color: '#003A8F', bg: '#003A8F' },
+	psbc: { name: '邮政储蓄', icon: ICON_PSBC, color: '#007E3E', bg: '#007E3E' },
+	boc: { name: '中国银行', icon: ICON_BOC, color: '#C7000B', bg: '#C7000B' },
+	bankcomm: { name: '交通银行', icon: ICON_BANKCOMM, color: '#003A8F', bg: '#003A8F' },
+	cmbc: { name: '民生银行', icon: ICON_CMBC, color: '#0099CC', bg: '#FFFFFF' },
+	spdb: { name: '浦发银行', icon: ICON_SPDB, color: '#1D2088', bg: '#1D2088' },
+	cib: { name: '兴业银行', icon: ICON_CIB, color: '#003A8F', bg: '#003A8F' },
+	pingan: { name: '平安银行', icon: ICON_PINGAN, color: '#FF6600', bg: '#FF6600' },
+	icbc: { name: '工商银行', icon: ICON_ICBC, color: '#C7000B', bg: '#C7000B' },
+	cgb: { name: '广发银行', icon: ICON_CGB, color: '#E60012', bg: '#E60012' },
+	cmb: { name: '招商银行', icon: ICON_CMB, color: '#C7000B', bg: '#C7000B' },
+	mybank: { name: '网商银行', icon: ICON_MYBANK, color: '#0066CC', bg: '#0066CC' }
+}

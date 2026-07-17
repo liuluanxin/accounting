@@ -15,7 +15,7 @@
 			<view class="menu-list">
 				<view v-for="item in mainMenus" :key="item.id" class="menu-item" @click="onMenu(item)">
 					<view class="menu-item-icon">
-						<lucide-icon :name="item.icon" size="36rpx" />
+						<lucide-icon :name="item.icon" size="44rpx" />
 					</view>
 					<text class="menu-item-label">{{ item.label }}</text>
 					<lucide-icon name="chevron-right" size="28rpx" class="menu-item-arrow" />
@@ -26,7 +26,7 @@
 			<view class="menu-list">
 				<view v-for="item in extMenus" :key="item.id" class="menu-item" @click="onMenu(item)">
 					<view class="menu-item-icon">
-						<lucide-icon :name="item.icon" size="36rpx" />
+						<lucide-icon :name="item.icon" size="44rpx" />
 					</view>
 					<text class="menu-item-label">{{ item.label }}</text>
 					<lucide-icon name="chevron-right" size="28rpx" class="menu-item-arrow" />
@@ -176,6 +176,9 @@ export default {
 	justify-content: center;
 	flex: none;
 	color: var(--primary);
+	overflow: hidden;
+	padding: 4rpx;
+	box-sizing: border-box;
 }
 .menu-item-label {
 	flex: 1;
