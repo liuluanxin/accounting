@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page home-page">
-		<status-bar />
 		<top-bar
 			variant="home"
 			:current-ledger="currentLedger"
@@ -23,13 +22,10 @@
 					</view>
 				</view>
 				<view class="hero-planet">
-					<svg viewBox="5 12 90 65" width="100%" height="100%">
-						<defs><radialGradient id="pg" cx="38%" cy="32%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#BFE0FF"/></radialGradient></defs>
-						<ellipse cx="50" cy="54" rx="45" ry="13" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="4" transform="rotate(-22 50 54)"/>
-						<circle cx="48" cy="46" r="27" fill="url(#pg)"/>
-						<circle cx="76" cy="28" r="12" fill="#FFD66B" stroke="#fff" stroke-width="2.5"/>
-						<text x="76" y="33" text-anchor="middle" fill="#B7791F" font-size="15" font-weight="bold" font-family="system-ui,sans-serif">¥</text>
-					</svg>
+					<view class="planet-ring"></view>
+					<view class="planet-body"></view>
+					<view class="planet-sun"></view>
+					<text class="planet-yen">¥</text>
 				</view>
 			</view>
 
@@ -44,7 +40,9 @@
 				</view>
 				<view class="ring-wrap">
 					<view class="ring" :style="budgetRingStyle">
-						<view class="hole" />
+						<view class="hole">
+							<text class="ring-pct">{{ budgetRemainPct }}%</text>
+						</view>
 					</view>
 					<view style="flex:1">
 						<view class="row" style="justify-content:space-between;font-size:26rpx">
@@ -71,7 +69,7 @@
 							<lucide-icon :name="acc.ic" :brand="isBrand(acc.ic)" size="72rpx" />
 						</view>
 						<text class="nm">{{ acc.name }}</text>
-						<text class="bl">¥{{ fmt(acc.bal) }}</text>
+						<text class="bl">{{ fmt(acc.bal) }}</text>
 					</view>
 				</scroll-view>
 			</view>
@@ -127,7 +125,7 @@
 <script>
 import { fmt } from '@/common/constants.js'
 import { applyThemeToPage } from '@/common/theme-manager.js'
-import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId, deleteBill } from '@/common/app-data.js'
+import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId, deleteBill, saveBudgetTotal } from '@/common/app-data.js'
 import { isBrandIcon } from '@/common/lucide-icons.js'
 import TabBar from '@/components/TabBar.vue'
 
@@ -153,6 +151,10 @@ export default {
 			return {
 				background: `conic-gradient(#FFB020 0 ${pct}%, #E3ECF7 ${pct}% 100%)`
 			}
+		},
+		budgetRemainPct() {
+			const pct = this.summary.budgetPercent || 0
+			return Math.round(100 - pct)
 		}
 	},
 	onShow() {
@@ -198,7 +200,24 @@ export default {
 			uni.navigateTo({ url: '/pages/accounting/budget' })
 		},
 		showBudgetSettings() {
-			uni.showToast({ title: '编辑总预算', icon: 'none' })
+			uni.showModal({
+				title: '编辑总预算',
+				content: '输入本月总预算金额',
+				editable: true,
+				placeholderText: String(this.summary.budgetTotal || ''),
+				success: (res) => {
+					if (res.confirm && res.content) {
+						const val = Number(res.content)
+						if (isNaN(val) || val <= 0) {
+							uni.showToast({ title: '请输入有效金额', icon: 'none' })
+							return
+						}
+						saveBudgetTotal(val)
+						this.loadData()
+						uni.showToast({ title: '预算已更新', icon: 'success' })
+					}
+				}
+			})
 		},
 		editBill(item) {
 			uni.navigateTo({ url: '/pages/accounting/bill-detail?id=' + item.id })

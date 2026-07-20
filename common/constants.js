@@ -54,9 +54,8 @@ export const INCOME_CATS = [
 /* ===== 工具函数 ===== */
 export function fmt(n) {
   const num = Number(n)
-  if (isNaN(num)) return '0.00'
-  if (num === 0) return '0.00'
-  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (isNaN(num)) return '¥0.00'
+  return '¥' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export function f2(n) {

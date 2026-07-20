@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page profile-page">
-		<status-bar />
 		<top-bar title="我的" />
 
 		<scroll-view scroll-y class="screen screen--pb">
@@ -58,7 +57,7 @@ export default {
 				{ id: 'budget', label: '预算管理', icon: 'bar-chart', url: '/pages/accounting/budget' },
 				{ id: 'category', label: '分类管理', icon: 'tag', url: '/pages/accounting/category-manage' },
 				{ id: 'import', label: '数据导入', icon: 'upload', url: '/pages/accounting/import-data' },
-				{ id: 'backup', label: '数据备份与恢复', icon: 'cloud', toast: '数据备份与恢复' },
+				{ id: 'backup', label: '数据备份与恢复', icon: 'cloud', url: '/pages/accounting/data-backup' },
 				{ id: 'export', label: '账单导出', icon: 'download', toast: '账单导出' },
 				{ id: 'theme', label: '主题设置', icon: 'palette', url: '/pages/accounting/theme-settings' },
 				{ id: 'about', label: '关于宇宙记账', icon: 'info', toast: '关于宇宙记账' }

@@ -24,7 +24,6 @@
   --card-shadow: 0 6rpx 20rpx rgba(91, 140, 210, 0.12);
   --primary-shadow: 0 4rpx 16rpx rgba(74, 144, 217, 0.35);
   --hero-gradient: linear-gradient(135deg, #8FC9FF 0%, #5B9BE0 55%, #8B7FF0 100%);
-  --statusbar-height: 92rpx;
 }
 
 /* ===== 页面容器 ===== */
@@ -35,134 +34,10 @@
   overflow: hidden;
 }
 
-/* ===== 状态栏 ===== */
-.statusbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  height: var(--statusbar-height);
-  padding: env(safe-area-inset-top) 28rpx 0;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  background: linear-gradient(180deg, #EAF4FF 0%, transparent 100%);
-  pointer-events: none;
-  color: var(--text-primary);
-}
-.statusbar-time {
-  font-size: 28rpx;
-  font-weight: 600;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.statusbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  flex-shrink: 0;
-}
-.signal-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 4rpx;
-  width: 28rpx;
-  height: 22rpx;
-  flex-shrink: 0;
-}
-.signal-bar {
-  flex: 1;
-  min-width: 4rpx;
-  border-radius: 2rpx;
-  background: currentColor;
-}
-.battery {
-  position: relative;
-  width: 44rpx;
-  height: 22rpx;
-  border: 2rpx solid currentColor;
-  border-radius: 6rpx;
-  padding: 3rpx;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-.battery::after {
-  content: '';
-  position: absolute;
-  right: -6rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4rpx;
-  height: 10rpx;
-  background: currentColor;
-  border-radius: 0 2rpx 2rpx 0;
-}
-.battery-level {
-  width: 72%;
-  height: 100%;
-  border-radius: 2rpx;
-  background: currentColor;
-}
-/* 兼容旧版内联 SVG 状态栏，防止矩形溢出成黑色竖条 */
-.statusbar .right {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.statusbar .ic {
-  width: 28rpx;
-  height: 28rpx;
-  flex-shrink: 0;
-  display: block;
-  overflow: hidden;
-}
-.statusbar svg {
-  width: 28rpx;
-  height: 28rpx;
-  display: block;
-  overflow: hidden;
-}
-.statusbar svg rect {
-  fill: none !important;
-}
-.statusbar .bat {
-  width: 44rpx;
-  height: 22rpx;
-  border: 2rpx solid currentColor;
-  border-radius: 6rpx;
-  padding: 3rpx;
-  box-sizing: border-box;
-  position: relative;
-  flex-shrink: 0;
-}
-.statusbar .bat::after {
-  content: '';
-  position: absolute;
-  right: -6rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4rpx;
-  height: 10rpx;
-  background: currentColor;
-  border-radius: 0 2rpx 2rpx 0;
-}
-.statusbar .bat i {
-  display: block;
-  width: 72%;
-  height: 100%;
-  background: currentColor;
-  border-radius: 2rpx;
-}
-
 /* ===== 顶部导航栏 ===== */
 .topbar {
   position: fixed;
-  top: 92rpx;
+  top: var(--status-bar-height);
   left: 0;
   right: 0;
   z-index: 998;
@@ -207,7 +82,7 @@
 .screen {
   position: relative;
   z-index: 1;
-  padding-top: 192rpx;
+  padding-top: calc(var(--status-bar-height) + 100rpx);
   padding-bottom: 20rpx;
   height: 100vh;
   box-sizing: border-box;

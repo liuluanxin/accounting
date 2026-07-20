@@ -3,14 +3,9 @@
 	import { setupGlobalErrorHandler, vueErrorHandler } from '@/common/error-handler.js'
 	import { configureApi } from '@/services/api-client.js'
 	import { applyTheme, getCurrentTheme } from '@/common/theme-manager.js'
-	import { initDemoData } from '@/common/app-data.js'
-
 	export default {
 		onLaunch: function() {
 			setupGlobalErrorHandler()
-
-			// 首次使用初始化演示数据
-			initDemoData()
 			// #ifndef VUE3
 			Vue.config.errorHandler = vueErrorHandler
 			// #endif
@@ -23,7 +18,7 @@
 
 		Logger.info('App', '宇宙记账启动 [API: local]')
 
-			// 应用主题
+		// 应用主题
 			applyTheme(getCurrentTheme())
 
 			// 登录检查：已登录则跳转首页，未登录则停留在登录页

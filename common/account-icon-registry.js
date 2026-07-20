@@ -3,6 +3,12 @@
  * group: pay = 支付/生活, bank = 银行
  */
 export const ACCOUNT_ICON_REGISTRY = [
+	// —— 通用 Lucide（4 个）——
+	{ key: 'wallet', label: '钱包', group: 'generic', keywords: '钱包 wallet 通用' },
+	{ key: 'credit-card', label: '银行卡', group: 'generic', keywords: '银行卡 credit card 信用卡' },
+	{ key: 'banknote', label: '现金', group: 'generic', keywords: '现金 banknote 钞票' },
+	{ key: 'trending-up', label: '投资', group: 'generic', keywords: '投资 trending up 理财' },
+
 	// —— 支付 / 生活（参考图顺序）——
 	{ key: 'wechat', label: '微信', group: 'pay', keywords: '微信 wechat' },
 	{ key: 'alipay', label: '支付宝', group: 'pay', keywords: '支付宝 alipay 支' },

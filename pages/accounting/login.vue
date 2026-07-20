@@ -7,10 +7,7 @@
 		<view class="cosmic-deco-star" style="top:60rpx;left:80rpx;"></view>
 		<view class="cosmic-deco-star" style="top:240rpx;right:60rpx;width:5rpx;height:5rpx;"></view>
 
-		<!-- 状态栏 -->
-		<status-bar />
-
-		<top-bar title="登录" />
+		<top-bar title="" />
 
 		<scroll-view scroll-y class="screen">
 			<view class="login-content">
@@ -172,7 +169,7 @@
 	.login-content {
 		padding: 0 40rpx 80rpx;
 		width: 100%;
-		max-width: 600rpx;
+		max-width: 720rpx;
 		margin: 0 auto;
 		box-sizing: border-box;
 		position: relative;
@@ -207,7 +204,7 @@
 
 	/* ===== 登录卡片 ===== */
 	.login-form-card {
-		padding: 40rpx 32rpx;
+		padding: 52rpx 40rpx;
 		margin-bottom: 40rpx;
 	}
 
@@ -302,10 +299,9 @@
 
 	/* ===== 登录按钮 ===== */
 	.login-btn {
-		width: 86%;
-		max-width: 520rpx;
-		height: 96rpx;
-		min-height: 44px;
+		width: 100%;
+		height: 100rpx;
+		min-height: 48px;
 		margin: 0 auto;
 		font-size: 36rpx;
 		font-weight: 600;

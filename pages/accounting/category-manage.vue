@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page cat-manage-page">
-		<status-bar />
 		<top-bar title="分类管理" show-back>
 			<template #actions>
 				<view class="act act-sm" @click="toggleEdit">

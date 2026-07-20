@@ -104,7 +104,7 @@ export default {
 <style lang="scss" scoped>
 .topbar {
 	position: fixed;
-	top: var(--statusbar-height, 92rpx);
+	top: var(--status-bar-height);
 	left: 0;
 	right: 0;
 	z-index: 998;
@@ -112,7 +112,8 @@ export default {
 	display: flex;
 	align-items: center;
 	padding: 0 24rpx;
-	background: transparent;
+	background: linear-gradient(180deg, #EAF4FF 0%, #EAF4FF 50%, transparent 100%);
+	backdrop-filter: blur(16rpx);
 }
 .topbar.home {
 	justify-content: space-between;

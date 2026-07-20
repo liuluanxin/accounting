@@ -36,6 +36,29 @@
 	width: 220rpx; height: 220rpx; flex: none; position: relative; z-index: 1;
 	filter: drop-shadow(0 12rpx 28rpx rgba(40,80,150,0.25));
 }
+.hero-planet .planet-ring {
+	position: absolute; top: 46%; left: -2%; width: 105%; height: 28%;
+	border: 6rpx solid rgba(255,255,255,0.55); border-radius: 50%;
+	transform: rotate(-22deg); box-sizing: border-box; pointer-events: none;
+}
+.hero-planet .planet-body {
+	position: absolute; top: 22%; left: 16%; width: 56%; height: 56%;
+	border-radius: 50%;
+	background: radial-gradient(circle at 38% 32%, #FFFFFF, #BFE0FF);
+	pointer-events: none;
+}
+.hero-planet .planet-sun {
+	position: absolute; top: 6%; left: 62%; width: 24%; height: 24%;
+	border-radius: 50%;
+	background: #FFD66B; border: 4rpx solid #fff;
+	pointer-events: none;
+}
+.hero-planet .planet-yen {
+	position: absolute; top: 12%; left: 65%; width: 20%; height: 18%;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 28rpx; font-weight: bold; color: #B7791F;
+	pointer-events: none; z-index: 2;
+}
 .ring-wrap { display: flex; align-items: center; gap: 24rpx; }
 .ring {
 	width: 128rpx; height: 128rpx; border-radius: 50%; flex: none;
@@ -44,6 +67,10 @@
 .hole {
 	width: 96rpx; height: 96rpx; border-radius: 50%;
 	background: linear-gradient(180deg, #FFFFFF 0%, #EAF2FF 58%, #F1ECFF 100%);
+	display: flex; align-items: center; justify-content: center;
+}
+.ring-pct {
+	font-size: 24rpx; font-weight: 700; color: var(--text-primary);
 }
 .asset-scroll {
 	display: flex; gap: 20rpx; overflow-x: auto; white-space: nowrap;

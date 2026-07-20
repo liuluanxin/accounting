@@ -59,4 +59,16 @@ export function applyThemeToPage() {
   applyTheme(getCurrentTheme())
 }
 
-export default { getCurrentTheme, getTheme, getAllThemes, applyTheme, applyThemeToPage }
+/** 设置并保存主题 */
+export function setTheme(name) {
+  if (!THEMES[name]) return false
+  try {
+    uni.setStorageSync('app_theme', name)
+    applyTheme(name)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export default { getCurrentTheme, getTheme, getAllThemes, applyTheme, applyThemeToPage, setTheme }

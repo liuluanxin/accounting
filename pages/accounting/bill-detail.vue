@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page detail-page">
-		<status-bar />
 		<top-bar title="账单详情" show-back />
 
 		<scroll-view scroll-y class="screen">
@@ -129,7 +128,7 @@
 				@click="selectAcc(acc)"
 			>
 				<text class="acc-name">{{ acc.name }}</text>
-				<text class="acc-bal">¥{{ fmt(acc.bal) }}</text>
+				<text class="acc-bal">{{ fmt(acc.bal) }}</text>
 			</view>
 		</cosmic-sheet>
 	</view>

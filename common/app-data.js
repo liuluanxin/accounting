@@ -260,8 +260,12 @@ export function getCalMonthMap(year, month, ledgerId) {
   const map = {}
   bills.forEach(b => {
     const d = new Date(b.ts).getDate()
-    if (!map[d]) map[d] = { d, m: 0, sel: false, dot: false }
-    map[d].m += b.amt
+    if (!map[d]) map[d] = { d, income: 0, expense: 0, dot: false }
+    if (b.amt > 0) {
+      map[d].income += b.amt
+    } else {
+      map[d].expense += Math.abs(b.amt)
+    }
     if (b.amt !== 0) map[d].dot = true
   })
   return map
@@ -332,36 +336,3 @@ export function freqSubs(type) {
   }))
 }
 
-// ───── 默认初始化（首次使用创建演示数据） ─────
-
-export function initDemoData() {
-  if (db.getAccounts().length > 0 || db.getBills().length > 0) return
-
-  // 默认账户
-  db.saveAccounts([
-    { ic: 'banknote', name: '现金', bal: 1200 },
-    { ic: 'cmb', name: '招商银行', bal: 50000 },
-    { ic: 'wechat', name: '微信', bal: 3220 },
-    { ic: 'trending-up', name: '投资', bal: 32000 }
-  ])
-
-  // 默认账本
-  db.saveLedgers([
-    { id: 'general', name: '总账本' },
-    { id: 'family', name: '家庭账本' },
-    { id: 'business', name: '生意账本' },
-    { id: 'travel', name: '旅行账本' }
-  ])
-
-  // 默认预算
-  db.saveBudgetTotal(5000)
-  db.saveBudgetCats([
-    { ic: 'utensils', name: '餐饮', limit: 1500, used: 0, over: false },
-    { ic: 'car', name: '交通', limit: 500, used: 0, over: false },
-    { ic: 'shopping-bag', name: '购物', limit: 1000, used: 0, over: false },
-    { ic: 'gamepad-2', name: '娱乐', limit: 800, used: 0, over: false }
-  ])
-
-  // 默认用户
-  db.saveUser({ name: '星空旅人', email: '123456@qq.com' })
-}

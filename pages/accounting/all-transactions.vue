@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page all-tx-page">
-		<status-bar />
 		<top-bar title="全部账单" show-back />
 
 		<scroll-view scroll-y class="screen">

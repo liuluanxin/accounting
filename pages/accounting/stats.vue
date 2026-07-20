@@ -1,9 +1,25 @@
 <template>
 	<view class="cosmic-page stats-page">
-		<status-bar />
 		<top-bar title="统计" />
 
-		<scroll-view scroll-y class="screen screen--pb">
+		<!-- 固定期间导航（seg 滚动出去后显示） -->
+		<view class="sticky-head-fixed" :class="{ visible: stickyHeadShow }">
+			<view class="period-flex" :class="{ 'period-flex--total': statRange === 'total' }">
+				<button v-if="showArrows" class="parrow" @click="stepPeriod(-1)">
+					<lucide-icon name="chevron-left" size="36rpx" />
+				</button>
+				<text class="period-center" :class="{ 'period-center--left': statRange === 'total' }">{{ periodLabel }}</text>
+				<button v-if="showArrows" class="parrow" @click="stepPeriod(1)">
+					<lucide-icon name="chevron-right" size="36rpx" />
+				</button>
+			</view>
+			<view class="flt" @click="onFilter">
+				<lucide-icon name="sliders" size="24rpx" />
+				<text>筛选</text>
+			</view>
+		</view>
+
+		<scroll-view scroll-y class="screen screen--pb" @scroll="onScroll">
 			<!-- 时间维度 -->
 			<view class="seg">
 				<button
@@ -14,13 +30,13 @@
 				>{{ r.label }}</button>
 			</view>
 
-			<!-- 期间导航 -->
+			<!-- 期间导航（随滚动滑出隐藏） -->
 			<view class="sticky-head">
-				<view class="period-flex">
+				<view class="period-flex" :class="{ 'period-flex--total': statRange === 'total' }">
 					<button v-if="showArrows" class="parrow" @click="stepPeriod(-1)">
 						<lucide-icon name="chevron-left" size="36rpx" />
 					</button>
-					<text class="period-center">{{ periodLabel }}</text>
+					<text class="period-center" :class="{ 'period-center--left': statRange === 'total' }">{{ periodLabel }}</text>
 					<button v-if="showArrows" class="parrow" @click="stepPeriod(1)">
 						<lucide-icon name="chevron-right" size="36rpx" />
 					</button>
@@ -87,7 +103,7 @@
 				<view class="sankey">
 					<view class="sankey-col">
 						<view class="sankey-node" :style="{ borderColor: srcColor }">
-							{{ srcLabel }} ¥{{ fmt(mainAmount) }}
+							{{ srcLabel }} {{ fmt(mainAmount) }}
 						</view>
 					</view>
 					<view class="sankey-col">
@@ -156,6 +172,7 @@ export default {
 			statMonth: now.getMonth() + 1,
 			statWeekStart: ws.getTime(),
 			ledgerId: getActiveLedgerId(),
+			stickyHeadShow: false,
 			ranges: [
 				{ key: 'total', label: '总' },
 				{ key: 'year', label: '年' },
@@ -283,6 +300,10 @@ export default {
 		},
 		onFilter() {
 			uni.showToast({ title: '筛选', icon: 'none' })
+		},
+		onScroll(e) {
+			const st = e.detail.scrollTop || 0
+			this.stickyHeadShow = st > 60
 		}
 	}
 }
@@ -292,8 +313,13 @@ export default {
 .stats-page {
 	height: 100vh;
 	overflow: hidden;
+	background: #EAF4FF;
+}
+.stats-page .card {
+	background: #fff;
 }
 
+/* ===== 时间维度控件，随滚动滑动隐藏 ===== */
 .seg {
 	display: flex;
 	background: #eef1f5;
@@ -328,6 +354,27 @@ export default {
 	justify-content: space-between;
 	padding: 0 28rpx 16rpx;
 }
+
+/* ===== 固定期间导航（seg 滚动出去后显示） ===== */
+.sticky-head-fixed {
+	position: fixed;
+	top: 192rpx;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 28rpx 16rpx;
+	background: #EAF4FF;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s;
+}
+.sticky-head-fixed.visible {
+	opacity: 1;
+	pointer-events: auto;
+}
 .period-flex {
 	display: flex;
 	align-items: center;
@@ -335,12 +382,20 @@ export default {
 	gap: 16rpx;
 	flex: 1;
 }
+.period-flex--total {
+	justify-content: flex-start;
+}
 .period-center {
 	font-size: 30rpx;
 	font-weight: 600;
 	color: var(--text-primary);
 	min-width: 200rpx;
 	text-align: center;
+}
+.period-center--left {
+	text-align: left;
+	min-width: auto;
+	flex: none;
 }
 .parrow {
 	width: 64rpx;
@@ -512,6 +567,6 @@ export default {
 	padding: 18rpx 8rpx;
 	font-size: 26rpx;
 	color: var(--text-primary);
-	text-align: left;
+	text-align: right;
 }
 </style>

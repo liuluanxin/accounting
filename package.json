@@ -37,5 +37,8 @@
   },
   "uniStatistics": {
     "enable": false
+  },
+  "dependencies": {
+    "simple-icons": "^16.26.0"
   }
 }

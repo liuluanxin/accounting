@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page import-page">
-		<status-bar />
 		<top-bar title="数据导入" show-back />
 
 		<scroll-view scroll-y class="screen">

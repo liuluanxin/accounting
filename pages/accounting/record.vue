@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page bill-page">
-		<status-bar />
 		<top-bar title="记一笔" show-back />
 
 		<view class="bill-body">
@@ -110,7 +109,7 @@
 				@tap="selectAccount(acc)"
 			>
 				<text class="acc-name">{{ acc.name }}</text>
-				<text class="acc-bal">¥{{ fmt(acc.bal) }}</text>
+				<text class="acc-bal">{{ fmt(acc.bal) }}</text>
 			</view>
 		</cosmic-sheet>
 
@@ -463,7 +462,7 @@ export default {
 .bill-body {
 	flex: 1;
 	min-height: 0;
-	margin-top: calc(var(--statusbar-height, 92rpx) + 100rpx);
+	margin-top: calc(var(--status-bar-height) + 100rpx);
 	display: flex;
 	flex-direction: column;
 }

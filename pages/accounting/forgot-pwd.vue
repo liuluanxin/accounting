@@ -4,9 +4,6 @@
 		<view class="cosmic-deco-planet cosmic-deco-planet--big" style="top:-60rpx;right:-60rpx;"></view>
 		<view class="cosmic-deco-star" style="top:180rpx;left:60rpx;"></view>
 
-		<!-- 状态栏 -->
-		<status-bar />
-
 		<top-bar title="忘记密码" show-back @back="goBack" />
 
 		<scroll-view scroll-y class="screen">
@@ -246,7 +243,7 @@
 	.forgot-content {
 		padding: 0 40rpx 80rpx;
 		width: 100%;
-		max-width: 600rpx;
+		max-width: 720rpx;
 		margin: 0 auto;
 		box-sizing: border-box;
 		position: relative;
@@ -311,7 +308,7 @@
 
 	/* ===== 表单卡片 ===== */
 	.forgot-form-card {
-		padding: 40rpx 32rpx;
+		padding: 52rpx 40rpx;
 	}
 
 	/* ===== 锁图标 ===== */
@@ -417,10 +414,9 @@
 
 	/* ===== 按钮区域 ===== */
 	.step-btn {
-		width: 86%;
-		max-width: 520rpx;
-		height: 96rpx;
-		min-height: 44px;
+		width: 100%;
+		height: 100rpx;
+		min-height: 48px;
 		margin: 0 auto;
 		font-size: 34rpx;
 		font-weight: 600;

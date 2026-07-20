@@ -1,6 +1,5 @@
 <template>
 	<view class="cosmic-page">
-		<status-bar />
 		<top-bar title="自定义首页" show-back right-text="" @back="goBack">
 			<template #actions>
 				<view class="act" @click="onAdd">
