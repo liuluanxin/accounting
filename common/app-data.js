@@ -85,13 +85,12 @@ export function getBillById(id) {
   return db.getBills().find(b => b.id === id) || null
 }
 
-/** 获取近7天账单（按日期分组） */
-export function getRecentBills(limit = 7, ledgerId) {
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  sevenDaysAgo.setHours(0, 0, 0, 0)
+/** 获取当年账单（按日期分组） */
+export function getYearBills(ledgerId) {
+  const now = new Date()
+  const yearStart = new Date(now.getFullYear(), 0, 1)
   const all = filterByLedger(db.getBills(), ledgerId)
-    .filter(b => b.ts >= sevenDaysAgo.getTime())
+    .filter(b => b.ts >= yearStart.getTime())
     .sort((a, b) => b.ts - a.ts)
   return groupBillsByDate(all)
 }
@@ -103,10 +102,11 @@ function groupBillsByDate(bills) {
     const d = new Date(b.ts)
     const label = `${d.getMonth() + 1}月${d.getDate()}日`
     if (!map[label]) {
-      map[label] = { date: label, sum: 0, expense: 0, items: [] }
+      map[label] = { date: label, ts: b.ts, sum: 0, expense: 0, income: 0, items: [] }
     }
     map[label].sum += b.amt
     if (b.amt < 0) map[label].expense += Math.abs(b.amt)
+    else map[label].income += b.amt
     // 添加图标 emoji
     map[label].items.push({
       ...b,

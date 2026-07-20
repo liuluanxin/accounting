@@ -322,8 +322,8 @@ export default {
 	margin-bottom: 8rpx;
 }
 
-.detail-amt.inc { color: var(--income, #3cb878); }
-.detail-amt.exp { color: var(--expense, #e85d5d); }
+.detail-amt.inc { color: var(--income, #FF6B6B); }
+.detail-amt.exp { color: var(--expense, #34C759); }
 
 .detail-amt-sign {
 	font-size: 36rpx;
@@ -409,8 +409,8 @@ export default {
 
 .btn-delete {
 	background: #fff;
-	color: var(--expense, #e85d5d);
-	border: 2rpx solid var(--expense, #e85d5d);
+	color: var(--expense, #34C759);
+	border: 2rpx solid var(--expense, #34C759);
 }
 
 /* 日历选择器 */

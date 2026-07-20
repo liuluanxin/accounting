@@ -401,11 +401,11 @@ export default {
 }
 
 .cam-inc {
-	color: var(--income, #34C759);
+	color: var(--income, #FF6B6B);
 }
 
 .cam-exp {
-	color: var(--expense, #FF6B6B);
+	color: var(--expense, #34C759);
 }
 
 .cal-cell .dot {

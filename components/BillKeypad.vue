@@ -107,7 +107,6 @@ export default {
 
 .key--save {
 	flex: 1;
-	min-height: 156rpx;
 	background: var(--primary, #4a90d9);
 }
 

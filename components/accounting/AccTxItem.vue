@@ -61,8 +61,8 @@
 		font-size: 36rpx;
 		flex-shrink: 0;
 	}
-	.tx-icon.income { background: rgba(52, 199, 89, 0.12); color: var(--income, #34C759); }
-	.tx-icon.expense { background: rgba(255, 107, 107, 0.12); color: var(--expense, #FF6B6B); }
+	.tx-icon.income { background: rgba(255, 107, 107, 0.12); color: var(--income, #FF6B6B); }
+	.tx-icon.expense { background: rgba(52, 199, 89, 0.12); color: var(--expense, #34C759); }
 
 	.tx-info { flex: 1; min-width: 0; }
 	.tx-title { font-size: 30rpx; font-weight: 500; color: #1F2A47; margin-bottom: 4rpx; }
@@ -70,8 +70,8 @@
 
 	.tx-amount { text-align: right; flex-shrink: 0; }
 	.tx-amount .value { font-size: 34rpx; font-weight: 600; }
-	.tx-amount .value.income { color: var(--income, #34C759); }
-	.tx-amount .value.expense { color: var(--expense, #FF6B6B); }
+	.tx-amount .value.income { color: var(--income, #FF6B6B); }
+	.tx-amount .value.expense { color: var(--expense, #34C759); }
 
 	@media (min-width: 768px) {
 		.tx-item { margin: 0 48rpx 12rpx; }

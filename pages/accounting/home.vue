@@ -60,7 +60,7 @@
 				</view>
 			</view>
 
-			<!-- 账户 -->
+			<!-- 账户 
 			<view class="card">
 				<view class="card-title">我的账户</view>
 				<scroll-view scroll-x class="asset-scroll" show-scrollbar="false">
@@ -73,44 +73,81 @@
 					</view>
 				</scroll-view>
 			</view>
-
-			<!-- 近7天账单 -->
-			<view class="card">
-				<view class="between" style="margin-bottom:8rpx">
-					<text class="card-title" style="margin:0">近7天账单</text>
-					<text class="link" @click="goAllTransactions">全部账单
-						<lucide-icon name="chevron-right" size="16rpx" />
-					</text>
-				</view>
-				<view v-if="bills.length === 0" class="empty">
-					<view class="ei"><lucide-icon name="calendar" size="64rpx" /></view>
-					<text>暂无账单记录</text>
-				</view>
-				<view v-else class="bill-group">
-					<view v-for="(bg, i) in bills" :key="i" style="margin-bottom:16rpx">
-						<view class="ghead">{{ bg.date }} · <text class="exp">支 {{ fmt(Math.abs(bg.sum)) }}</text></view>
-						<uni-swipe-action-item
-							v-for="(item, j) in bg.items" :key="reloadKey + '-' + i + '-' + j"
-							:right-options="swipeDeleteOpt"
-							@click="onSwipeDelete($event, item)"
-							@touchmove.stop.prevent
-						>
-							<view class="bill-item" @click="editBill(item)">
-								<view class="bic">{{ item.iconEmoji }}</view>
-								<view class="bill-info-wrap">
-									<view class="bnm">{{ item.name }}</view>
-									<view class="bac">{{ item.acc }}</view>
-									<view class="bnn" v-if="item.note">{{ item.note }}</view>
-								</view>
-								<view class="bill-amt-wrap">
-									<view class="bam" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? '+' : '' }}{{ fmt(item.amt) }}</view>
-									<view v-if="item.excludeBudget" class="budget-badge">不计入预算</view>
-								</view>
+			-->
+			<view class="bill-section-header">
+				<text>全部账单</text>
+				<text class="link" @click="goAllTransactions">全部账单
+					<lucide-icon name="chevron-right" size="16rpx" />
+				</text>
+			</view>
+			<view v-if="bills.length === 0" class="empty">
+				<view class="ei"><lucide-icon name="calendar" size="64rpx" /></view>
+				<text>暂无账单记录</text>
+			</view>
+			<view v-else class="bill-list">
+				<view v-for="(bg, i) in bills" :key="i" class="bill-day-group">
+					<view class="section-header" @click="toggleCollapse(i)">
+						<text>{{ formatDateLabel(bg.ts) }}</text>
+						<view class="section-header-right">
+							<text v-if="bg.income" class="section-income">收 {{ fmt(bg.income) }}</text>
+							<text v-if="bg.expense" class="section-expense">支 -{{ fmt(bg.expense) }}</text>
+							<view class="section-fold">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20rpx;height:20rpx;display:block">
+									<path :d="collapsedMap[i] ? 'M7 10l5 5 5-5' : 'M7 14l5-5 5 5'" />
+								</svg>
 							</view>
-						</uni-swipe-action-item>
+						</view>
 					</view>
-					<view class="end-line">已经到底了</view>
+					<view v-if="!collapsedMap[i]">
+						<view v-if="isToday(bg.date)" class="today-card">
+							<uni-swipe-action-item
+								v-for="(item, j) in bg.items" :key="reloadKey + '-' + i + '-' + j"
+								:right-options="swipeDeleteOpt"
+								@click="onSwipeDelete($event, item)"
+								@touchmove.stop.prevent
+							>
+								<view class="tx-item" @click="editBill(item)">
+									<view class="tx-icon" :class="item.amt > 0 ? 'income' : 'expense'">{{ item.iconEmoji }}</view>
+									<view class="tx-info">
+										<view class="tx-title">{{ item.name }}</view>
+										<view class="tx-meta">
+											<text>{{ item.acc }}</text>
+											<text v-if="item.note" class="tx-note"> · {{ item.note }}</text>
+										</view>
+									</view>
+									<view class="tx-amount">
+										<view class="value" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? fmt(item.amt) : '-' + fmt(Math.abs(item.amt)) }}</view>
+										<view v-if="item.excludeBudget" class="method">不计入预算</view>
+									</view>
+								</view>
+							</uni-swipe-action-item>
+						</view>
+						<view v-else>
+							<uni-swipe-action-item
+								v-for="(item, j) in bg.items" :key="reloadKey + '-' + i + '-' + j"
+								:right-options="swipeDeleteOpt"
+								@click="onSwipeDelete($event, item)"
+								@touchmove.stop.prevent
+							>
+								<view class="tx-item" @click="editBill(item)">
+									<view class="tx-icon" :class="item.amt > 0 ? 'income' : 'expense'">{{ item.iconEmoji }}</view>
+									<view class="tx-info">
+										<view class="tx-title">{{ item.name }}</view>
+										<view class="tx-meta">
+											<text>{{ item.acc }}</text>
+											<text v-if="item.note" class="tx-note"> · {{ item.note }}</text>
+										</view>
+									</view>
+									<view class="tx-amount">
+										<view class="value" :class="item.amt > 0 ? 'inc' : 'exp'">{{ item.amt > 0 ? fmt(item.amt) : '-' + fmt(Math.abs(item.amt)) }}</view>
+										<view v-if="item.excludeBudget" class="method">不计入预算</view>
+									</view>
+								</view>
+							</uni-swipe-action-item>
+						</view>
+					</view>
 				</view>
+				<view class="end-line">已经到底了</view>
 			</view>
 		</scroll-view>
 
@@ -125,7 +162,7 @@
 <script>
 import { fmt } from '@/common/constants.js'
 import { applyThemeToPage } from '@/common/theme-manager.js'
-import { getAccounts, getLedgers, getLedger, getHomeSummary, getRecentBills, getActiveLedgerId, setActiveLedgerId, deleteBill, saveBudgetTotal } from '@/common/app-data.js'
+import { getAccounts, getLedgers, getLedger, getHomeSummary, getYearBills, getActiveLedgerId, setActiveLedgerId, deleteBill, saveBudgetTotal } from '@/common/app-data.js'
 import { isBrandIcon } from '@/common/lucide-icons.js'
 import TabBar from '@/components/TabBar.vue'
 
@@ -142,7 +179,8 @@ export default {
 				text: '删除',
 				style: { backgroundColor: '#E85D5D' }
 			}],
-			reloadKey: 0
+			reloadKey: 0,
+			collapsedMap: {}
 		}
 	},
 	computed: {
@@ -169,11 +207,23 @@ export default {
 			const lid = this.currentLedger.id
 			this.summary = getHomeSummary(lid)
 			this.accounts = getAccounts()
-			this.bills = getRecentBills(7, lid)
+			this.bills = getYearBills(lid)
 			this.reloadKey++
 		},
 		isBrand(ic) {
 			return isBrandIcon(ic)
+		},
+		formatDateLabel(ts) {
+			const d = new Date(ts)
+			const now = new Date()
+			const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+			const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+			const diff = (today - target) / 86400000
+			const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+			const wd = weekdays[d.getDay()]
+			if (diff === 0) return `今天 ${wd}`
+			if (diff === 1) return `昨天 ${wd}`
+			return `${d.getMonth() + 1}/${d.getDate()} ${wd}`
 		},
 		onSearch() {
 			uni.showToast({ title: '搜索', icon: 'none' })
@@ -233,6 +283,15 @@ export default {
 					}
 				}
 			})
+		},
+		isToday(dateLabel) {
+			const now = new Date()
+			const today = `${now.getMonth() + 1}月${now.getDate()}日`
+			return dateLabel === today
+		},
+		toggleCollapse(i) {
+			const key = String(i)
+			this.collapsedMap = { ...this.collapsedMap, [key]: !this.collapsedMap[key] }
 		}
 	}
 }

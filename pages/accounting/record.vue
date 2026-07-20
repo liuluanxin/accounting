@@ -1,20 +1,26 @@
 <template>
 	<view class="cosmic-page bill-page">
-		<top-bar title="记一笔" show-back />
+		<!-- 导航栏：返回 + 类型切换（收入/支出/转账） -->
+		<view class="record-nav">
+			<view class="record-nav__back" @tap="onNavBack">
+				<lucide-icon name="chevron-left" size="36rpx" />
+			</view>
+			<view class="record-nav__seg">
+				<view
+					v-for="t in typeTabs"
+					:key="t.id"
+					class="record-nav__tab"
+					:class="{ on: billType === t.id }"
+					@tap="setType(t.id)"
+				>{{ t.label }}</view>
+			</view>
+			<view class="record-nav__right" />
+		</view>
 
 		<view class="bill-body">
 			<scroll-view scroll-y class="bill-scroll" :show-scrollbar="false">
-				<view class="bill-tabs">
-					<view
-						v-for="t in typeTabs"
-						:key="t.id"
-						class="bill-tab"
-						:class="{ on: billType === t.id }"
-						@tap="setType(t.id)"
-					>{{ t.label }}</view>
-				</view>
 
-				<view v-if="billType !== 'transfer'" class="bill-freq">
+				<!-- <view v-if="billType !== 'transfer'" class="bill-freq">
 					<text class="freq-label">常用</text>
 					<view
 						v-for="(s, i) in frequentSubs"
@@ -26,7 +32,7 @@
 						<text class="sic">{{ catEmoji(s.ic) }}</text>
 						<text class="snm">{{ s.sub }}</text>
 					</view>
-				</view>
+				</view> -->
 
 				<view
 					v-for="(g, gi) in currentGroups"
@@ -55,23 +61,32 @@
 			</scroll-view>
 
 			<view class="bill-foot">
-				<view class="bill-amt-row" @tap="openRemarkSheet">
+				<view class="bill-amt-row">
 					<view class="bill-note-wrap">
-						<text class="bill-note" :class="{ ph: !remark }">
-							{{ remark || '点击输入备注或分类名' }}
-						</text>
+						<input
+							v-model="remark"
+							class="bill-note-input"
+							placeholder="点击输入备注或分类名"
+							maxlength="50"
+							:adjust-position="false"
+						/>
 					</view>
-					<view class="bill-amt" :class="amountClass">
-						<text class="bill-amt-sign">¥</text>
-						<text class="bill-amt-num">{{ displayAmount }}</text>
+					<view class="bill-amt-wrap">
+						<!-- 上方：输入区域，有计算时才显示，可回退删除 -->
+						<view v-if="calcExpr.length > 0" class="bill-calc-input">
+							<text v-if="displayExpr" class="bill-expr">{{ displayExpr }}</text>
+							<text v-if="displayAmount !== '0'" class="bill-amt-num">{{ displayAmount }}</text>
+						</view>
+						<!-- 下方：直接显示结果 -->
+						<view class="bill-calc-result" :class="amountClass">
+							<text class="bill-amt-sign">¥</text>
+							<text class="bill-amt-num">{{ displayResult }}</text>
+						</view>
 					</view>
 				</view>
 
 				<scroll-view scroll-x class="bill-tags-scroll" :show-scrollbar="false">
 					<view class="bill-tags">
-						<view class="bill-tag" @tap="onTemplate">
-							<text>模板</text>
-						</view>
 						<view class="bill-tag" @tap="onDatePick">
 							<text>{{ billDate }}</text>
 						</view>
@@ -167,21 +182,7 @@
 			</view>
 		</cosmic-sheet>
 
-		<cosmic-sheet
-			:visible="remarkSheetVisible"
-			@update:visible="remarkSheetVisible = $event"
-			@close="remarkSheetVisible = false"
-		>
-			<text class="sheet-title">备注</text>
-			<input
-				v-model="remarkDraft"
-				class="remark-input"
-				placeholder="选填，最多50字"
-				maxlength="50"
-			/>
-			<view class="sheet-btn" @tap="confirmRemark">确定</view>
-		</cosmic-sheet>
-	</view>
+		</view>
 </template>
 
 <script>
@@ -195,8 +196,7 @@ function todayLabel() {
 }
 
 function formatDateLabel(d) {
-	const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${weekdays[d.getDay()]}`
+	return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
 export default {
@@ -211,17 +211,18 @@ export default {
 			billType: 'expense',
 			amount: '0',
 			sign: -1,            // 1 = 正数, -1 = 负数
+			calcTotal: 0,        // 累计计算结果
+			calcExpr: [],        // 计算表达式 ['100.00', '+', '20.00', '-']
+			pendingOp: null,     // 待定运算符 '+' 或 '-', null 表示无
 			cat: null,
 			subcat: null,
 			remark: '',
-			remarkDraft: '',
 			billDate: todayLabel(),
 			billDateTs: Date.now(),
 			selectedAcc: getAccounts()[0] || { name: '未分类', bal: 0 },
 			accounts: getAccounts(),
 			excludeBudget: false,
 			accountSheetVisible: false,
-			remarkSheetVisible: false,
 			// 日历
 			dateSheetVisible: false,
 			calYear: now.getFullYear(),
@@ -242,12 +243,25 @@ export default {
 			return CAT_GROUPS[this.billType] || CAT_GROUPS.expense
 		},
 		displayAmount() {
-			if (!this.amount || this.amount === '0') return '0.00'
-			if (this.amount.endsWith('.')) return this.amount
-			const parts = this.amount.split('.')
-			if (parts.length === 1) return this.amount + '.00'
-			const dec = (parts[1] || '').padEnd(2, '0').slice(0, 2)
-			return parts[0] + '.' + dec
+			return this.amount || '0'
+		},
+		/** 计算表达式（不含当前输入） */
+		displayExpr() {
+			if (this.calcExpr.length === 0) return ''
+			return this.calcExpr.join(' ')
+		},
+		/** 计算最终结果值 */
+		displayResult() {
+			if (this.pendingOp === null) {
+				return this.amount || '0'
+			}
+			const val = parseFloat(this.amount) || 0
+			let total = this.calcTotal
+			if (val > 0) {
+				total += this.pendingOp === '+' ? val : -val
+			}
+			const parts = total.toFixed(2).split('.')
+			return parts[0] + '.' + (parts[1] || '00')
 		},
 		amountClass() {
 			if (this.sign === 1) return 'inc'
@@ -298,6 +312,10 @@ export default {
 			this.billType = type
 			this.cat = null
 			this.subcat = null
+			this.amount = '0'
+			this.calcTotal = 0
+			this.calcExpr = []
+			this.pendingOp = null
 			// 切换类型时重置符号
 			if (type === 'expense') this.sign = -1
 			else if (type === 'income') this.sign = 1
@@ -312,6 +330,24 @@ export default {
 		isGroupSelected(name) {
 			return this.cat === name
 		},
+		/** 从 calcExpr 重新计算 calcTotal 和 pendingOp */
+		recalcFromExpr() {
+			let total = 0
+			let lastOp = null
+			for (let i = 0; i < this.calcExpr.length; i += 2) {
+				const val = parseFloat(this.calcExpr[i]) || 0
+				if (i === 0) {
+					total = val
+				} else if (lastOp === '+') {
+					total += val
+				} else {
+					total -= val
+				}
+				lastOp = this.calcExpr[i + 1]
+			}
+			this.calcTotal = total
+			this.pendingOp = lastOp
+		},
 		onKey(k) {
 			if (k === 'again') {
 				this.saveBill(true)
@@ -319,6 +355,23 @@ export default {
 			}
 			let a = this.amount
 			if (k === 'bk') {
+				// 有计算进行中时：优先删除当前输入值的末位数字
+				if (this.pendingOp !== null) {
+					if (this.amount !== '0' && this.amount !== '') {
+						a = this.amount.length <= 1 ? '0' : this.amount.slice(0, -1)
+						if (a === '' || a === '.') a = '0'
+						this.amount = a
+						return
+					}
+					// 当前输入为0，回退到上一步表达式
+					if (this.calcExpr.length >= 2) {
+						const op = this.calcExpr.pop()
+						const lastVal = this.calcExpr.pop()
+						this.amount = lastVal
+						this.recalcFromExpr()
+					}
+					return
+				}
 				a = a.length <= 1 ? '0' : a.slice(0, -1)
 				if (a === '' || a === '.') a = '0'
 			} else if (k === '.') {
@@ -332,16 +385,67 @@ export default {
 			}
 			this.amount = a
 		},
-		// +/- 切换金额符号（不切换类型）
+		// +/- 加减计算（待定运算符模式）
 		onPlus() {
-			this.sign = 1
+			const val = parseFloat(this.amount) || 0
+			if (this.pendingOp === null) {
+				// 第一次按运算符：当前输入值作为初始值
+				if (val > 0) {
+					this.calcTotal = val
+					this.calcExpr.push(this.amount, '+')
+					this.pendingOp = '+'
+					this.amount = '0'
+				}
+			} else {
+				// 已有待定运算符：应用上一个运算符，再更新为 +
+				if (val > 0) {
+					if (this.pendingOp === '+') this.calcTotal += val
+					else this.calcTotal -= val
+					this.calcExpr.push(this.amount, '+')
+				} else {
+					// 没有输入新值，仅切换运算符
+					this.calcExpr[this.calcExpr.length - 1] = '+'
+				}
+				this.pendingOp = '+'
+				this.amount = '0'
+			}
 		},
 		onMinus() {
-			this.sign = -1
+			const val = parseFloat(this.amount) || 0
+			if (this.pendingOp === null) {
+				if (val > 0) {
+					this.calcTotal = val
+					this.calcExpr.push(this.amount, '-')
+					this.pendingOp = '-'
+					this.amount = '0'
+				}
+			} else {
+				if (val > 0) {
+					if (this.pendingOp === '+') this.calcTotal += val
+					else this.calcTotal -= val
+					this.calcExpr.push(this.amount, '-')
+				} else {
+					this.calcExpr[this.calcExpr.length - 1] = '-'
+				}
+				this.pendingOp = '-'
+				this.amount = '0'
+			}
+		},
+		/** 获取最终总金额（含待定运算符） */
+		getTotal() {
+			if (this.pendingOp === null) {
+				return parseFloat(this.amount) || 0
+			}
+			const val = parseFloat(this.amount) || 0
+			let total = this.calcTotal
+			if (val > 0) {
+				total += this.pendingOp === '+' ? val : -val
+			}
+			return total
 		},
 		validate() {
-			const amt = parseFloat(this.amount)
-			if (!amt || amt <= 0 || isNaN(amt)) {
+			const totalAmt = this.getTotal()
+			if (!totalAmt || totalAmt <= 0 || isNaN(totalAmt)) {
 				uni.showToast({ title: '请输入有效金额', icon: 'none' })
 				return false
 			}
@@ -354,10 +458,16 @@ export default {
 		onSave() {
 			this.saveBill(false)
 		},
+		onNavBack() {
+			const pages = getCurrentPages()
+			if (pages.length > 1) {
+				uni.navigateBack({ delta: 1 })
+			}
+		},
 		saveBill(again) {
 			if (!this.validate()) return
-			// 使用 sign 决定金额正负
-			const amt = this.sign * Math.abs(Number(this.amount))
+			const totalAmt = this.getTotal()
+			const amt = this.sign * Math.abs(totalAmt)
 			addBill({
 				ic: this.cat ? this.frequentSubs.find(f => f.cat === this.cat)?.ic || 'circle' : 'circle',
 				cat: this.cat || '其他',
@@ -374,11 +484,17 @@ export default {
 			if (again) {
 				uni.showToast({ title: '已保存，继续记账', icon: 'none' })
 				this.amount = '0'
+				this.calcTotal = 0
+				this.calcExpr = []
+				this.pendingOp = null
 				this.cat = null
 				this.subcat = null
 				return
 			}
 			uni.showToast({ title: '已保存', icon: 'success' })
+			this.calcTotal = 0
+			this.calcExpr = []
+			this.pendingOp = null
 			setTimeout(() => uni.navigateBack({ delta: 1 }), 500)
 		},
 		openAccountSheet() {
@@ -387,14 +503,6 @@ export default {
 		selectAccount(acc) {
 			this.selectedAcc = acc
 			this.accountSheetVisible = false
-		},
-		openRemarkSheet() {
-			this.remarkDraft = this.remark
-			this.remarkSheetVisible = true
-		},
-		confirmRemark() {
-			this.remark = this.remarkDraft.trim()
-			this.remarkSheetVisible = false
 		},
 		// ---- 日历 ----
 		onDatePick() {
@@ -437,9 +545,6 @@ export default {
 			this.ledgerSheetVisible = false
 		},
 		// ---- 其他 ----
-		onTemplate() {
-			uni.showToast({ title: '模板', icon: 'none' })
-		},
 		toggleExcludeBudget() {
 			this.excludeBudget = !this.excludeBudget
 		},
@@ -470,7 +575,7 @@ export default {
 .bill-scroll {
 	flex: 1;
 	min-height: 0;
-	padding: 16rpx 24rpx 0;
+	padding: 16rpx 0rpx 0;
 	box-sizing: border-box;
 }
 
@@ -478,26 +583,58 @@ export default {
 	height: 24rpx;
 }
 
-.bill-tabs {
+/* ===== 导航栏 ===== */
+.record-nav {
+	position: fixed;
+	top: var(--status-bar-height);
+	left: 0;
+	right: 0;
+	z-index: 998;
+	height: 100rpx;
 	display: flex;
+	align-items: center;
 	justify-content: center;
-	gap: 16rpx;
-	margin-bottom: 20rpx;
+	padding: 0 24rpx;
+	background: linear-gradient(180deg, #EAF4FF 0%, #EAF4FF 50%, transparent 100%);
+	backdrop-filter: blur(16rpx);
 }
-
-.bill-tab {
-	padding: 14rpx 44rpx;
+.record-nav__back {
+	position: absolute;
+	left: 24rpx;
+	width: 72rpx;
+	height: 72rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--text-primary);
+	z-index: 2;
+}
+.record-nav__right {
+	position: absolute;
+	right: 24rpx;
+	width: 72rpx;
+	height: 72rpx;
+	z-index: 2;
+}
+.record-nav__seg {
+	display: flex;
+	background: #fff;
 	border-radius: 999rpx;
-	font-size: 28rpx;
+	box-shadow: 0 2rpx 12rpx rgba(91, 140, 210, 0.1);
+	overflow: hidden;
+}
+.record-nav__tab {
+	padding: 10rpx 32rpx;
+	font-size: 26rpx;
 	font-weight: 600;
 	color: var(--text-secondary, #5a6b8a);
-	background: #fff;
-	box-shadow: 0 2rpx 12rpx rgba(91, 140, 210, 0.1);
+	transition: all 0.2s;
 }
-
-.bill-tab.on {
+.record-nav__tab.on {
 	background: var(--primary, #4a90d9);
 	color: #fff;
+	border-radius: 999rpx;
 }
 
 .bill-freq {
@@ -608,6 +745,20 @@ export default {
 	min-width: 0;
 }
 
+.bill-note-input {
+	font-size: 28rpx;
+	color: var(--text-primary, #1a2744);
+	width: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	padding: 0;
+	height: 40rpx;
+	line-height: 40rpx;
+}
+.bill-note-input::placeholder {
+	color: var(--text-secondary, #8a9099);
+}
 .bill-note {
 	font-size: 28rpx;
 	color: var(--text-primary, #1a2744);
@@ -620,33 +771,59 @@ export default {
 	color: var(--text-secondary, #8a9099);
 }
 
-.bill-amt {
+.bill-amt-wrap {
 	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+.bill-calc-input {
+	display: flex;
+	align-items: baseline;
+	justify-content: flex-end;
+	gap: 6rpx;
+	font-size: 32rpx;
+	font-weight: 600;
+	color: var(--text-primary, #1a2744);
+}
+.bill-calc-input .bill-expr {
+	font-size: 24rpx;
+	color: var(--text-muted, #b0b7c4);
+	white-space: nowrap;
+}
+.bill-calc-input .bill-amt-num {
+	font-size: 24rpx;
+	font-weight: 400;
+	color: var(--text-muted, #b0b7c4);
+}
+.bill-calc-result {
 	display: flex;
 	align-items: baseline;
 	font-weight: 800;
+	margin-top: 6rpx;
 }
-
-.bill-amt-sign {
+.bill-calc-result .bill-amt-sign {
 	font-size: 32rpx;
 	margin-right: 4rpx;
 }
-
-.bill-amt-num {
+.bill-calc-result .bill-amt-num {
 	font-size: 52rpx;
 	line-height: 1;
 }
-
-.bill-amt.exp {
-	color: var(--expense, #e85d5d);
+.bill-calc-result.exp {
+	color: var(--expense, #34C759);
 }
-
-.bill-amt.inc {
-	color: var(--income, #3cb878);
+.bill-calc-result.inc {
+	color: var(--income, #FF6B6B);
 }
-
-.bill-amt.xfer {
+.bill-calc-result.xfer {
 	color: var(--primary, #4a90d9);
+}
+.bill-expr {
+	font-size: 22rpx;
+	color: var(--text-muted, #b0b7c4);
+	margin-bottom: 4rpx;
+	white-space: nowrap;
 }
 
 .bill-tags-scroll {

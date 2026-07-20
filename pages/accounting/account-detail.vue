@@ -282,8 +282,8 @@ getIconStyle(name) {
 .tx-category { font-size: 28rpx; color: var(--text-primary, #1A2744); font-weight: 500; }
 .tx-date { font-size: 22rpx; color: var(--text-tertiary, #8A9BB8); }
 .tx-amount { font-size: 30rpx; font-weight: 700; }
-.tx-amount.income { color: var(--income, #34C759); }
-.tx-amount.expense { color: var(--expense, #FF6B6B); }
+.tx-amount.income { color: var(--income, #FF6B6B); }
+.tx-amount.expense { color: var(--expense, #34C759); }
 
 .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom)); background: var(--card-bg, #FFFFFF); box-shadow: 0 -4rpx 24rpx rgba(91, 155, 224, 0.08); display: flex; gap: 16rpx; z-index: 10; }
 .btn-delete { flex: 0 0 200rpx; height: 88rpx; line-height: 88rpx; text-align: center; font-size: 28rpx; color: #E89B9B; background: #FFF5F5; border-radius: 24rpx; font-weight: 500; }
